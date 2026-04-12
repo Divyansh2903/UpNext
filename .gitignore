@@ -1,9 +1,12 @@
 # --- OS & junk ---
 .DS_Store
 Thumbs.db
+.claude
+
+# --- Editor (local workspace settings) ---
+.vscode/
 
 # --- Root docs  ---
-BACKEND_STYLE.md
 upnext_v_0_specification.md
 
 # =============================================================================
@@ -25,6 +28,7 @@ yarn-error.log*
 *.log
 
 .env*
+!.env.example
 *.pem
 
 coverage/
@@ -44,3 +48,5 @@ frontend/next-env.d.ts
 # =============================================================================
 dist/
 build/
+
+

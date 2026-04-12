@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SessionStatus {
+  idle
+  playing
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  sessions     Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id            String        @id @default(uuid()) @db.Uuid
+  joinCode      String        @unique @map("join_code")
+  hostId        String        @map("host_id") @db.Uuid
+  currentSongId String?       @map("current_song_id") @db.Uuid
+  status        SessionStatus @default(idle)
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  host         User          @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  currentSong  Song?         @relation("CurrentSong", fields: [currentSongId], references: [id], onDelete: SetNull)
+  participants Participant[]
+  songs        Song[]        @relation("SessionSongs")
+
+  @@index([hostId])
+  @@map("sessions")
+}
+
+model Participant {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  userId    String   @map("user_id")
+  name      String
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@map("participants")
+}
+
+model Song {
+  id              String   @id @default(uuid()) @db.Uuid
+  sessionId       String   @map("session_id") @db.Uuid
+  videoId         String   @map("video_id")
+  originalUrl     String?  @map("original_url")
+  title           String
+  durationSeconds Int?     @map("duration_seconds")
+  thumbnailUrl    String?  @map("thumbnail_url")
+  addedBy         String   @map("added_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  session          Session   @relation("SessionSongs", fields: [sessionId], references: [id], onDelete: Cascade)
+  currentInSession Session[] @relation("CurrentSong")
+  votes            Vote[]
+
+  @@unique([sessionId, videoId])
+  @@index([sessionId, createdAt])
+  @@map("songs")
+}
+
+model Vote {
+  id        String   @id @default(uuid()) @db.Uuid
+  songId    String   @map("song_id") @db.Uuid
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([songId, userId])
+  @@index([songId])
+  @@map("votes")
+}
