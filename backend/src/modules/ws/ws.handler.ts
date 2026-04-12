@@ -1,7 +1,9 @@
-import type { FastifyInstance, FastifyPluginAsync } from "fastify";
-import type { WebSocket } from "ws";
+import { WebSocketServer, type WebSocket } from "ws";
+import jwt from "jsonwebtoken";
 import { z } from "zod";
 
+import { env } from "../../config/env.js";
+import { prisma } from "../../db/prisma.js";
 import { ADD_SONG_LIMIT, tryConsume } from "../../lib/rateLimiter.js";
 import { extractVideoId, fetchYouTubeMetadata } from "../../lib/youtube.js";
 import {
@@ -26,8 +28,10 @@ import {
 } from "./ws.rooms.js";
 import { buildQueue, buildSessionState, fetchParticipants } from "./ws.state.js";
 
-export const wsPlugin: FastifyPluginAsync = async (app: FastifyInstance) => {
-  app.get("/ws", { websocket: true }, (socket, _req) => {
+export function startWebSocketServer(): WebSocketServer {
+  const wss = new WebSocketServer({ port: env.WS_PORT, host: env.HOST });
+
+  wss.on("connection", (socket: WebSocket) => {
     let ctx: SocketContext | null = null;
 
     socket.on("message", async (raw) => {
@@ -45,7 +49,7 @@ export const wsPlugin: FastifyPluginAsync = async (app: FastifyInstance) => {
           socket.close(1008, "MustJoinFirst");
           return;
         }
-        const next = await handleJoin(app, socket, joinResult.data);
+        const next = await handleJoin(socket, joinResult.data);
         if (next) ctx = next;
         return;
       }
@@ -56,9 +60,9 @@ export const wsPlugin: FastifyPluginAsync = async (app: FastifyInstance) => {
       }
 
       try {
-        await dispatch(app, ctx, msgResult.data);
+        await dispatch(ctx, msgResult.data);
       } catch (err) {
-        app.log.error({ err }, "ws handler failed");
+        console.error("ws handler failed", err);
         sendTo(ctx.socket, { type: "ERROR", code: "InternalError" });
       }
     });
@@ -68,17 +72,18 @@ export const wsPlugin: FastifyPluginAsync = async (app: FastifyInstance) => {
     });
 
     socket.on("error", (err) => {
-      app.log.warn({ err }, "websocket error");
+      console.warn("websocket error", err);
     });
   });
-};
+
+  return wss;
+}
 
 async function handleJoin(
-  app: FastifyInstance,
   socket: WebSocket,
   msg: z.infer<typeof JoinSessionMessage>,
 ): Promise<SocketContext | null> {
-  const session = await app.prisma.session.findUnique({
+  const session = await prisma.session.findUnique({
     where: { id: msg.sessionId },
     select: { id: true, hostId: true },
   });
@@ -91,7 +96,7 @@ async function handleJoin(
   let role: Role = "PARTICIPANT";
   if (msg.token) {
     try {
-      const decoded = app.jwt.verify<{ sub: string }>(msg.token);
+      const decoded = jwt.verify(msg.token, env.JWT_SECRET) as { sub: string };
       if (decoded.sub === session.hostId) {
         role = "HOST";
       }
@@ -100,7 +105,7 @@ async function handleJoin(
     }
   }
 
-  await app.prisma.participant.upsert({
+  await prisma.participant.upsert({
     where: {
       sessionId_userId: { sessionId: msg.sessionId, userId: msg.userId },
     },
@@ -120,17 +125,16 @@ async function handleJoin(
   };
   addToRoom(ctx);
 
-  const state = await buildSessionState(app.prisma, msg.sessionId);
+  const state = await buildSessionState(prisma, msg.sessionId);
   sendTo(socket, state);
 
-  const participants = await fetchParticipants(app.prisma, msg.sessionId);
+  const participants = await fetchParticipants(prisma, msg.sessionId);
   broadcast(msg.sessionId, { type: "PARTICIPANTS_UPDATED", participants });
 
   return ctx;
 }
 
 async function dispatch(
-  app: FastifyInstance,
   ctx: SocketContext,
   msg: z.infer<typeof ClientMessage>,
 ): Promise<void> {
@@ -142,18 +146,17 @@ async function dispatch(
     case "JOIN_SESSION":
       return sendTo(ctx.socket, { type: "ERROR", code: "AlreadyJoined" });
     case "ADD_SONG":
-      return handleAddSong(app, ctx, msg);
+      return handleAddSong(ctx, msg);
     case "VOTE":
-      return handleVote(app, ctx, msg);
+      return handleVote(ctx, msg);
     case "SONG_ENDED":
-      return handleSongEnded(app, ctx, msg);
+      return handleSongEnded(ctx, msg);
     case "UPDATE_NAME":
-      return handleUpdateName(app, ctx, msg);
+      return handleUpdateName(ctx, msg);
   }
 }
 
 async function handleAddSong(
-  app: FastifyInstance,
   ctx: SocketContext,
   msg: z.infer<typeof AddSongMessage>,
 ): Promise<void> {
@@ -167,7 +170,7 @@ async function handleAddSong(
     return sendTo(ctx.socket, { type: "ERROR", code: "InvalidVideoId" });
   }
 
-  const existing = await app.prisma.song.findUnique({
+  const existing = await prisma.song.findUnique({
     where: { sessionId_videoId: { sessionId: ctx.sessionId, videoId } },
     select: { id: true },
   });
@@ -179,10 +182,10 @@ async function handleAddSong(
   try {
     metadata = await fetchYouTubeMetadata(videoId);
   } catch (err) {
-    app.log.warn({ err, videoId }, "youtube metadata fetch failed");
+    console.warn("youtube metadata fetch failed", { err, videoId });
   }
 
-  const song = await app.prisma.song.create({
+  const song = await prisma.song.create({
     data: {
       sessionId: ctx.sessionId,
       videoId,
@@ -195,22 +198,21 @@ async function handleAddSong(
     select: { id: true, videoId: true },
   });
 
-  const claimed = await tryClaimInitialPlayback(app.prisma, ctx.sessionId, song.id);
+  const claimed = await tryClaimInitialPlayback(prisma, ctx.sessionId, song.id);
 
   if (claimed) {
     broadcast(ctx.sessionId, { type: "PLAY_SONG", videoId: song.videoId });
   }
 
-  const session = await app.prisma.session.findUnique({
+  const session = await prisma.session.findUnique({
     where: { id: ctx.sessionId },
     select: { currentSongId: true },
   });
-  const queue = await buildQueue(app.prisma, ctx.sessionId, session?.currentSongId ?? null);
+  const queue = await buildQueue(prisma, ctx.sessionId, session?.currentSongId ?? null);
   broadcast(ctx.sessionId, { type: "QUEUE_UPDATED", queue });
 }
 
 async function handleVote(
-  app: FastifyInstance,
   ctx: SocketContext,
   msg: z.infer<typeof VoteMessage>,
 ): Promise<void> {
@@ -218,7 +220,7 @@ async function handleVote(
     return sendTo(ctx.socket, { type: "ERROR", code: "UserMismatch" });
   }
 
-  const song = await app.prisma.song.findUnique({
+  const song = await prisma.song.findUnique({
     where: { id: msg.songId },
     select: { id: true, sessionId: true, currentInSession: { select: { id: true } } },
   });
@@ -229,22 +231,21 @@ async function handleVote(
     return sendTo(ctx.socket, { type: "ERROR", code: "CannotVoteCurrent" });
   }
 
-  await app.prisma.vote.upsert({
+  await prisma.vote.upsert({
     where: { songId_userId: { songId: msg.songId, userId: ctx.userId } },
     update: {},
     create: { songId: msg.songId, userId: ctx.userId },
   });
 
-  const session = await app.prisma.session.findUnique({
+  const session = await prisma.session.findUnique({
     where: { id: ctx.sessionId },
     select: { currentSongId: true },
   });
-  const queue = await buildQueue(app.prisma, ctx.sessionId, session?.currentSongId ?? null);
+  const queue = await buildQueue(prisma, ctx.sessionId, session?.currentSongId ?? null);
   broadcast(ctx.sessionId, { type: "QUEUE_UPDATED", queue });
 }
 
 async function handleSongEnded(
-  app: FastifyInstance,
   ctx: SocketContext,
   _msg: z.infer<typeof SongEndedMessage>,
 ): Promise<void> {
@@ -252,32 +253,31 @@ async function handleSongEnded(
     return sendTo(ctx.socket, { type: "ERROR", code: "HostOnly" });
   }
 
-  const session = await app.prisma.session.findUnique({
+  const session = await prisma.session.findUnique({
     where: { id: ctx.sessionId },
     select: { currentSongId: true },
   });
 
   if (session?.currentSongId) {
-    await app.prisma.session.update({
+    await prisma.session.update({
       where: { id: ctx.sessionId },
       data: { currentSongId: null },
     });
-    await app.prisma.song.delete({ where: { id: session.currentSongId } });
+    await prisma.song.delete({ where: { id: session.currentSongId } });
   }
 
-  const next = await promoteNextSong(app.prisma, ctx.sessionId);
+  const next = await promoteNextSong(prisma, ctx.sessionId);
 
   if (next) {
     broadcast(ctx.sessionId, { type: "PLAY_SONG", videoId: next.videoId });
   }
 
   const currentSongId = next?.id ?? null;
-  const queue = await buildQueue(app.prisma, ctx.sessionId, currentSongId);
+  const queue = await buildQueue(prisma, ctx.sessionId, currentSongId);
   broadcast(ctx.sessionId, { type: "QUEUE_UPDATED", queue });
 }
 
 async function handleUpdateName(
-  app: FastifyInstance,
   ctx: SocketContext,
   msg: z.infer<typeof UpdateNameMessage>,
 ): Promise<void> {
@@ -285,13 +285,13 @@ async function handleUpdateName(
     return sendTo(ctx.socket, { type: "ERROR", code: "UserMismatch" });
   }
 
-  await app.prisma.participant.update({
+  await prisma.participant.update({
     where: {
       sessionId_userId: { sessionId: ctx.sessionId, userId: ctx.userId },
     },
     data: { name: msg.name },
   });
 
-  const participants = await fetchParticipants(app.prisma, ctx.sessionId);
+  const participants = await fetchParticipants(prisma, ctx.sessionId);
   broadcast(ctx.sessionId, { type: "PARTICIPANTS_UPDATED", participants });
 }

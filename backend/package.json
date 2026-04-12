@@ -5,9 +5,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/index.ts",
+    "dev:api": "tsx watch --env-file=.env src/index.ts",
+    "dev:ws": "tsx watch --env-file=.env src/ws-server.ts",
+    "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:ws\"",
     "build": "tsc -b",
-    "start": "node --env-file=.env dist/index.js",
+    "start:api": "node --env-file=.env dist/index.js",
+    "start:ws": "node --env-file=.env dist/ws-server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
@@ -29,17 +32,21 @@
     ]
   },
   "dependencies": {
-    "@fastify/cors": "^11.2.0",
-    "@fastify/jwt": "^10.0.0",
-    "@fastify/websocket": "^11.2.0",
     "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
-    "fastify": "^5.8.4",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "ws": "^8.20.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/express-serve-static-core": "^5.1.1",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.6.0",
     "@types/ws": "^8.18.1",
     "prisma": "^6.19.3",

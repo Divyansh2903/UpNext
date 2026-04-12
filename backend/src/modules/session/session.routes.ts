@@ -1,6 +1,8 @@
-import type { FastifyPluginAsync } from "fastify";
+import { Router } from "express";
 import { z } from "zod";
 
+import { prisma } from "../../db/prisma.js";
+import { requireHost } from "../../middleware/requireHost.js";
 import { generateJoinCode } from "../../lib/joinCode.js";
 
 const CodeParamsSchema = z.object({
@@ -9,16 +11,18 @@ const CodeParamsSchema = z.object({
 
 const MAX_CODE_ATTEMPTS = 5;
 
-export const sessionRoutes: FastifyPluginAsync = async (app) => {
-  app.post("/", { preHandler: [app.requireHost] }, async (req, reply) => {
-    const hostId = req.user.sub;
+export const sessionRouter = Router();
+
+sessionRouter.post("/", requireHost, async (req, res, next) => {
+  try {
+    const hostId = req.user!.sub;
 
     for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
       const joinCode = generateJoinCode();
-      const existing = await app.prisma.session.findUnique({ where: { joinCode } });
+      const existing = await prisma.session.findUnique({ where: { joinCode } });
       if (existing) continue;
 
-      const session = await app.prisma.session.create({
+      const session = await prisma.session.create({
         data: { joinCode, hostId },
         select: {
           id: true,
@@ -27,16 +31,21 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
           createdAt: true,
         },
       });
-      return reply.status(201).send({ session });
+      res.status(201).json({ session });
+      return;
     }
 
-    return reply.status(503).send({ error: "CouldNotAllocateJoinCode" });
-  });
+    res.status(503).json({ error: "CouldNotAllocateJoinCode" });
+  } catch (err) {
+    next(err);
+  }
+});
 
-  app.get("/:code", async (req, reply) => {
+sessionRouter.get("/:code", async (req, res, next) => {
+  try {
     const { code } = CodeParamsSchema.parse(req.params);
 
-    const session = await app.prisma.session.findUnique({
+    const session = await prisma.session.findUnique({
       where: { joinCode: code },
       select: {
         id: true,
@@ -48,9 +57,12 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
     });
 
     if (!session) {
-      return reply.status(404).send({ error: "SessionNotFound" });
+      res.status(404).json({ error: "SessionNotFound" });
+      return;
     }
 
-    return { session };
-  });
-};
+    res.json({ session });
+  } catch (err) {
+    next(err);
+  }
+});

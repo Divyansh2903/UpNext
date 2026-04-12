@@ -5,6 +5,7 @@ const EnvSchema = z.object({
   JWT_SECRET: z.string().min(16),
   YOUTUBE_API_KEY: z.string().min(1),
   PORT: z.coerce.number().int().positive().default(4000),
+  WS_PORT: z.coerce.number().int().positive().default(4001),
   HOST: z.string().default("0.0.0.0"),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
