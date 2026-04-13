@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link as LinkIcon, Users, Plus, Search, Crown, Music } from "lucide-react";
 import { Button } from "../../components/Button";
@@ -48,7 +48,8 @@ const MOCK_QUEUE: Song[] = [
   }
 ];
 
-export default function SessionPage({ params }: { params: { id: string } }) {
+export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [isHost, setIsHost] = useState(false);
   const [queue, setQueue] = useState<Song[]>(MOCK_QUEUE);
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,17 +89,17 @@ export default function SessionPage({ params }: { params: { id: string } }) {
     <div className="min-h-screen pb-32">
       
       {/* Session Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
+      <header className="sticky top-0 z-40 bg-[var(--landing-nav-glass)] backdrop-blur-[var(--glass-blur-nav)] shadow-[var(--shadow-ambient-float)]">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Session</span>
-              <span className="font-mono font-bold text-foreground">{params.id}</span>
+              <span className="font-mono font-bold text-foreground">{id}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border text-sm text-muted-foreground">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-chip/55 text-sm text-muted-foreground shadow-[0_0_0_1px_var(--border-ghost)] backdrop-blur-[var(--glass-blur-nav)]">
               <Users className="w-4 h-4" />
               <span className="font-medium">12 active</span>
             </div>
@@ -114,7 +115,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
               onClick={() => setIsHost(!isHost)}
               className="rounded-full ml-4 border border-transparent shadow-none"
             >
-              <Crown className={cn("w-4 h-4 mr-2", isHost ? "text-white" : "text-yellow-500")} />
+              <Crown className={cn("w-4 h-4 mr-2", isHost ? "text-accent-foreground" : "text-host-crown")} />
               {isHost ? "Host View" : "Participant"}
             </Button>
           </div>
@@ -134,13 +135,13 @@ export default function SessionPage({ params }: { params: { id: string } }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Paste a YouTube link or search..."
-              className="w-full bg-muted/40 border border-border text-foreground rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+              className="upnext-input-ghost w-full text-foreground py-4 pl-12 pr-12 rounded-t-[var(--radius-lg)] transition-shadow"
             />
             <Button 
               type="submit" 
               size="icon" 
               disabled={!searchQuery.trim()}
-              className="absolute inset-y-2 right-2 h-auto w-10 bg-accent hover:bg-accent-light text-white rounded-xl shadow-lg shadow-accent/20"
+              className="absolute inset-y-2 right-2 h-auto w-10 rounded-full"
             >
               <Plus className="w-5 h-5" />
             </Button>
@@ -154,7 +155,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
             <span className="text-sm text-muted-foreground">{queue.length} songs</span>
           </div>
           
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-8">
             <AnimatePresence mode="popLayout">
               {queue.map((song, i) => (
                 <SongCard 
@@ -168,7 +169,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
             </AnimatePresence>
             
             {queue.length === 0 && (
-              <div className="py-12 text-center text-muted-foreground bg-muted/20 rounded-2xl border border-dashed border-border mt-4">
+              <div className="py-12 px-4 text-center text-muted-foreground bg-well/60 rounded-[var(--radius-xl)] mt-4 backdrop-blur-[var(--glass-blur-nav)]">
                 <Music className="w-8 h-8 mx-auto mb-3 opacity-50" />
                 <p>The queue is empty.</p>
                 <p className="text-sm">Be the first to add a song!</p>

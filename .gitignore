@@ -8,7 +8,7 @@ Thumbs.db
 
 # --- Root docs  ---
 upnext_v_0_specification.md
-frontend_thread.md
+Design.md
 # =============================================================================
 # Shared — every package (backend, frontend, tooling)
 # =============================================================================

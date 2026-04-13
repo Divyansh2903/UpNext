@@ -27,7 +27,7 @@ const queueRows: QueueRow[] = [
     title: "Everything You Are",
     artist: "Hindia",
     votes: 142,
-    art: "linear-gradient(145deg, #5c2a18 0%, #1a0a06 100%)",
+    art: "linear-gradient(145deg, var(--landing-mock-art-1-from) 0%, var(--landing-mock-art-1-to) 100%)",
     active: true,
     progress: 0.42,
   },
@@ -36,7 +36,7 @@ const queueRows: QueueRow[] = [
     title: "Live Queue",
     artist: "UpNext",
     votes: 98,
-    art: "linear-gradient(145deg, #1e3a5c 0%, #060d18 100%)",
+    art: "linear-gradient(145deg, var(--landing-mock-art-2-from) 0%, var(--landing-mock-art-2-to) 100%)",
     active: false,
   },
   {
@@ -44,7 +44,7 @@ const queueRows: QueueRow[] = [
     title: "Kita Ke Sana",
     artist: "Various",
     votes: 88,
-    art: "linear-gradient(145deg, #3d2060 0%, #12081f 100%)",
+    art: "linear-gradient(145deg, var(--landing-mock-art-3-from) 0%, var(--landing-mock-art-3-to) 100%)",
     active: false,
   },
   {
@@ -52,7 +52,7 @@ const queueRows: QueueRow[] = [
     title: "Kita Ke Sana",
     artist: "Hindia",
     votes: 77,
-    art: "linear-gradient(145deg, #2a4a38 0%, #081210 100%)",
+    art: "linear-gradient(145deg, var(--landing-mock-art-4-from) 0%, var(--landing-mock-art-4-to) 100%)",
     active: false,
   },
   {
@@ -60,13 +60,18 @@ const queueRows: QueueRow[] = [
     title: "Membasuh",
     artist: "Hindia",
     votes: 56,
-    art: "linear-gradient(145deg, #4a3020 0%, #140c08 100%)",
+    art: "linear-gradient(145deg, var(--landing-mock-art-5-from) 0%, var(--landing-mock-art-5-to) 100%)",
     active: false,
   },
 ];
 
+const AVATAR_GRADIENTS = [
+  "linear-gradient(135deg, hsl(var(--landing-avatar-hue-1) 55% 48%), hsl(var(--landing-avatar-hue-1-dim) 40% 22%))",
+  "linear-gradient(135deg, hsl(var(--landing-avatar-hue-2) 55% 48%), hsl(var(--landing-avatar-hue-2-dim) 40% 22%))",
+  "linear-gradient(135deg, hsl(var(--landing-avatar-hue-3) 55% 48%), hsl(var(--landing-avatar-hue-3-dim) 40% 22%))",
+] as const;
+
 function AvatarStack({ seed }: { seed: number }) {
-  const hues = [12, 200, 145];
   return (
     <div className="landing-lq-avatars" aria-hidden>
       {[0, 1, 2].map((i) => (
@@ -74,8 +79,9 @@ function AvatarStack({ seed }: { seed: number }) {
           key={i}
           className="landing-lq-avatar"
           style={{
-            background: `linear-gradient(135deg, hsl(${hues[(i + seed) % 3]}, 55%, 48%), hsl(${(hues[(i + seed) % 3] + 40) % 360}, 40%, 22%))`,
+            background: AVATAR_GRADIENTS[(i + seed) % AVATAR_GRADIENTS.length],
             zIndex: 3 - i,
+            animationDelay: `${i * 0.4}s`,
           }}
         />
       ))}

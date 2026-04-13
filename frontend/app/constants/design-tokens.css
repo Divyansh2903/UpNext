@@ -1,0 +1,226 @@
+/**
+ * UpNext — design tokens ("The Kinetic Gallery" / Design.md).
+ * Typography: Public Sans (display), Manrope (body + labels) — layout.tsx.
+ */
+
+:root {
+  /* ── Core palette (Design.md §2) ─────────────────────────── */
+  --color-surface-canvas: #0e0e0f;
+  --color-surface-container: #1a191b;
+  --color-surface-container-highest: #262627;
+  --color-upnext-primary: #ff906d;
+  --color-upnext-primary-container: #ff784d;
+  --color-upnext-secondary: #fd8b00;
+  --color-upnext-tertiary: #9fa3ff;
+  --color-outline-variant: #484849;
+  --color-on-surface: #ffffff;
+  --color-on-primary-fixed: #000000;
+  --color-error: #ff716c;
+  --color-error-container: #9f0519;
+
+  --ch-on-primary-fixed: 0 0 0;
+
+  /* Surface nesting (Level 0–2 + intermediates) */
+  --color-surface-container-low: color-mix(in srgb, var(--color-surface-canvas) 42%, var(--color-surface-container));
+  --color-surface-container-high: color-mix(
+    in srgb,
+    var(--color-surface-container) 45%,
+    var(--color-surface-container-highest)
+  );
+  --color-surface-variant: color-mix(in srgb, var(--color-surface-container-highest) 55%, transparent);
+
+  /* Typography scale (Design.md §3) */
+  --type-display-lg: 3.5rem;
+  --tracking-display: -0.02em;
+  --type-title-lg: 1.125rem;
+  --type-body-md: 1rem;
+  --type-label-md: 0.8125rem;
+
+  /* Radius (Design.md §5–6): md 0.75rem, lg 1rem, xl 1.5rem */
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Ghost border & glass (Design.md §2, §4) */
+  --border-ghost: color-mix(in srgb, var(--color-outline-variant) 15%, transparent);
+  --glass-blur-nav: 20px;
+  --glass-blur-float: 32px;
+  --glass-fill: color-mix(in srgb, var(--color-surface-container) 38%, transparent);
+
+  /* Primary CTA gradient (135°, Design.md §2) */
+  --gradient-primary-cta: linear-gradient(
+    135deg,
+    var(--color-upnext-primary) 0%,
+    var(--color-upnext-primary-container) 100%
+  );
+
+  --upnext-primary-dim: color-mix(in srgb, var(--color-upnext-primary) 68%, var(--color-surface-canvas));
+
+  /* Ambient shadow: ~40px blur, 6% on-surface (Design.md §4) */
+  --shadow-ambient-float: 0 20px 40px color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+  --shadow-button-primary: 0 0 32px color-mix(in srgb, var(--color-upnext-primary) 28%, transparent);
+  --shadow-button-primary-hover: 0 0 48px color-mix(in srgb, var(--color-upnext-primary) 38%, transparent);
+  --shadow-button-primary-strong: 0 0 36px color-mix(in srgb, var(--color-upnext-secondary) 32%, transparent);
+  --shadow-now-playing: 0 0 0 1px var(--border-ghost), 0 0 40px color-mix(in srgb, var(--color-upnext-secondary) 38%, transparent);
+
+  /* Semantic — app shell (Tailwind) */
+  --semantic-background: var(--color-surface-canvas);
+  --semantic-foreground: var(--color-on-surface);
+  --semantic-accent: var(--color-upnext-primary);
+  --semantic-accent-light: var(--color-upnext-primary-container);
+  --semantic-muted: var(--color-surface-container);
+  --semantic-muted-foreground: color-mix(in srgb, var(--color-on-surface) 52%, var(--color-surface-canvas));
+  --semantic-border: var(--border-ghost);
+  --semantic-surface-hover: var(--color-surface-container-high);
+  --semantic-thumbnail-bg: color-mix(in srgb, var(--color-surface-container-highest) 88%, var(--color-surface-canvas));
+  --semantic-on-primary: var(--color-on-primary-fixed);
+  --semantic-selection-bg: color-mix(in srgb, var(--color-upnext-primary) 30%, transparent);
+  --semantic-on-primary: var(--color-on-primary-fixed);
+  --semantic-host-crown: var(--color-upnext-secondary);
+  --semantic-danger: var(--color-error);
+  --semantic-danger-muted: color-mix(in srgb, var(--color-error) 35%, transparent);
+  --semantic-danger-fill: var(--color-error-container);
+  --semantic-success: #3dd68c;
+  --semantic-success-muted: color-mix(in srgb, var(--semantic-success) 28%, transparent);
+
+  --opacity-black-12: rgb(var(--ch-on-primary-fixed) / 0.12);
+  --opacity-black-22: rgb(var(--ch-on-primary-fixed) / 0.22);
+  --opacity-black-35: rgb(var(--ch-on-primary-fixed) / 0.35);
+  --opacity-black-45: rgb(var(--ch-on-primary-fixed) / 0.45);
+  --opacity-black-65: rgb(var(--ch-on-primary-fixed) / 0.65);
+
+  /* ── Landing (Kinetic Gallery) ────────────────────────── */
+  --landing-text: var(--color-on-surface);
+  --landing-muted: color-mix(in srgb, var(--color-on-surface) 58%, var(--color-surface-canvas));
+  --landing-nav-fg: color-mix(in srgb, var(--color-on-surface) 76%, var(--color-surface-canvas));
+  --landing-font-family: var(--font-upnext-body), system-ui, sans-serif;
+
+  --landing-nav-glass: color-mix(in srgb, var(--color-surface-canvas) 72%, transparent);
+  --landing-nav-blur: var(--glass-blur-nav);
+
+  --landing-btn-fill: var(--gradient-primary-cta);
+  --landing-btn-text: var(--color-on-primary-fixed);
+  --landing-btn-glow: color-mix(in srgb, var(--color-upnext-primary) 32%, transparent);
+  --landing-btn-glow-strong: color-mix(in srgb, var(--color-upnext-secondary) 38%, transparent);
+  --landing-btn-shadow-outer: color-mix(in srgb, var(--color-upnext-primary) 18%, transparent);
+  --landing-btn-shadow-outer-soft: color-mix(in srgb, var(--color-upnext-primary) 14%, transparent);
+  --landing-btn-shadow-outer-strong: color-mix(in srgb, var(--color-upnext-primary) 22%, transparent);
+
+  --landing-logo-dot-from: var(--color-upnext-primary);
+  --landing-logo-dot-to: var(--color-upnext-primary-container);
+  --landing-logo-dot-glow: color-mix(in srgb, var(--color-upnext-primary) 55%, transparent);
+
+  --landing-hero-glow-main-inner: color-mix(in srgb, var(--color-upnext-primary) 48%, transparent);
+  --landing-hero-glow-main-mid: color-mix(in srgb, var(--color-upnext-primary) 18%, transparent);
+  --landing-hero-glow-soft: color-mix(in srgb, var(--color-upnext-secondary) 32%, transparent);
+
+  --landing-live-bg: var(--color-surface-canvas);
+  --landing-live-streak-ambient-1: color-mix(in srgb, var(--color-upnext-primary) 26%, var(--color-surface-canvas));
+  --landing-live-streak-ambient-2: color-mix(in srgb, var(--color-upnext-primary) 30%, var(--color-surface-canvas));
+  --landing-live-streak-ambient-3: color-mix(in srgb, var(--color-upnext-primary) 24%, var(--color-on-surface));
+  --landing-live-streak-ambient-4: color-mix(in srgb, var(--color-upnext-primary) 28%, var(--color-surface-canvas));
+  --landing-live-streak-ambient-5: color-mix(in srgb, var(--color-upnext-primary) 14%, var(--color-surface-canvas));
+
+  --landing-live-streak-beam-1: color-mix(in srgb, var(--color-upnext-primary) 12%, var(--color-surface-canvas));
+  --landing-live-streak-beam-2: color-mix(in srgb, var(--color-upnext-primary) 38%, transparent);
+  --landing-live-streak-beam-3: color-mix(in srgb, var(--color-on-surface) 76%, var(--color-upnext-primary));
+  --landing-live-streak-beam-4: color-mix(in srgb, var(--color-upnext-primary) 42%, transparent);
+  --landing-live-streak-beam-5: color-mix(in srgb, var(--color-upnext-primary) 16%, var(--color-surface-canvas));
+
+  --landing-live-streak-sheen-1: color-mix(in srgb, var(--color-upnext-primary) 20%, transparent);
+  --landing-live-streak-sheen-2: color-mix(in srgb, var(--color-on-surface) 92%, var(--color-upnext-primary));
+  --landing-live-streak-sheen-3: color-mix(in srgb, var(--color-upnext-primary) 22%, transparent);
+
+  --landing-lq-window-border: var(--border-ghost);
+  --landing-lq-window-bg-top: color-mix(in srgb, var(--color-surface-container) 55%, transparent);
+  --landing-lq-window-bg-mid: color-mix(in srgb, var(--color-surface-container) 28%, transparent);
+  --landing-lq-window-bg-bottom: color-mix(in srgb, var(--color-surface-canvas) 70%, transparent);
+  --landing-lq-window-inset: color-mix(in srgb, var(--color-on-surface) 4%, transparent);
+  --landing-lq-window-shadow-drop: var(--shadow-ambient-float);
+  --landing-lq-window-shadow-glow: color-mix(in srgb, var(--color-upnext-primary) 10%, transparent);
+
+  --landing-lq-sidebar-border: transparent;
+  --landing-lq-sidebar-bg: color-mix(in srgb, var(--color-surface-container) 88%, var(--color-surface-canvas));
+
+  --landing-lq-traffic-red: #ff5f57;
+  --landing-lq-traffic-yellow: #febc2e;
+  --landing-lq-traffic-green: #28c840;
+  --landing-lq-traffic-ring: var(--opacity-black-12);
+
+  --landing-lq-nav-icon: color-mix(in srgb, var(--color-on-surface) 36%, var(--color-surface-canvas));
+  --landing-lq-nav-icon-hover: color-mix(in srgb, var(--color-on-surface) 70%, var(--color-surface-canvas));
+  --landing-lq-nav-bg-hover: color-mix(in srgb, var(--color-on-surface) 5%, transparent);
+  --landing-lq-nav-glow-inner: color-mix(in srgb, var(--color-upnext-primary) 40%, transparent);
+  --landing-lq-nav-glow-outer: color-mix(in srgb, var(--color-upnext-primary) 10%, transparent);
+  --landing-lq-nav-glow-shadow: color-mix(in srgb, var(--color-upnext-primary) 30%, transparent);
+  --landing-lq-nav-dot: var(--color-upnext-primary-container);
+  --landing-lq-nav-dot-glow: color-mix(in srgb, var(--color-upnext-secondary) 85%, transparent);
+
+  --landing-lq-toolbar-border: transparent;
+  --landing-lq-icon-border: var(--border-ghost);
+  --landing-lq-icon-bg: color-mix(in srgb, var(--color-on-surface) 5%, transparent);
+  --landing-lq-icon-fg: color-mix(in srgb, var(--color-on-surface) 52%, var(--color-surface-canvas));
+  --landing-lq-icon-bg-hover: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+  --landing-lq-icon-fg-hover: color-mix(in srgb, var(--color-on-surface) 82%, var(--color-surface-canvas));
+
+  --landing-lq-row-bg: color-mix(in srgb, var(--color-surface-container-highest) 35%, transparent);
+  --landing-lq-row-active-bg-start: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+  --landing-lq-row-active-bg-mid: color-mix(in srgb, var(--color-upnext-primary) 10%, transparent);
+  --landing-lq-row-active-bg-end: color-mix(in srgb, var(--color-on-surface) 5%, transparent);
+  --landing-lq-row-active-border: var(--border-ghost);
+  --landing-lq-row-active-shadow: color-mix(in srgb, var(--color-upnext-secondary) 28%, transparent);
+  --landing-lq-row-active-inset: color-mix(in srgb, var(--color-upnext-secondary) 10%, transparent);
+  --landing-lq-row-active-sheen-1: color-mix(in srgb, var(--color-upnext-primary) 24%, transparent);
+  --landing-lq-row-active-sheen-2: color-mix(in srgb, var(--color-upnext-secondary) 14%, transparent);
+
+  --landing-lq-artist: color-mix(in srgb, var(--color-on-surface) 40%, var(--color-surface-canvas));
+  --landing-lq-col-muted: color-mix(in srgb, var(--color-on-surface) 48%, var(--color-surface-canvas));
+
+  --landing-lq-progress-track: color-mix(in srgb, var(--color-on-surface) 10%, transparent);
+  --landing-lq-progress-glow: color-mix(in srgb, var(--color-upnext-primary) 16%, transparent);
+  --landing-lq-progress-fill-start: color-mix(in srgb, var(--color-on-surface) 90%, var(--color-upnext-primary));
+  --landing-lq-progress-fill-mid: var(--color-on-surface);
+  --landing-lq-progress-fill-end: color-mix(in srgb, var(--color-upnext-secondary) 50%, var(--color-on-surface));
+  --landing-lq-progress-fill-shadow-w: color-mix(in srgb, var(--color-on-surface) 45%, transparent);
+  --landing-lq-progress-fill-shadow-p: color-mix(in srgb, var(--color-upnext-primary) 38%, transparent);
+
+  --landing-lq-vote-fg: color-mix(in srgb, var(--color-on-surface) 86%, var(--color-surface-canvas));
+  --landing-lq-vote-bg: color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+  --landing-lq-vote-border: var(--border-ghost);
+
+  --landing-lq-avatar-border: color-mix(in srgb, var(--color-upnext-tertiary) 92%, var(--color-surface-canvas));
+  --landing-lq-avatar-shadow: var(--opacity-black-35);
+  --landing-lq-avatar-pulse: color-mix(in srgb, var(--color-upnext-tertiary) 55%, transparent);
+
+  --landing-mock-art-1-from: color-mix(in srgb, var(--color-upnext-primary) 50%, var(--color-surface-canvas));
+  --landing-mock-art-1-to: color-mix(in srgb, var(--color-surface-canvas) 92%, var(--color-surface-container));
+  --landing-mock-art-2-from: color-mix(in srgb, var(--color-upnext-tertiary) 42%, var(--color-surface-canvas));
+  --landing-mock-art-2-to: color-mix(in srgb, var(--color-surface-canvas) 92%, var(--color-surface-container));
+  --landing-mock-art-3-from: color-mix(in srgb, var(--color-upnext-tertiary) 32%, var(--color-surface-canvas));
+  --landing-mock-art-3-to: color-mix(in srgb, var(--color-surface-canvas) 92%, var(--color-surface-container));
+  --landing-mock-art-4-from: color-mix(in srgb, var(--color-upnext-secondary) 28%, var(--color-surface-canvas));
+  --landing-mock-art-4-to: color-mix(in srgb, var(--color-surface-canvas) 94%, var(--color-surface-container));
+  --landing-mock-art-5-from: color-mix(in srgb, var(--color-upnext-primary) 36%, var(--color-surface-canvas));
+  --landing-mock-art-5-to: color-mix(in srgb, var(--color-surface-canvas) 92%, var(--color-surface-container));
+
+  --landing-avatar-hue-1: 16;
+  --landing-avatar-hue-1-dim: 28;
+  --landing-avatar-hue-2: 250;
+  --landing-avatar-hue-2-dim: 265;
+  --landing-avatar-hue-3: 32;
+  --landing-avatar-hue-3-dim: 48;
+
+  --landing-swoosh-stop-transparent: color-mix(in srgb, var(--color-upnext-primary) 0%, transparent);
+  --landing-swoosh-stop-a: color-mix(in srgb, var(--color-upnext-primary) 88%, var(--color-on-surface));
+  --landing-swoosh-stop-b: color-mix(in srgb, var(--color-upnext-primary) 32%, var(--color-on-surface));
+  --landing-swoosh-stop-c: color-mix(in srgb, var(--color-on-surface) 88%, var(--color-upnext-primary));
+
+  /* Tailwind / legacy aliases */
+  --background: var(--semantic-background);
+  --foreground: var(--semantic-foreground);
+  --accent: var(--semantic-accent);
+  --accent-light: var(--semantic-accent-light);
+  --muted: var(--semantic-muted);
+  --muted-foreground: var(--semantic-muted-foreground);
+  --border: var(--semantic-border);
+}
