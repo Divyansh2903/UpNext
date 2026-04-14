@@ -2,14 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { UpNextWordmark } from "./components/UpNextWordmark";
+import { HOME_HERO_MOCK } from "./mocks/home";
 
 export default function Home() {
   const router = useRouter();
 
   const goSession = () => {
-    // Generate simple random room code and push
-    const id = Math.random().toString(36).substring(2, 8).toUpperCase();
-    router.push(`/session/${id}`);
+    router.push("/session/demo");
   };
 
   return (
@@ -19,8 +18,8 @@ export default function Home() {
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           <UpNextWordmark />
           <div className="hidden md:flex items-center gap-10">
-            <a className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium" href="#">Features</a>
-            <a className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium" href="#">How It Works</a>
+            <button type="button" className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium">Features</button>
+            <button type="button" className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium">How It Works</button>
           </div>
           <div className="flex items-center gap-6">
             <button 
@@ -37,10 +36,6 @@ export default function Home() {
         <section className="relative min-h-screen flex items-center pt-20 overflow-hidden hero-gradient">
           <div className="max-w-7xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-surface-container-highest border border-outline-variant/20 mb-8">
-                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-                <span className="text-xs font-label font-medium tracking-widest text-on-surface-variant uppercase">The Kinetic Gallery Experience</span>
-              </div>
               <h1 className="font-headline text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
                 Play what the <br/> <span className="text-primary italic">crowd</span> wants.
               </h1>
@@ -63,7 +58,7 @@ export default function Home() {
               {/* Collaborative Audio Card Mockup */}
               <div className="glass-panel p-6 rounded-3xl shadow-2xl relative z-10 transform lg:rotate-3 border-white/5">
                 <div className="flex items-center justify-between mb-6">
-                  <span className="text-sm font-headline font-black text-secondary uppercase tracking-wider">LIVE SESSION #829</span>
+                  <span className="text-sm font-headline font-black text-secondary uppercase tracking-wider">{HOME_HERO_MOCK.liveSessionLabel}</span>
                   <div className="flex -space-x-2">
                     <div className="w-8 h-8 rounded-full border-2 border-surface-container bg-tertiary-container flex items-center justify-center">
                       <span className="material-symbols-outlined text-[16px]">person</span>
@@ -71,7 +66,7 @@ export default function Home() {
                     <div className="w-8 h-8 rounded-full border-2 border-surface-container bg-primary flex items-center justify-center">
                       <span className="material-symbols-outlined text-[16px]">person</span>
                     </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-surface-container bg-surface-container-highest flex items-center justify-center text-[10px] font-bold">+12</div>
+                    <div className="w-8 h-8 rounded-full border-2 border-surface-container bg-surface-container-highest flex items-center justify-center text-[10px] font-bold">{HOME_HERO_MOCK.listenerBadge}</div>
                   </div>
                 </div>
                 
@@ -79,30 +74,34 @@ export default function Home() {
                   <div className="flex items-center gap-4 p-3 rounded-2xl bg-primary/10 border border-primary/20">
                     <div className="w-16 h-16 rounded-xl bg-neutral-800 overflow-hidden shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img className="w-full h-full object-cover" alt="vibrant abstract album cover with glowing orange and purple neon colors and liquid textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAURdXtO5AcuzjReXwGYs-mnxIUOJz1-h2aSIJMxGVM7eS_EIG6zsGbsBbBbBmUPmdbygCR2flDagJ6Ya_JWwTnCQ5snG93zRGHaPpn0JjBhyx4Q9BMQNnKSe6tg6XyxsO6GyfOudtPqv7JagJ3goN86c41UMPUEazZcwBh8f3YWwo0PYAWIlX5U3PGTZHnpKBzJDh_szhivALBtkBMrfU9K4fswn0gvUfwvsdOjLcOKQ3Lk5N76wBygZgBcMMFD8Dezfy4Sq2ic9BwYZ"/>
+                      <img
+                        className="w-full h-full object-cover"
+                        alt="Album artwork for the now playing track"
+                        src={HOME_HERO_MOCK.nowPlaying.imageUrl}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-black truncate font-headline">Midnight City (Remix)</p>
-                      <p className="text-xs text-on-surface-variant font-medium">Playing Now</p>
+                      <p className="text-sm font-black truncate font-headline">{HOME_HERO_MOCK.nowPlaying.title}</p>
+                      <p className="text-xs text-on-surface-variant font-medium">{HOME_HERO_MOCK.nowPlaying.status}</p>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-                      <span className="text-xs font-bold text-primary">24</span>
+                      <span className="text-xs font-bold text-primary">{HOME_HERO_MOCK.nowPlaying.votes}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/10 opacity-80">
                     <div className="w-16 h-16 rounded-xl bg-neutral-800 overflow-hidden shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img className="w-full h-full object-cover" alt="close up of a professional dj deck with glowing led lights in a dark nightclub setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg_EnVDAxDyxw4Njbswst2wLzwLH6C2YU785-4uGUN5S-DkJh_ECbaOhb51qeLiEDXPPt-L8JUuCjBhuxOhpLhNp2-a_xgpmVANa_mDrviMppE33Ksi3OpcpC_hKbCcIY_FwdaGv3YgaTN4eW1HaHR4kbAnBtNAYI1ZPo5HVfwYoD3IG212xwtJovYy95Ms5mZ0KZoIoRK9vd2zF1r4K0FARnynCpBh1JscVOY7Pn2b53r54g4fIOftPPEGFl4D5E_qOSRiZruKaA-"/>
+                      <img className="w-full h-full object-cover" alt="close up of a professional dj deck with glowing led lights in a dark nightclub setting" src={HOME_HERO_MOCK.upNext.imageUrl}/>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-black truncate font-headline">Hyperlight Drifter</p>
-                      <p className="text-xs text-on-surface-variant font-medium text-body">Up Next</p>
+                      <p className="text-sm font-black truncate font-headline">{HOME_HERO_MOCK.upNext.title}</p>
+                      <p className="text-xs text-on-surface-variant font-medium text-body">{HOME_HERO_MOCK.upNext.status}</p>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       <span className="material-symbols-outlined text-on-surface-variant">favorite</span>
-                      <span className="text-xs font-bold text-on-surface-variant">18</span>
+                      <span className="text-xs font-bold text-on-surface-variant">{HOME_HERO_MOCK.upNext.votes}</span>
                     </div>
                   </div>
                 </div>
@@ -313,11 +312,11 @@ export default function Home() {
             <span className="text-neutral-500 font-medium tracking-tight">| The Kinetic Gallery.</span>
           </div>
           <div className="flex gap-8 font-medium">
-            <a className="text-neutral-500 hover:text-orange-300 transition-colors" href="#">Privacy</a>
-            <a className="text-neutral-500 hover:text-orange-300 transition-colors" href="#">Terms</a>
-            <a className="text-neutral-500 hover:text-orange-300 transition-colors" href="#">Support</a>
-            <a className="text-neutral-500 hover:text-orange-300 transition-colors" href="#">Twitter</a>
-            <a className="text-neutral-500 hover:text-orange-300 transition-colors" href="#">Instagram</a>
+            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Privacy</button>
+            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Terms</button>
+            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Support</button>
+            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Twitter</button>
+            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Instagram</button>
           </div>
           <div className="text-neutral-500 font-medium">
             © 2024 UpNext. The Kinetic Gallery.

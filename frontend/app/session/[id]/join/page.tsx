@@ -2,12 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { UpNextWordmark } from "../../../components/UpNextWordmark";
-import { use, useState, FormEvent } from "react";
+import { use, useEffect, useState, FormEvent } from "react";
+import { JOIN_PAGE_MOCK } from "../../../mocks/session";
 
 export default function JoinRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [name, setName] = useState("");
+
+  useEffect(() => {
+    if (id !== "demo") {
+      router.replace("/session/demo/join");
+    }
+  }, [id, router]);
 
   const handleJoin = (e: FormEvent) => {
     e.preventDefault();
@@ -30,7 +37,7 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
         <UpNextWordmark className="font-headline" />
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-neutral-400">group</span>
-          <span className="text-neutral-400 text-sm font-medium">48 Listeners online</span>
+          <span className="text-neutral-400 text-sm font-medium">{JOIN_PAGE_MOCK.listenerCount} Listeners online</span>
         </div>
       </header>
 
@@ -57,7 +64,7 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
               <img 
                 alt="Host Avatar" 
                 className="w-14 h-14 rounded-full object-cover" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpKAh_rIP2-OomVOTO5oA3JUwCgusAq8kWNhoxhBezQpv9t_ePIOIEnNvz6aBm1JDnWKFOkQdcitRyUx3ugmAHREJXWrrcBhC75TBgZ6z4KQdbpA3yknX_bhm7RQ4wNfCjyLYt6rD1Yu6xnE2bywSCXDRwh2Kj30PCts6wpLAWDtLavssBPVJ8M7UNupPtPinQaHZr0mWxd5poHtbxog9eKutnuEwwuup6NMHBR_ZId8VVoH_tSYwj5ot_APcg0KnnBlX26hqcyJE" 
+                src={JOIN_PAGE_MOCK.hostAvatarUrl} 
               />
               <div className="absolute -bottom-1 -right-1 bg-primary w-4 h-4 rounded-full border-2 border-surface flex items-center justify-center">
                 <span className="material-symbols-outlined text-[10px] text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>mic</span>
@@ -65,8 +72,8 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
             </div>
             <div>
               <p className="text-on-surface-variant text-[10px] uppercase tracking-widest font-label mb-1">Session Host</p>
-              <p className="font-headline text-lg font-bold leading-none">Global Room</p>
-              <p className="text-neutral-500 text-xs">Curated by Elena Vance</p>
+              <p className="font-headline text-lg font-bold leading-none">{JOIN_PAGE_MOCK.roomName}</p>
+              <p className="text-neutral-500 text-xs">Curated by {JOIN_PAGE_MOCK.hostName}</p>
             </div>
           </div>
         </div>

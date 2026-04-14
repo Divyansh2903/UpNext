@@ -9,6 +9,7 @@ Thumbs.db
 # --- Root docs  ---
 upnext_v_0_specification.md
 FRONTEND_CLEANUP_AND_API.md
+API_CONNECTION.md
 # =============================================================================
 # Shared — every package (backend, frontend, tooling)
 # =============================================================================

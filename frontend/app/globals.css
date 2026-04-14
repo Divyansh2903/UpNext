@@ -43,3 +43,21 @@ body {
 .cta-gradient {
   background: linear-gradient(135deg, var(--upnext-color-primary) 0%, var(--upnext-color-primary-dim) 100%);
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--upnext-rgb-primary) / 0.35) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(var(--upnext-rgb-primary) / 0.35);
+  border-radius: 9999px;
+}
