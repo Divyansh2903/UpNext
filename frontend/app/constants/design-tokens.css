@@ -1,0 +1,135 @@
+/**
+ * UpNext — centralized colors + font roles for Tailwind v4.
+ *
+ * Font files: `app/layout.tsx` (next/font → `--font-public-sans`, `--font-manrope`, `--font-sora` on <html>).
+ * Material Symbols: link in `layout.tsx` `<head>`.
+ *
+ * Import this once from `app/globals.css` (before or alongside Tailwind per your bundle).
+ */
+
+:root {
+  /* ── Font roles (reference next/font CSS variables) ───────────────── */
+  --upnext-font-headline: var(--font-sora), sans-serif;
+  --upnext-font-body: var(--font-manrope), sans-serif;
+  --upnext-font-label: var(--font-manrope), sans-serif;
+  --upnext-font-public: var(--font-public-sans), sans-serif;
+
+  /* ── Palette primitives (single source for @theme + custom CSS) ───── */
+  --upnext-color-inverse-surface: #fcf8f9;
+  --upnext-color-secondary-fixed-dim: #ffb375;
+  --upnext-color-error-dim: #d7383b;
+  --upnext-color-on-surface: #ffffff;
+  --upnext-color-on-secondary: #442100;
+  --upnext-color-inverse-primary: #9c4427;
+  --upnext-color-surface: #0e0e0f;
+  --upnext-color-on-secondary-container: #fff6f1;
+  --upnext-color-primary: #ff906d;
+  --upnext-color-secondary-container: #904d00;
+  --upnext-color-primary-dim: #ee8361;
+  --upnext-color-inverse-on-surface: #565556;
+  --upnext-color-tertiary-fixed: #a5a9ff;
+  --upnext-color-primary-fixed-dim: #ee8361;
+  --upnext-color-on-background: #ffffff;
+  --upnext-color-surface-container-high: #201f21;
+  --upnext-color-on-primary-fixed: #2d0700;
+  --upnext-color-error-container: #9f0519;
+  --upnext-color-background: #0e0e0f;
+  --upnext-color-surface-container-lowest: #000000;
+  --upnext-color-surface-variant: #262627;
+  --upnext-color-on-error: #490006;
+  --upnext-color-tertiary-dim: #9296f0;
+  --upnext-color-secondary: #fd8b00;
+  --upnext-color-on-tertiary: #282b81;
+  --upnext-color-on-secondary-fixed-variant: #7c4100;
+  --upnext-color-on-tertiary-fixed: #030062;
+  --upnext-color-surface-container-highest: #262627;
+  --upnext-color-on-tertiary-fixed-variant: #2b2e83;
+  --upnext-color-on-error-container: #ffa8a3;
+  --upnext-color-surface-dim: #0e0e0f;
+  --upnext-color-primary-container: #ee8361;
+  --upnext-color-tertiary-fixed-dim: #979bf6;
+  --upnext-color-outline-variant: #484849;
+  --upnext-color-surface-container-low: #131314;
+  --upnext-color-on-secondary-fixed: #532a00;
+  --upnext-color-tertiary-container: #9fa3ff;
+  --upnext-color-on-surface-variant: #adaaab;
+  --upnext-color-on-primary-fixed-variant: #681e04;
+  --upnext-color-on-primary: #5b1600;
+  --upnext-color-surface-tint: #ff906d;
+  --upnext-color-secondary-dim: #ed8200;
+  --upnext-color-surface-bright: #2c2c2d;
+  --upnext-color-on-tertiary-container: #1d1f76;
+  --upnext-color-tertiary: #afb2ff;
+  --upnext-color-error: #ff716c;
+  --upnext-color-primary-fixed: #ff906d;
+  --upnext-color-surface-container: #19191b;
+  --upnext-color-secondary-fixed: #ffc69a;
+  --upnext-color-outline: #767576;
+  --upnext-color-on-primary-container: #460f00;
+
+  /* RGB components for rgba() in utilities (matches legacy hard-coded glows) */
+  --upnext-rgb-primary: 255 144 109;
+  --upnext-rgb-secondary: 253 139 0;
+  --upnext-rgb-tertiary: 175 178 255;
+  --upnext-rgb-error: 255 113 108;
+  --upnext-rgb-surface-bg: 14 14 15;
+}
+
+@theme inline {
+  --color-inverse-surface: var(--upnext-color-inverse-surface);
+  --color-secondary-fixed-dim: var(--upnext-color-secondary-fixed-dim);
+  --color-error-dim: var(--upnext-color-error-dim);
+  --color-on-surface: var(--upnext-color-on-surface);
+  --color-on-secondary: var(--upnext-color-on-secondary);
+  --color-inverse-primary: var(--upnext-color-inverse-primary);
+  --color-surface: var(--upnext-color-surface);
+  --color-on-secondary-container: var(--upnext-color-on-secondary-container);
+  --color-primary: var(--upnext-color-primary);
+  --color-secondary-container: var(--upnext-color-secondary-container);
+  --color-primary-dim: var(--upnext-color-primary-dim);
+  --color-inverse-on-surface: var(--upnext-color-inverse-on-surface);
+  --color-tertiary-fixed: var(--upnext-color-tertiary-fixed);
+  --color-primary-fixed-dim: var(--upnext-color-primary-fixed-dim);
+  --color-on-background: var(--upnext-color-on-background);
+  --color-surface-container-high: var(--upnext-color-surface-container-high);
+  --color-on-primary-fixed: var(--upnext-color-on-primary-fixed);
+  --color-error-container: var(--upnext-color-error-container);
+  --color-background: var(--upnext-color-background);
+  --color-surface-container-lowest: var(--upnext-color-surface-container-lowest);
+  --color-surface-variant: var(--upnext-color-surface-variant);
+  --color-on-error: var(--upnext-color-on-error);
+  --color-tertiary-dim: var(--upnext-color-tertiary-dim);
+  --color-secondary: var(--upnext-color-secondary);
+  --color-on-tertiary: var(--upnext-color-on-tertiary);
+  --color-on-secondary-fixed-variant: var(--upnext-color-on-secondary-fixed-variant);
+  --color-on-tertiary-fixed: var(--upnext-color-on-tertiary-fixed);
+  --color-surface-container-highest: var(--upnext-color-surface-container-highest);
+  --color-on-tertiary-fixed-variant: var(--upnext-color-on-tertiary-fixed-variant);
+  --color-on-error-container: var(--upnext-color-on-error-container);
+  --color-surface-dim: var(--upnext-color-surface-dim);
+  --color-primary-container: var(--upnext-color-primary-container);
+  --color-tertiary-fixed-dim: var(--upnext-color-tertiary-fixed-dim);
+  --color-outline-variant: var(--upnext-color-outline-variant);
+  --color-surface-container-low: var(--upnext-color-surface-container-low);
+  --color-on-secondary-fixed: var(--upnext-color-on-secondary-fixed);
+  --color-tertiary-container: var(--upnext-color-tertiary-container);
+  --color-on-surface-variant: var(--upnext-color-on-surface-variant);
+  --color-on-primary-fixed-variant: var(--upnext-color-on-primary-fixed-variant);
+  --color-on-primary: var(--upnext-color-on-primary);
+  --color-surface-tint: var(--upnext-color-surface-tint);
+  --color-secondary-dim: var(--upnext-color-secondary-dim);
+  --color-surface-bright: var(--upnext-color-surface-bright);
+  --color-on-tertiary-container: var(--upnext-color-on-tertiary-container);
+  --color-tertiary: var(--upnext-color-tertiary);
+  --color-error: var(--upnext-color-error);
+  --color-primary-fixed: var(--upnext-color-primary-fixed);
+  --color-surface-container: var(--upnext-color-surface-container);
+  --color-secondary-fixed: var(--upnext-color-secondary-fixed);
+  --color-outline: var(--upnext-color-outline);
+  --color-on-primary-container: var(--upnext-color-on-primary-container);
+
+  --font-headline: var(--upnext-font-headline);
+  --font-body: var(--upnext-font-body);
+  --font-label: var(--upnext-font-label);
+  --font-public: var(--upnext-font-public);
+}

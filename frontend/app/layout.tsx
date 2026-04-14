@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Public_Sans, Manrope, Sora } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const publicSans = Public_Sans({
+  variable: "--font-public-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+});
+
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "UpNext — Collaborative Music Queue",
-  description: "A real-time collaborative music queue platform.",
+  title: "UpNext | Bionic Listening",
+  description: "The real-time collaborative music queue.",
 };
 
 export default function RootLayout({
@@ -25,9 +30,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${publicSans.variable} ${manrope.variable} ${sora.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+      </head>
+      <body className="font-body text-on-surface bg-background">
+        {children}
+      </body>
     </html>
   );
 }
