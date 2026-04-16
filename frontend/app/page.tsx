@@ -13,7 +13,7 @@ export default function Home() {
   const [joinCodeError, setJoinCodeError] = useState<string | null>(null);
 
   const goGetStarted = () => {
-    router.push("/session/demo/host");
+    router.push("/host/auth");
   };
 
   const openJoinModal = () => {

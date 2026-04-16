@@ -23,6 +23,8 @@ import {
 import {
   addToRoom,
   broadcast,
+  getRoomContexts,
+  listActiveSessionIds,
   removeFromRoom,
   sendTo,
   type Role,
@@ -32,6 +34,28 @@ import { buildQueue, buildSessionState, fetchParticipants } from "./ws.state.js"
 
 export function startWebSocketServer(): WebSocketServer {
   const wss = new WebSocketServer({ port: env.WS_PORT, host: env.HOST });
+  const expirationSweep = setInterval(() => {
+    void (async () => {
+      const sessionIds = listActiveSessionIds();
+      if (!sessionIds.length) return;
+      const expiredSessions = await prisma.session.findMany({
+        where: { id: { in: sessionIds }, expiresAt: { lte: new Date() } },
+        select: { id: true },
+      });
+      for (const expired of expiredSessions) {
+        broadcast(expired.id, { type: "ERROR", code: "SessionExpired", message: "Host ended this session." });
+        for (const ctx of getRoomContexts(expired.id)) {
+          ctx.socket.close(1008, "SessionExpired");
+        }
+      }
+    })().catch((err) => {
+      console.error("ws expiration sweep failed", err);
+    });
+  }, 5000);
+
+  wss.on("close", () => {
+    clearInterval(expirationSweep);
+  });
 
   wss.on("connection", (socket: WebSocket) => {
     let ctx: SocketContext | null = null;

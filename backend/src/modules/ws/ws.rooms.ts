@@ -45,3 +45,11 @@ export function sendTo(socket: WebSocket, message: ServerMessage): void {
     socket.send(JSON.stringify(message));
   }
 }
+
+export function listActiveSessionIds(): string[] {
+  return [...rooms.keys()];
+}
+
+export function getRoomContexts(sessionId: string): SocketContext[] {
+  return [...(rooms.get(sessionId) ?? [])];
+}

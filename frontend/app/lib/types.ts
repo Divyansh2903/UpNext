@@ -1,6 +1,10 @@
 export type ApiErrorPayload = {
   error?: string;
   message?: string;
+  issues?: Array<{
+    path?: Array<string | number>;
+    message?: string;
+  }>;
 };
 
 export type SongSearchResult = {

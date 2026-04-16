@@ -2,6 +2,7 @@
 
 import { use, useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
+import { useToast } from "../../components/ToastProvider";
 import { UpNextWordmark } from "../../components/UpNextWordmark";
 import { api } from "../../lib/api";
 import type { SongSearchResult } from "../../lib/types";
@@ -21,6 +22,17 @@ type PlayedSong = {
 
 const SPOTIFY_TRACK_URL_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)[A-Za-z0-9]{22}/i;
 const YOUTUBE_URL_REGEX = /(youtube\.com|youtu\.be)/i;
+
+function toReadableErrorMessage(raw?: string | null) {
+  if (!raw) return "Something went wrong. Please try again.";
+  if (raw === "SessionExpired") return "This session has ended.";
+  if (raw === "SessionNotFound") return "Session not found.";
+  if (raw === "ConnectionFailed" || raw === "ReconnectFailed") return "Could not connect to the session.";
+  if (raw === "SocketNotReady") return "Connection is not ready yet. Please retry.";
+  if (raw === "RateLimited") return "Too many requests. Please wait a moment.";
+  if (raw === "InvalidVideoId") return "Please paste a valid YouTube or Spotify track link.";
+  return raw;
+}
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -49,6 +61,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 }
 
 function SessionPageInner({ id }: { id: string }) {
+  const { showToast } = useToast();
   const { queue, session, participants, playbackProgressPercent, displayName, updateName, sendAddSong, sendVote, error } =
     useSessionState();
   const [activeView, setActiveView] = useState<"live" | "history" | "people">("live");
@@ -58,6 +71,8 @@ function SessionPageInner({ id }: { id: string }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [nameDraft, setNameDraft] = useState(displayName);
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
   const [playedSongs, setPlayedSongs] = useState<PlayedSong[]>([]);
   const [searchResults, setSearchResults] = useState<SongSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -67,6 +82,17 @@ function SessionPageInner({ id }: { id: string }) {
   useEffect(() => {
     setNameDraft(displayName);
   }, [displayName]);
+
+  useEffect(() => {
+    if (!addSongError) return;
+    showToast({ message: addSongError, variant: "error" });
+    setAddSongError(null);
+  }, [addSongError, showToast]);
+
+  useEffect(() => {
+    if (!error || error === "SessionExpired" || error === "SessionNotFound") return;
+    showToast({ message: toReadableErrorMessage(error), variant: "error" });
+  }, [error, showToast]);
 
   useEffect(() => {
     const title = session.nowPlaying.title?.trim();
@@ -103,6 +129,8 @@ function SessionPageInner({ id }: { id: string }) {
     setShowSearchDropdown(false);
     setHighlightedSearchIndex(0);
   };
+
+  const invitePath = `/session/${id}/join`;
 
   const handleAddSong = (e: FormEvent) => {
     e.preventDefault();
@@ -290,6 +318,7 @@ function SessionPageInner({ id }: { id: string }) {
             <button
               type="button"
               title="Invite Friends"
+              onClick={() => setIsInviteDialogOpen(true)}
               className="mx-auto flex h-10 w-10 items-center justify-center rounded-md bg-surface-container-highest text-on-surface transition-all hover:bg-primary hover:text-on-primary"
             >
               <span className="material-symbols-outlined text-[20px]">person_add</span>
@@ -298,7 +327,10 @@ function SessionPageInner({ id }: { id: string }) {
             <button
               type="button"
               title="Invite Friends"
-              onClick={() => compact && setMobileNavOpen(false)}
+              onClick={() => {
+                setIsInviteDialogOpen(true);
+                if (compact) setMobileNavOpen(false);
+              }}
               className="w-full rounded-md bg-surface-container-highest py-3 text-xs font-bold text-on-surface transition-all hover:bg-primary hover:text-on-primary"
             >
               Invite Friends
@@ -308,6 +340,37 @@ function SessionPageInner({ id }: { id: string }) {
       </>
     );
   };
+
+  if (error === "SessionExpired" || error === "SessionNotFound") {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface px-6 font-body text-on-surface selection:bg-primary/30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,144,109,0.24),transparent_52%),radial-gradient(circle_at_80%_10%,rgba(238,131,97,0.2),transparent_45%)]" />
+        <div className="relative z-10 w-full max-w-xl rounded-2xl border border-white/10 bg-neutral-950/75 p-8 text-center shadow-[0_24px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+          <span className="mb-4 inline-flex rounded-full border border-orange-300/25 bg-orange-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-orange-200">
+            Session Closed
+          </span>
+          <h1 className="font-headline text-3xl font-black tracking-tight text-white sm:text-4xl">Host ended this session</h1>
+          <p className="mt-3 text-sm text-neutral-300">
+            This room is no longer active. Go home or create your own session to keep the music going.
+          </p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Go Home
+            </Link>
+            <Link
+              href="/host/auth"
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-on-primary transition-colors hover:bg-primary/90"
+            >
+              Create Your Own Session
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-surface font-body text-on-surface selection:bg-primary/30">
@@ -584,7 +647,6 @@ function SessionPageInner({ id }: { id: string }) {
                   </button>
                 </form>
                 <p className="mt-4 text-xs font-medium text-outline">Tracks are voted on by the community before playing.</p>
-                {addSongError ? <p className="mt-2 text-xs font-medium text-error">{addSongError}</p> : null}
               </div>
 
               <div className="space-y-6">
@@ -730,7 +792,6 @@ function SessionPageInner({ id }: { id: string }) {
                   </div>
                 </div>
               </div>
-              {error ? <p className="mt-3 text-xs text-error">{error}</p> : null}
             </div>
           </div>
             </>
@@ -785,6 +846,50 @@ function SessionPageInner({ id }: { id: string }) {
                 }}
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isInviteDialogOpen ? (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-lg rounded-xl border border-white/10 bg-surface-container-low p-6 shadow-2xl backdrop-blur-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="font-headline text-2xl font-black">Invite Friends</h3>
+              <button
+                type="button"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface-container-high text-neutral-300 hover:bg-surface-container-highest"
+                onClick={() => {
+                  setIsInviteDialogOpen(false);
+                  setCopyStatus("idle");
+                }}
+                aria-label="Close invite dialog"
+              >
+                <span className="material-symbols-outlined text-[22px] leading-none">close</span>
+              </button>
+            </div>
+
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-500">Share this session link</p>
+            <div className="flex gap-2">
+              <div className="flex flex-1 items-center truncate rounded-lg bg-surface-container-high px-4 py-3 font-mono text-sm text-neutral-300">
+                {invitePath}
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(`${window.location.origin}${invitePath}`);
+                    setCopyStatus("copied");
+                  } catch {
+                    setCopyStatus("error");
+                    showToast({ message: "Could not copy link. Please copy manually.", variant: "error" });
+                  }
+                  window.setTimeout(() => setCopyStatus("idle"), 1600);
+                }}
+                className="shrink-0 rounded-lg bg-white px-5 py-3 text-sm font-bold text-surface transition-colors hover:bg-neutral-200 active:scale-95"
+              >
+                {copyStatus === "copied" ? "Copied" : copyStatus === "error" ? "Retry" : "Copy Link"}
               </button>
             </div>
           </div>

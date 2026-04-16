@@ -4,12 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { use, useEffect, useMemo, useRef, useState } from "react";
+import { useToast } from "../../../components/ToastProvider";
 import { YouTubePlayer } from "../../../components/YouTubePlayer";
 import { UpNextWordmark } from "../../../components/UpNextWordmark";
 import { api } from "../../../lib/api";
 import { queryKeys } from "../../../lib/queryKeys";
 import type { HostSessionSummaryResponse } from "../../../lib/types";
 import {
+  clearGuestIdentity,
   clearStoredHostAuth,
   getStoredHostDisplayName,
   getStoredHostToken,
@@ -47,9 +49,25 @@ function formatFeedTime(isoValue: string) {
   return `${days}D AGO`;
 }
 
+function toReadableErrorMessage(raw?: string | null) {
+  if (!raw) return "Something went wrong. Please try again.";
+  if (raw === "ValidationError") return "Please check your inputs and try again.";
+  if (raw === "InvalidCredentials") return "Email or password is incorrect.";
+  if (raw === "EmailAlreadyInUse") return "This email is already registered. Try logging in.";
+  if (raw === "Unauthorized") return "Please login again to continue.";
+  if (raw === "HostNotFound") return "Host account not found. Please signup or use another account.";
+  if (raw === "SessionNotFound") return "Session not found.";
+  if (raw === "SessionExpired") return "This session has ended.";
+  return raw;
+}
+
 
 export default function HostViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  return <HostHostRouteContent id={id} allowDemoRoute={false} />;
+}
+
+export function HostHostRouteContent({ id, allowDemoRoute }: { id: string; allowDemoRoute: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
@@ -62,6 +80,7 @@ export default function HostViewPage({ params }: { params: Promise<{ id: string 
   const joinCodeOk = resolvedJoinCode.length === 6;
 
   useEffect(() => {
+    clearGuestIdentity();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToken(getStoredHostToken());
     setHostDisplayName(getStoredHostDisplayName() || "Host");
@@ -89,6 +108,10 @@ export default function HostViewPage({ params }: { params: Promise<{ id: string 
 
   if (!isHydrated) {
     return <HostBootState />;
+  }
+
+  if (id === "demo" && !allowDemoRoute) {
+    return <LegacyDemoHostRedirect />;
   }
 
   if (id === "demo") {
@@ -128,7 +151,7 @@ export default function HostViewPage({ params }: { params: Promise<{ id: string 
         <p className="mb-4 text-center text-sm text-neutral-400">Could not load this session.</p>
         <button
           type="button"
-          onClick={() => router.replace("/session/demo/host")}
+          onClick={() => router.replace("/host/auth")}
           className="rounded-md bg-primary px-5 py-3 text-sm font-bold text-white"
         >
           Back to dashboard
@@ -153,6 +176,16 @@ export default function HostViewPage({ params }: { params: Promise<{ id: string 
       <HostViewPageInner id={id} token={token} joinCode={resolvedJoinCode} />
     </SessionProvider>
   );
+}
+
+function LegacyDemoHostRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/host/auth");
+  }, [router]);
+
+  return <HostBootState message="Redirecting…" />;
 }
 
 function HostBootState({ message }: { message?: string } = {}) {
@@ -180,7 +213,7 @@ function EndedHostSessionRecap({ summary }: { summary: HostSessionSummaryRespons
             </div>
             <button
               type="button"
-              onClick={() => router.replace("/session/demo/host")}
+              onClick={() => router.replace("/host/auth")}
               className="rounded-md bg-primary px-5 py-3 text-sm font-bold text-white"
             >
               Back to dashboard
@@ -248,6 +281,7 @@ function EndedHostSessionRecap({ summary }: { summary: HostSessionSummaryRespons
 function HostEntryPage({ token, onAuth }: { token: string | null; onAuth: (token: string) => void }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [createError, setCreateError] = useState<string | null>(null);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const meQuery = useQuery({
@@ -294,6 +328,17 @@ function HostEntryPage({ token, onAuth }: { token: string | null; onAuth: (token
     }
   }, [token, sessionsQuery.data?.sessions, queryClient]);
 
+  useEffect(() => {
+    if (!dashboardError) return;
+    showToast({ message: toReadableErrorMessage(dashboardError), variant: "error" });
+    setDashboardError(null);
+  }, [dashboardError, showToast]);
+
+  useEffect(() => {
+    if (!sessionsQuery.error) return;
+    showToast({ message: "Could not load previous sessions.", variant: "error" });
+  }, [sessionsQuery.error, showToast]);
+
   if (!token) {
     return <HostAuthGate onAuth={onAuth} errorMessage={createError} />;
   }
@@ -339,7 +384,6 @@ function HostEntryPage({ token, onAuth }: { token: string | null; onAuth: (token
           >
             {createSessionMutation.isPending ? "Creating..." : "Host a session"}
           </button>
-          {dashboardError ? <p className="mt-3 text-xs text-error">{dashboardError}</p> : null}
         </section>
 
         <section className="rounded-xl bg-surface-container-low/60 p-6 backdrop-blur-2xl border border-outline-variant/10">
@@ -353,7 +397,6 @@ function HostEntryPage({ token, onAuth }: { token: string | null; onAuth: (token
             </div>
           ) : sessionsQuery.error ? (
             <div className="space-y-3">
-              <p className="text-sm text-error">Could not load previous sessions.</p>
               <button
                 type="button"
                 className="rounded-md bg-surface-container-high px-4 py-2 text-sm font-semibold hover:bg-surface-container-highest"
@@ -415,6 +458,7 @@ function HostEntryPage({ token, onAuth }: { token: string | null; onAuth: (token
 
 function HostAuthGate({ onAuth, errorMessage }: { onAuth: (token: string) => void; errorMessage?: string | null }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -432,76 +476,116 @@ function HostAuthGate({ onAuth, errorMessage }: { onAuth: (token: string) => voi
     },
   });
 
+  useEffect(() => {
+    if (!errorMessage) return;
+    showToast({ message: toReadableErrorMessage(errorMessage), variant: "error" });
+  }, [errorMessage, showToast]);
+
+  useEffect(() => {
+    if (!authMutation.error) return;
+    const message = (authMutation.error as Error).message;
+    showToast({ message: toReadableErrorMessage(message), variant: "error" });
+  }, [authMutation.error, showToast]);
+
+  const validateAuthForm = () => {
+    const trimmedEmail = email.trim();
+    const trimmedName = displayName.trim();
+    if (isSignupMode) {
+      if (!trimmedName) return "Please enter your full name.";
+      if (trimmedName.length < 2) return "Name must be at least 2 characters.";
+      if (trimmedName.length > 40) return "Name must be at most 40 characters.";
+    }
+    if (!trimmedEmail) return "Please enter your email address.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) return "Please enter a valid email address.";
+    if (!password) return "Please enter your password.";
+    if (password.length < 8) return "Password must be at least 8 characters.";
+    if (password.length > 128) return "Password must be at most 128 characters.";
+    return null;
+  };
+
   return (
-    <div className="bg-surface text-on-surface font-body min-h-screen flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary selection:text-on-primary">
-      <div className="absolute inset-0 overflow-hidden z-0">
-        <div className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-primary blur-[120px] opacity-40 pointer-events-none" />
-        <div className="absolute top-1/2 -right-1/4 w-[500px] h-[500px] rounded-full bg-secondary blur-[120px] opacity-40 pointer-events-none" />
-        <div className="absolute -bottom-1/4 left-1/3 w-[700px] h-[700px] rounded-full bg-primary-container blur-[120px] opacity-40 pointer-events-none" />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#090b10] px-6 py-14 text-on-surface selection:bg-primary selection:text-on-primary">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(255,159,120,0.3),transparent_42%),radial-gradient(circle_at_15%_75%,rgba(255,120,74,0.16),transparent_48%),radial-gradient(circle_at_90%_70%,rgba(255,120,74,0.14),transparent_42%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,9,12,0.15),rgba(8,9,12,0.9))]" />
       </div>
 
-      <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-8">
+      <header className="fixed left-0 top-0 z-30 flex w-full items-center px-6 py-8">
         <UpNextWordmark className="font-headline" />
       </header>
 
-      <main className="relative z-10 w-full max-w-xl px-8 flex flex-col items-center text-center">
-        <h1 className="font-headline text-5xl md:text-7xl font-black tracking-tighter mb-6 text-on-surface leading-[0.95]">
-          Sign in to start <span className="text-primary">hosting.</span>
+      <main className="relative z-10 w-full max-w-[500px] rounded-[2rem] border border-white/10 bg-neutral-950/60 px-9 py-10 shadow-[0_32px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+        <h1 className="font-headline text-[2.55rem] font-black leading-[0.95] tracking-tight text-white sm:text-5xl">
+          {isSignupMode ? "Create your account." : "Welcome back."}
         </h1>
-        <p className="text-sm text-neutral-400 mb-10">Authenticate first, then create and control your live room.</p>
-        {errorMessage ? <p className="text-xs font-label uppercase tracking-widest text-error mb-6">{errorMessage}</p> : null}
+        <p className="mt-2.5 text-[0.95rem] text-neutral-400">
+          {isSignupMode ? "Join the next generation of musical editorial." : "Sign in to create and control your live room."}
+        </p>
 
         <form
-          className="w-full max-w-md space-y-4"
+          className="mt-8 space-y-4.5"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!email || !password) return;
-            if (isSignupMode && !displayName.trim()) return;
-            authMutation.mutate({ email, password, displayName: displayName.trim(), signup: isSignupMode });
+            const validationMessage = validateAuthForm();
+            if (validationMessage) {
+              showToast({ message: validationMessage, variant: "error" });
+              return;
+            }
+            authMutation.mutate({ email: email.trim(), password, displayName: displayName.trim(), signup: isSignupMode });
           }}
         >
           {isSignupMode ? (
+            <label className="block space-y-2">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-500">Full Name</span>
+              <input
+                className="w-full rounded-md border border-white/18 bg-[#1a1d23] px-4 py-2.5 text-[1.12rem] font-medium text-neutral-100 outline-none transition placeholder:text-neutral-500 focus:border-primary/55 focus:ring-2 focus:ring-primary/20"
+                type="text"
+                placeholder="Alex Rivers"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                required
+              />
+            </label>
+          ) : null}
+
+          <label className="block space-y-2">
+            <span className="block text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-500">Email Address</span>
             <input
-              className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low/60 px-4 py-3 text-sm"
-              type="text"
-              placeholder="Display name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full rounded-md border border-white/18 bg-[#1a1d23] px-4 py-2.5 text-[1.12rem] font-medium text-neutral-100 outline-none transition placeholder:text-neutral-500 focus:border-primary/55 focus:ring-2 focus:ring-primary/20"
+              type="email"
+              placeholder="alex@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
-          ) : null}
-          <input
-            className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low/60 px-4 py-3 text-sm"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low/60 px-4 py-3 text-sm"
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          </label>
+
+          <label className="block space-y-2">
+            <span className="block text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-500">Password</span>
+            <input
+              className="w-full rounded-md border border-white/18 bg-[#1a1d23] px-4 py-2.5 text-[1.12rem] font-medium text-neutral-100 outline-none transition placeholder:text-neutral-500 focus:border-primary/55 focus:ring-2 focus:ring-primary/20"
+              type="password"
+              placeholder="........"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+
           <button
             type="submit"
-            className="w-full py-4 rounded-md font-headline font-bold text-base text-on-primary-container bg-gradient-to-br from-[#ff906d] to-[#ee8361] shadow-[0_10px_40px_-10px_rgba(255,144,109,0.5)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300"
+            className="mt-1.5 w-full rounded-lg bg-gradient-to-r from-[#ff906d] to-[#ff8a00] py-3.5 font-headline text-sm font-black uppercase tracking-[0.05em] text-[#2d1209] shadow-[0_18px_48px_-20px_rgba(255,144,109,0.88)] transition hover:brightness-105 active:scale-[0.99]"
           >
-            {authMutation.isPending ? "Please wait..." : isSignupMode ? "Create host account" : "Login as host"}
+            {authMutation.isPending ? "Please wait..." : isSignupMode ? "Create Account" : "Login"}
           </button>
+
           <button
             type="button"
             onClick={() => setIsSignupMode((prev) => !prev)}
-            className="w-full rounded-md bg-surface-container-high py-3 text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+            className="w-full rounded-lg border border-white/10 bg-[#11141d] py-2.5 text-[13px] font-semibold text-neutral-100 transition hover:bg-[#171b26]"
           >
             {isSignupMode ? "Use existing account login" : "Need an account? Sign up"}
           </button>
-          {authMutation.error ? (
-            <p className="text-xs font-label uppercase tracking-widest text-error">{(authMutation.error as Error).message}</p>
-          ) : null}
         </form>
       </main>
     </div>
@@ -542,7 +626,7 @@ function HostAccessDeniedState({ sessionId, reason }: { sessionId: string; reaso
             type="button"
             onClick={() => {
               clearStoredHostAuth();
-              router.replace("/session/demo/host");
+              router.replace("/host/auth");
             }}
             className="w-full py-4 rounded-md font-headline font-bold text-base text-on-primary-container bg-gradient-to-br from-[#ff906d] to-[#ee8361] shadow-[0_10px_40px_-10px_rgba(255,144,109,0.5)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300"
           >
@@ -570,6 +654,7 @@ function HostViewPageInner({
   joinCode: string;
 }) {
   const router = useRouter();
+  const { showToast } = useToast();
   const { session, queue, participants, voteActivity, currentVideoId, playbackProgressPercent, sendSongEnded, sendPlaybackSync, error } =
     useSessionState();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
@@ -585,6 +670,11 @@ function HostViewPageInner({
   const lastSyncRef = useRef<{ elapsedSeconds: number; paused: boolean } | null>(null);
   const seenParticipantIdsRef = useRef<Set<string>>(new Set());
   const seenVoteEventsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!error || error === "HostAccessDenied" || error === "InvalidToken") return;
+    showToast({ message: toReadableErrorMessage(error), variant: "error" });
+  }, [error, showToast]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -688,9 +778,14 @@ function HostViewPageInner({
       queryClient.invalidateQueries({ queryKey: queryKeys.sessionByCode(joinCode) });
       queryClient.invalidateQueries({ queryKey: queryKeys.hostSessionSummary(id) });
       setIsSettingsOpen(false);
-      router.replace("/session/demo/host");
+      router.replace("/host/auth");
     },
   });
+
+  useEffect(() => {
+    if (!stopSessionMutation.isError) return;
+    showToast({ message: toReadableErrorMessage((stopSessionMutation.error as Error).message), variant: "error" });
+  }, [stopSessionMutation.error, stopSessionMutation.isError, showToast]);
 
   const invitePath = useMemo(() => `/session/${joinCode}/join`, [joinCode]);
   const sessionQuery = useQuery({
@@ -1134,6 +1229,7 @@ function HostViewPageInner({
                         setCopyStatus("copied");
                       } catch {
                         setCopyStatus("error");
+                        showToast({ message: "Could not copy link. Please copy manually.", variant: "error" });
                       }
                       window.setTimeout(() => setCopyStatus("idle"), 1600);
                     }}
@@ -1142,9 +1238,6 @@ function HostViewPageInner({
                     {copyStatus === "copied" ? "Copied" : copyStatus === "error" ? "Retry" : "Copy Link"}
                   </button>
                 </div>
-                {copyStatus === "error" ? (
-                  <p className="relative z-10 mt-2 text-xs text-error">Could not copy link. Please copy manually.</p>
-                ) : null}
               </section>
               <section className="flex h-[min(560px,68vh)] flex-col overflow-hidden rounded-xl bg-surface-container-low shadow-2xl">
                 <div className="flex items-center justify-between border-b border-white/5 p-6">
@@ -1186,12 +1279,8 @@ function HostViewPageInner({
                   )}
                 </div>
               </section>
-              {error ? <p className="text-xs text-error">{error}</p> : null}
             </div>
           </div>
-          {stopSessionMutation.isError ? (
-            <p className="mt-4 text-center text-xs text-error">{(stopSessionMutation.error as Error).message}</p>
-          ) : null}
           </div>
         </main>
       </div>
@@ -1359,9 +1448,6 @@ function HostViewPageInner({
                 {stopSessionMutation.isPending ? "Stopping…" : "Stop Session"}
               </button>
             </div>
-            {stopSessionMutation.isError ? (
-              <p className="mt-3 text-xs text-error">{(stopSessionMutation.error as Error).message}</p>
-            ) : null}
           </div>
         </div>
       ) : null}

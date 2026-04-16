@@ -10,6 +10,24 @@ import type {
 
 type HttpMethod = "GET" | "POST";
 
+function toValidationMessage(payload: ApiErrorPayload | null): string | null {
+  if (!payload || payload.error !== "ValidationError") return null;
+  const firstIssue = payload.issues?.[0];
+  if (!firstIssue?.message) return null;
+  const path = firstIssue.path?.[0];
+  const fieldLabel =
+    typeof path === "string"
+      ? path === "displayName"
+        ? "Name"
+        : path === "email"
+          ? "Email"
+          : path === "password"
+            ? "Password"
+            : path
+      : null;
+  return fieldLabel ? `${fieldLabel}: ${firstIssue.message}` : firstIssue.message;
+}
+
 async function request<T>(path: string, options: { method?: HttpMethod; body?: unknown; token?: string } = {}): Promise<T> {
   const response = await fetch(`${config.apiUrl}${path}`, {
     method: options.method ?? "GET",
@@ -27,7 +45,8 @@ async function request<T>(path: string, options: { method?: HttpMethod; body?: u
     } catch {
       payload = null;
     }
-    throw new Error(payload?.error ?? payload?.message ?? `RequestFailed:${response.status}`);
+    const validationMessage = toValidationMessage(payload);
+    throw new Error(validationMessage ?? payload?.error ?? payload?.message ?? `RequestFailed:${response.status}`);
   }
 
   return (await response.json()) as T;

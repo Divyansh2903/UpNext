@@ -87,6 +87,7 @@ export function SessionProvider({
   const joinMessageRef = useRef<ClientMessage | null>(null);
   const reconnectRef = useRef<() => void>(() => undefined);
   const participantDirectoryRef = useRef<ParticipantDTO[]>([]);
+  const terminalErrorRef = useRef(false);
 
   useEffect(() => {
     if (playbackPaused || !currentSong) return;
@@ -133,7 +134,8 @@ export function SessionProvider({
 
   const handleServerMessage = useCallback((message: ServerMessage) => {
     if (message.type === "ERROR") {
-      setError(message.message ?? message.code);
+      terminalErrorRef.current = message.code === "SessionExpired" || message.code === "SessionNotFound";
+      setError(message.code);
       return;
     }
 
@@ -203,6 +205,9 @@ export function SessionProvider({
     const unsubClose = socketClient.onClose(() => {
       setIsConnected(false);
       setIsConnecting(false);
+      if (terminalErrorRef.current) {
+        return;
+      }
       if (reconnectTimeoutRef.current) {
         window.clearTimeout(reconnectTimeoutRef.current);
       }
@@ -213,6 +218,7 @@ export function SessionProvider({
 
     try {
       await socketClient.waitUntilOpen();
+      terminalErrorRef.current = false;
       setIsConnected(true);
       setIsConnecting(false);
       const joinMessage: ClientMessage = {

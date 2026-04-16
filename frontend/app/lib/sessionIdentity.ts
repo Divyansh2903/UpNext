@@ -50,3 +50,8 @@ export function getOrCreateGuestUserId() {
   window.localStorage.setItem(STORAGE_KEYS.guestUserId, id);
   return id;
 }
+
+export function clearGuestIdentity() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(STORAGE_KEYS.guestUserId);
+}
