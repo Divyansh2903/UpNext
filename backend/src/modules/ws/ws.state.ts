@@ -26,6 +26,7 @@ export async function buildQueue(
       addedBy: true,
       createdAt: true,
       _count: { select: { votes: true } },
+      votes: { select: { userId: true } },
     },
   });
 
@@ -38,6 +39,7 @@ export async function buildQueue(
       durationSeconds: s.durationSeconds,
       addedBy: s.addedBy,
       votes: s._count.votes,
+      voterIds: s.votes.map((v) => v.userId),
       createdAt: s.createdAt.toISOString(),
     }))
     .sort((a, b) => {

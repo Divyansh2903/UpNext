@@ -257,11 +257,22 @@ async function handleVote(
     return sendTo(ctx.socket, { type: "ERROR", code: "CannotVoteCurrent" });
   }
 
-  await prisma.vote.upsert({
+  const existingVote = await prisma.vote.findUnique({
     where: { songId_userId: { songId: msg.songId, userId: ctx.userId } },
-    update: {},
-    create: { songId: msg.songId, userId: ctx.userId },
+    select: { songId: true, userId: true },
   });
+
+  let cast = false;
+  if (existingVote) {
+    await prisma.vote.delete({
+      where: { songId_userId: { songId: msg.songId, userId: ctx.userId } },
+    });
+  } else {
+    await prisma.vote.create({
+      data: { songId: msg.songId, userId: ctx.userId },
+    });
+    cast = true;
+  }
 
   const session = await prisma.session.findUnique({
     where: { id: ctx.sessionId },
@@ -269,6 +280,22 @@ async function handleVote(
   });
   const queue = await buildQueue(prisma, ctx.sessionId, session?.currentSongId ?? null);
   broadcast(ctx.sessionId, { type: "QUEUE_UPDATED", queue });
+
+  if (cast) {
+    const participant = await prisma.participant.findUnique({
+      where: { sessionId_userId: { sessionId: ctx.sessionId, userId: ctx.userId } },
+      select: { name: true },
+    });
+    broadcast(ctx.sessionId, {
+      type: "VOTE_ACTIVITY",
+      songId: song.id,
+      songTitle: queue.find((entry) => entry.id === song.id)?.title ?? "this track",
+      voterUserId: ctx.userId,
+      voterName: participant?.name ?? "Someone",
+      cast: true,
+      createdAt: new Date().toISOString(),
+    });
+  }
 }
 
 async function handleSongEnded(

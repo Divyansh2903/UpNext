@@ -13,7 +13,7 @@ function formatDuration(durationSeconds: number | null): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export function mapQueueToViewModel(queue: QueueEntry[]): SongViewModel[] {
+export function mapQueueToViewModel(queue: QueueEntry[], userId: string): SongViewModel[] {
   const sorted = sortQueueByVotes(
     queue.map((song) => ({
       id: song.id,
@@ -22,6 +22,7 @@ export function mapQueueToViewModel(queue: QueueEntry[]): SongViewModel[] {
       thumbnail: song.thumbnailUrl ?? FALLBACK_ART,
       votes: song.votes,
       addedBy: song.addedBy,
+      votedByMe: song.voterIds?.includes(userId) ?? false,
     })),
   );
   return sorted.map((song, idx) => ({ ...song, isTopVoted: idx === 0 }));
@@ -32,6 +33,7 @@ export function mapParticipantsToViewModel(participants: ParticipantDTO[]): Part
     id: participant.id,
     name: participant.name,
     avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(participant.name)}&background=1f2937&color=ffffff`,
+    joinedAt: participant.joinedAt,
   }));
 }
 

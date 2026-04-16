@@ -75,6 +75,7 @@ export type QueueEntry = {
   durationSeconds: number | null;
   addedBy: string;
   votes: number;
+  voterIds: string[];
   createdAt: string;
 };
 
@@ -106,6 +107,7 @@ export type ClientMessage =
 export type ServerMessage =
   | { type: "SESSION_STATE"; queue: QueueEntry[]; currentSong: CurrentSong | null; participants: ParticipantDTO[] }
   | { type: "QUEUE_UPDATED"; queue: QueueEntry[] }
+  | { type: "VOTE_ACTIVITY"; songId: string; songTitle: string; voterUserId: string; voterName: string; cast: boolean; createdAt: string }
   | { type: "PLAY_SONG"; song: CurrentSong }
   | { type: "PLAYBACK_SYNC"; elapsedSeconds: number; paused: boolean }
   | { type: "PARTICIPANTS_UPDATED"; participants: ParticipantDTO[] }

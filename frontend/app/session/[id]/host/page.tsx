@@ -26,6 +26,28 @@ type PlayedSong = {
   playedAt: string;
 };
 
+type LiveFeedEvent = {
+  id: string;
+  type: "joined" | "voted";
+  actorName: string;
+  songTitle?: string;
+  createdAt: string;
+};
+
+function formatFeedTime(isoValue: string) {
+  const diffMs = Date.now() - new Date(isoValue).getTime();
+  const safeDiff = Number.isFinite(diffMs) ? Math.max(0, diffMs) : 0;
+  const seconds = Math.floor(safeDiff / 1000);
+  if (seconds < 60) return "JUST NOW";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}M AGO`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}H AGO`;
+  const days = Math.floor(hours / 24);
+  return `${days}D AGO`;
+}
+
+
 export default function HostViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -548,7 +570,7 @@ function HostViewPageInner({
   joinCode: string;
 }) {
   const router = useRouter();
-  const { session, participants, currentVideoId, playbackProgressPercent, sendSongEnded, sendPlaybackSync, error } =
+  const { session, queue, participants, voteActivity, currentVideoId, playbackProgressPercent, sendSongEnded, sendPlaybackSync, error } =
     useSessionState();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -558,8 +580,11 @@ function HostViewPageInner({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeView, setActiveView] = useState<"live" | "history" | "people">("live");
   const [playedSongs, setPlayedSongs] = useState<PlayedSong[]>([]);
+  const [liveFeed, setLiveFeed] = useState<LiveFeedEvent[]>([]);
   const hostAccessError = error === "HostAccessDenied" || error === "InvalidToken" ? error : null;
   const lastSyncRef = useRef<{ elapsedSeconds: number; paused: boolean } | null>(null);
+  const seenParticipantIdsRef = useRef<Set<string>>(new Set());
+  const seenVoteEventsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -575,6 +600,7 @@ function HostViewPageInner({
     if (!title || title.toLowerCase() === "now playing") return;
 
     const historyKey = `${session.nowPlaying.title}|${session.nowPlaying.author}|${session.nowPlaying.albumArtUrl}`;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPlayedSongs((prev) => {
       if (prev.length > 0 && prev[prev.length - 1]?.key === historyKey) {
         return prev;
@@ -592,6 +618,47 @@ function HostViewPageInner({
       return next.length > 60 ? next.slice(next.length - 60) : next;
     });
   }, [session.nowPlaying.albumArtUrl, session.nowPlaying.author, session.nowPlaying.title]);
+
+  useEffect(() => {
+    const knownParticipants = seenParticipantIdsRef.current;
+    const newEvents: LiveFeedEvent[] = [];
+    for (const participant of participants) {
+      if (knownParticipants.has(participant.id)) continue;
+      knownParticipants.add(participant.id);
+      newEvents.push({
+        id: `joined-${participant.id}-${Date.now()}`,
+        type: "joined",
+        actorName: participant.name,
+        createdAt: participant.joinedAt ?? new Date().toISOString(),
+      });
+    }
+    if (newEvents.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLiveFeed((prev) => [...newEvents.reverse(), ...prev].slice(0, 40));
+    }
+  }, [participants]);
+
+  useEffect(() => {
+    const seen = seenVoteEventsRef.current;
+    const nextEvents: LiveFeedEvent[] = [];
+    for (const event of voteActivity) {
+      const eventKey = `${event.songId}:${event.voterUserId}:${event.createdAt}`;
+      if (seen.has(eventKey)) continue;
+      seen.add(eventKey);
+      if (!event.cast) continue;
+      nextEvents.push({
+        id: `voted-${event.songId}-${event.voterUserId}-${event.createdAt}`,
+        type: "voted",
+        actorName: event.voterName || "Someone",
+        songTitle: event.songTitle || "this track",
+        createdAt: event.createdAt,
+      });
+    }
+    if (nextEvents.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLiveFeed((prev) => [...nextEvents.reverse(), ...prev].slice(0, 40));
+    }
+  }, [voteActivity]);
 
   const meQuery = useQuery({
     queryKey: queryKeys.authMe,
@@ -847,8 +914,8 @@ function HostViewPageInner({
         <span className="material-symbols-outlined">menu</span>
       </button>
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col pb-24 md:pb-6">
-        <main className="flex-1 px-4 pb-28 pt-14 sm:px-6 sm:pb-24 md:px-12 md:pb-24 lg:pt-6">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col pb-20 md:pb-4">
+        <main className="flex-1 px-4 pb-20 pt-10 sm:px-6 sm:pb-20 md:px-12 md:pb-20 lg:pt-5">
           {activeView === "history" ? (
             <div className="mx-auto w-full max-w-5xl space-y-6 pb-10 pt-2 sm:pb-12 lg:pt-2">
               <section className="space-y-6">
@@ -948,13 +1015,13 @@ function HostViewPageInner({
             </div>
           ) : (
             <>
-          <div className="mt-2 grid grid-cols-1 gap-8 xl:grid-cols-12">
-            <div className="space-y-8 xl:col-span-8">
+          <div className="mt-1 grid grid-cols-1 gap-6 xl:grid-cols-12">
+            <div className="space-y-6 xl:col-span-7">
               <section className="group relative">
                 <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-primary/30 to-secondary/30 opacity-25 blur transition duration-1000 group-hover:opacity-40" />
-                <div className="relative overflow-hidden rounded-xl border border-white/5 bg-surface-container-low/60 shadow-2xl backdrop-blur-3xl min-h-[520px]">
-                  <div className="flex flex-col items-center gap-8 p-10 md:flex-row">
-                    <div className="relative h-80 w-80 shrink-0 overflow-hidden rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] md:h-96 md:w-96">
+                <div className="relative h-[200px] overflow-hidden rounded-xl border border-white/5 bg-surface-container-low/60 shadow-2xl backdrop-blur-3xl">
+                  <div className="flex h-full items-center gap-4 p-4">
+                    <div className="relative h-36 w-36 shrink-0 overflow-hidden rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] md:h-40 md:w-40">
                       {currentVideoId ? (
                         <YouTubePlayer
                           videoId={currentVideoId}
@@ -978,17 +1045,17 @@ function HostViewPageInner({
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     </div>
-                    <div className="w-full flex-1 space-y-4 text-center md:text-left">
+                    <div className="w-full flex-1 space-y-2 pb-2 pr-2 pt-1 text-left">
                       <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary animate-pulse">
                         <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                         Live Now
                       </div>
-                      <h1 className="font-headline text-3xl font-black leading-[0.95] tracking-tighter md:text-5xl break-words overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:4]">
+                      <h1 className="font-headline text-3xl font-bold leading-[0.95] tracking-tighter md:text-4xl break-words overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
                         {session.nowPlaying.title}
                       </h1>
-                      <p className="text-xl font-medium text-neutral-400">{session.nowPlaying.author}</p>
+                      <p className="text-base font-normal text-neutral-400">{session.nowPlaying.author}</p>
 
-                      <div className="flex items-center justify-center gap-4 pt-4 md:justify-start">
+                      <div className="flex items-center gap-4 pb-1 pt-2">
                         <div className="flex -space-x-3">
                           {participants.slice(0, 3).map((participant) => (
                             <img
@@ -1007,56 +1074,68 @@ function HostViewPageInner({
                     </div>
                   </div>
 
-                  <div className="px-8 pb-4">
-                    <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-800">
-                      <div
-                        className="h-full bg-gradient-to-r from-primary to-secondary shadow-[0_0_10px_rgba(255,144,109,0.5)]"
-                        style={{ width: `${playbackProgressPercent}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 flex justify-between text-[10px] font-bold tracking-tighter text-neutral-500">
-                      <span>{session.nowPlaying.elapsed}</span>
-                      <span>{session.nowPlaying.duration}</span>
-                    </div>
-                  </div>
                 </div>
               </section>
 
-              <section className="grid grid-cols-1 items-center gap-6 rounded-xl bg-surface-container-low p-6 shadow-xl sm:grid-cols-[1fr_auto_1fr] sm:gap-4 sm:p-8">
-                <div className="flex justify-center sm:justify-start">
-                  <div className="w-full max-w-xs rounded-lg bg-surface-container-high px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-neutral-500">volume_down</span>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={volume}
-                        onChange={(e) => setVolume(Number(e.target.value))}
-                        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-neutral-800
-                          [&::-webkit-slider-thumb]:appearance-none
-                          [&::-webkit-slider-thumb]:h-5
-                          [&::-webkit-slider-thumb]:w-5
-                          [&::-webkit-slider-thumb]:rounded-full
-                          [&::-webkit-slider-thumb]:bg-white
-                          [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(0,0,0,0.3)]
-                          [&::-moz-range-thumb]:h-5
-                          [&::-moz-range-thumb]:w-5
-                          [&::-moz-range-thumb]:rounded-full
-                          [&::-moz-range-thumb]:border-0
-                          [&::-moz-range-thumb]:bg-white"
-                        style={{
-                          background: `linear-gradient(to right, rgb(255, 144, 109) 0%, rgb(255, 144, 109) ${volume}%, rgb(38, 38, 42) ${volume}%, rgb(38, 38, 42) 100%)`,
-                        }}
-                        aria-label="Player volume"
-                      />
-                      <span className="material-symbols-outlined text-neutral-500">volume_up</span>
-                    </div>
+              <section
+                className={cn(
+                  "rounded-[2rem] border border-white/5 bg-surface-container-low/70 px-7 py-6 shadow-2xl backdrop-blur-3xl",
+                  queue.length > 0 && "h-[496.5px]",
+                )}
+              >
+                <div>
+                  <div>
+                    <h2 className="font-headline text-3xl font-black tracking-tight text-white">UP NEXT</h2>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                      Pending tracks in queue
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center gap-3 sm:gap-4">
+                <div className="custom-scrollbar mt-6 max-h-[420px] space-y-2 overflow-y-auto pr-1">
+                  {queue.length ? (
+                    queue.slice(0, 10).map((song, idx) => (
+                      <div
+                        key={song.id}
+                        className="flex min-h-14 items-center gap-3 rounded-lg px-2 py-1 transition-colors hover:bg-white/5"
+                      >
+                        <span className="w-8 text-center text-xl font-black tracking-tight text-neutral-600">
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
+                        <img src={song.thumbnail} alt={song.title} className="h-10 w-10 shrink-0 rounded-md object-cover" />
+                        <div className="min-w-0">
+                          <p className="truncate text-base font-black tracking-tight text-white">{song.title}</p>
+                          <p className="truncate text-xs uppercase tracking-[0.08em] text-neutral-500">{song.author}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="rounded-xl bg-white/5 px-4 py-5 text-sm text-neutral-400">No pending tracks in queue yet.</p>
+                  )}
+                </div>
+              </section>
+
+              <section className="fixed bottom-6 left-1/2 z-40 hidden w-[min(1080px,calc(100vw-2rem))] -translate-x-1/2 items-center gap-x-4 gap-y-1.5 rounded-full border border-white/10 bg-neutral-950/85 px-5 py-2.5 shadow-[0_20px_70px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:grid md:grid-cols-[minmax(220px,1fr)_minmax(360px,540px)_auto] md:grid-rows-[auto_auto]">
+                <div className="min-w-0 flex items-center gap-4 md:row-span-2">
+                  <img
+                    alt={session.nowPlaying.title}
+                    className={cn(
+                      "h-12 w-12 shrink-0 rounded-full border-2 border-primary/40 object-cover shadow-[0_0_0_2px_rgba(255,255,255,0.08)]",
+                      currentVideoId && !isPaused && "animate-[spin_9s_linear_infinite]",
+                    )}
+                    src={session.nowPlaying.albumArtUrl}
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate font-headline text-lg font-normal tracking-wide text-white">
+                      {session.nowPlaying.title}
+                    </p>
+                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-400">
+                      {session.nowPlaying.author || "Broadcasting live"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-1 md:col-start-2 md:row-start-1 md:justify-self-center">
                   <button
                     type="button"
                     disabled={!currentVideoId}
@@ -1064,75 +1143,76 @@ function HostViewPageInner({
                       if (!currentVideoId) return;
                       setIsPaused((prev) => !prev);
                     }}
-                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-xl shadow-primary/25 transition-transform hover:scale-105 active:scale-95"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105 active:scale-95"
+                    aria-label={isPaused ? "Play" : "Pause"}
                   >
                     <span
-                      className="material-symbols-outlined text-5xl leading-none"
+                      className="material-symbols-outlined text-[26px] leading-none"
                       style={{ fontVariationSettings: "'FILL' 1" }}
                     >
                       {isPaused ? "play_arrow" : "pause"}
                     </span>
                   </button>
-                  <div className="flex h-20 w-12 shrink-0 items-center justify-center sm:w-14">
-                    <button
-                      type="button"
-                      disabled={!currentVideoId}
-                      onClick={() => {
-                        if (!currentVideoId) return;
-                        setIsPaused(false);
-                        sendSongEnded();
-                      }}
-                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-800"
-                    >
-                      <span className="material-symbols-outlined text-3xl leading-none">skip_next</span>
-                    </button>
+                  <button
+                    type="button"
+                    disabled={!currentVideoId}
+                    onClick={() => {
+                      if (!currentVideoId) return;
+                      setIsPaused(false);
+                      sendSongEnded();
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
+                    aria-label="Next song"
+                  >
+                    <span className="material-symbols-outlined text-[17px]">skip_next</span>
+                  </button>
+                </div>
+
+                <div className="min-w-0 md:col-start-2 md:row-start-2">
+                  <div className="flex items-center gap-3 text-[10px] font-bold tracking-tighter text-neutral-500">
+                    <span className="w-8 text-right">{session.nowPlaying.elapsed}</span>
+                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-neutral-800">
+                      <div
+                        className="h-full bg-gradient-to-r from-primary to-secondary shadow-[0_0_10px_rgba(255,144,109,0.5)]"
+                        style={{ width: `${playbackProgressPercent}%` }}
+                      />
+                    </div>
+                    <span className="w-8 text-left">{session.nowPlaying.duration}</span>
                   </div>
                 </div>
 
-                <div className="flex justify-center sm:justify-end">
-                  <button
-                    type="button"
-                    disabled={stopSessionMutation.isPending}
-                    onClick={() => stopSessionMutation.mutate()}
-                    className="w-full max-w-xs rounded-lg border border-error/20 bg-error/10 px-6 py-3 text-sm font-bold text-error-dim transition-all hover:bg-error hover:text-white enabled:cursor-pointer enabled:hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:max-w-none"
-                  >
-                    {stopSessionMutation.isPending ? "Stopping…" : "Stop Session"}
-                  </button>
+                <div className="flex w-full max-w-[180px] items-center gap-2 justify-self-end md:row-span-2">
+                  <span className="material-symbols-outlined text-neutral-500">volume_down</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={volume}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-800
+                      [&::-webkit-slider-thumb]:appearance-none
+                      [&::-webkit-slider-thumb]:h-4
+                      [&::-webkit-slider-thumb]:w-4
+                      [&::-webkit-slider-thumb]:rounded-full
+                      [&::-webkit-slider-thumb]:bg-white
+                      [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(0,0,0,0.3)]
+                      [&::-moz-range-thumb]:h-4
+                      [&::-moz-range-thumb]:w-4
+                      [&::-moz-range-thumb]:rounded-full
+                      [&::-moz-range-thumb]:border-0
+                      [&::-moz-range-thumb]:bg-white"
+                    style={{
+                      background: `linear-gradient(to right, rgb(255, 144, 109) 0%, rgb(255, 144, 109) ${volume}%, rgb(38, 38, 42) ${volume}%, rgb(38, 38, 42) 100%)`,
+                    }}
+                    aria-label="Player volume"
+                  />
+                  <span className="material-symbols-outlined text-neutral-500">volume_up</span>
                 </div>
               </section>
             </div>
 
-            <div className="space-y-8 xl:col-span-4">
-              <section className="flex h-[min(480px,60vh)] flex-col overflow-hidden rounded-xl bg-surface-container-low shadow-2xl">
-                <div className="flex items-center justify-between border-b border-white/5 p-6">
-                  <h2 className="font-headline text-lg font-bold uppercase tracking-widest text-neutral-400">Members Joined</h2>
-                  <span className="text-xs font-bold text-primary">{participants.length} LISTENERS</span>
-                </div>
-
-                <div className="custom-scrollbar flex-1 space-y-1 overflow-y-auto p-2">
-                  {participants.length ? (
-                    participants.map((participant, idx) => (
-                      <div
-                        key={participant.id}
-                        className="group flex items-center gap-4 rounded-lg p-4 transition-all hover:bg-white/5"
-                      >
-                        <span className="w-6 text-lg font-black text-neutral-600">{idx + 1}</span>
-                        <img
-                          alt={participant.name}
-                          className="h-12 w-12 shrink-0 rounded-full border border-white/10 object-cover"
-                          src={participant.avatarUrl}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <h4 className="truncate text-sm font-bold">{participant.name}</h4>
-                          <p className="truncate text-xs text-neutral-500">Listening now</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="px-4 py-6 text-sm text-neutral-500">No participants joined yet.</p>
-                  )}
-                </div>
-              </section>
+            <div className="space-y-6 xl:col-span-5">
               <section className="group relative overflow-hidden rounded-xl bg-surface-container-highest p-6">
                 <h2 className="relative z-10 mb-4 font-headline text-xl font-black">Invite your crowd</h2>
                 <div className="relative z-10 flex gap-2">
@@ -1159,6 +1239,46 @@ function HostViewPageInner({
                 {copyStatus === "error" ? (
                   <p className="relative z-10 mt-2 text-xs text-error">Could not copy link. Please copy manually.</p>
                 ) : null}
+              </section>
+              <section className="flex h-[min(560px,68vh)] flex-col overflow-hidden rounded-xl bg-surface-container-low shadow-2xl">
+                <div className="flex items-center justify-between border-b border-white/5 p-6">
+                  <h2 className="font-headline text-lg font-bold uppercase tracking-widest text-neutral-400">Live Feed</h2>
+                  <span className="text-xs font-bold text-primary">{participants.length} LISTENERS</span>
+                </div>
+
+                <div className="custom-scrollbar flex-1 space-y-1 overflow-y-auto p-2">
+                  {liveFeed.length ? (
+                    liveFeed.map((event) => (
+                      <div
+                        key={event.id}
+                        className="group flex items-center gap-4 rounded-lg p-4 transition-all hover:bg-white/5"
+                      >
+                        <div
+                          className={cn(
+                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm",
+                            event.type === "joined"
+                              ? "bg-orange-500/20 text-orange-300"
+                              : "bg-indigo-500/20 text-indigo-300",
+                          )}
+                        >
+                          <span className="material-symbols-outlined text-base">
+                            {event.type === "joined" ? "person_add" : "thumb_up"}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="truncate text-sm font-bold">
+                            {event.type === "joined"
+                              ? `${event.actorName} joined the jam`
+                              : `${event.actorName} voted for ${event.songTitle ?? "a track"}`}
+                          </h4>
+                          <p className="truncate text-xs text-neutral-500">{formatFeedTime(event.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="px-4 py-6 text-sm text-neutral-500">No live activity yet.</p>
+                  )}
+                </div>
               </section>
               {error ? <p className="text-xs text-error">{error}</p> : null}
             </div>

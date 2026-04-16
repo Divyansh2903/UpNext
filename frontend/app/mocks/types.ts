@@ -7,12 +7,15 @@ export type SongViewModel = {
   /** Display name of who queued the track (maps from backend `addedBy` / participant). */
   addedBy?: string;
   isTopVoted?: boolean;
+  /** Current viewer has cast a vote on this track. */
+  votedByMe?: boolean;
 };
 
 export type ParticipantViewModel = {
   id: string;
   name: string;
   avatarUrl: string;
+  joinedAt?: string;
 };
 
 export type SessionViewModel = {

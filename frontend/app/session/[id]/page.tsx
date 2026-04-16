@@ -523,7 +523,7 @@ function SessionPageInner({ id }: { id: string }) {
                         onClick={() => handleVote(song.id)}
                         className={cn(
                           "flex flex-col items-center justify-center gap-1 rounded-lg px-4 py-2 transition-all active:scale-110",
-                          song.isTopVoted
+                          song.votedByMe
                             ? "bg-primary/10 hover:bg-primary/20"
                             : "bg-surface-container-highest/50 hover:bg-surface-container-highest",
                         )}
@@ -531,14 +531,14 @@ function SessionPageInner({ id }: { id: string }) {
                         <span
                           className={cn(
                             "material-symbols-outlined",
-                            song.isTopVoted ? "text-primary" : "text-on-surface-variant",
+                            song.votedByMe ? "text-primary" : "text-on-surface-variant",
                           )}
-                          style={song.isTopVoted ? { fontVariationSettings: "'FILL' 1" } : {}}
+                          style={song.votedByMe ? { fontVariationSettings: "'FILL' 1" } : {}}
                         >
                           expand_less
                         </span>
                         <span
-                          className={cn("text-sm font-black", song.isTopVoted ? "text-primary" : "text-on-surface-variant")}
+                          className={cn("text-sm font-black", song.votedByMe ? "text-primary" : "text-on-surface-variant")}
                         >
                           {song.votes}
                         </span>

@@ -18,6 +18,7 @@ type SessionContextValue = {
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
+  voteActivity: Array<{ songId: string; songTitle: string; voterUserId: string; voterName: string; cast: boolean; createdAt: string }>;
   sendVote: (songId: string) => void;
   sendAddSong: (videoId: string) => void;
   sendSongEnded: () => void;
@@ -36,9 +37,9 @@ function formatElapsed(seconds: number): string {
   return `${minutes}:${remainder.toString().padStart(2, "0")}`;
 }
 
-function mapQueueWithParticipantNames(queue: QueueEntry[], participants: ParticipantDTO[]): SongViewModel[] {
+function mapQueueWithParticipantNames(queue: QueueEntry[], participants: ParticipantDTO[], userId: string): SongViewModel[] {
   const nameByUserId = new Map(participants.map((participant) => [participant.userId, participant.name]));
-  return mapQueueToViewModel(queue).map((song) => ({
+  return mapQueueToViewModel(queue, userId).map((song) => ({
     ...song,
     addedBy: song.addedBy ? nameByUserId.get(song.addedBy) ?? song.addedBy : song.addedBy,
   }));
@@ -72,6 +73,9 @@ export function SessionProvider({
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [participantDirectory, setParticipantDirectory] = useState<ParticipantDTO[]>([]);
+  const [voteActivity, setVoteActivity] = useState<
+    Array<{ songId: string; songTitle: string; voterUserId: string; voterName: string; cast: boolean; createdAt: string }>
+  >([]);
   const [playbackElapsedSeconds, setPlaybackElapsedSeconds] = useState(0);
   const [playbackPaused, setPlaybackPaused] = useState(true);
   const [playbackUpdatedAtMs, setPlaybackUpdatedAtMs] = useState<number | null>(null);
@@ -134,11 +138,12 @@ export function SessionProvider({
     }
 
     if (message.type === "SESSION_STATE") {
-      setQueue(mapQueueWithParticipantNames(message.queue, message.participants));
+      setQueue(mapQueueWithParticipantNames(message.queue, message.participants, userId));
       participantDirectoryRef.current = message.participants;
       setParticipantDirectory(message.participants);
       setParticipants(mapParticipantsToViewModel(message.participants));
       setCurrentSong(message.currentSong);
+      setVoteActivity([]);
       setPlaybackElapsedSeconds(0);
       setPlaybackPaused(false);
       setPlaybackUpdatedAtMs(Date.now());
@@ -147,7 +152,22 @@ export function SessionProvider({
     }
 
     if (message.type === "QUEUE_UPDATED") {
-      setQueue(mapQueueWithParticipantNames(message.queue, participantDirectoryRef.current));
+      setQueue(mapQueueWithParticipantNames(message.queue, participantDirectoryRef.current, userId));
+      return;
+    }
+
+    if (message.type === "VOTE_ACTIVITY") {
+      setVoteActivity((prev) => [
+        ...prev,
+        {
+          songId: message.songId,
+          songTitle: message.songTitle,
+          voterUserId: message.voterUserId,
+          voterName: message.voterName,
+          cast: message.cast,
+          createdAt: message.createdAt,
+        },
+      ]);
       return;
     }
 
@@ -171,7 +191,7 @@ export function SessionProvider({
       setPlaybackPaused(message.paused);
       setPlaybackUpdatedAtMs(Date.now());
     }
-  }, []);
+  }, [userId]);
 
   const connect = useCallback(async () => {
     const socketClient = new SessionSocketClient();
@@ -319,6 +339,7 @@ export function SessionProvider({
       isConnected,
       isConnecting,
       error,
+      voteActivity,
       sendVote,
       sendAddSong,
       sendSongEnded,
@@ -328,6 +349,7 @@ export function SessionProvider({
     [
       displayName,
       error,
+      voteActivity,
       isConnected,
       isConnecting,
       participants,

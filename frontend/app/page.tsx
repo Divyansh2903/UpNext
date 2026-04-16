@@ -252,8 +252,14 @@ export default function Home() {
                 </div>
                 <div className="relative h-80 lg:h-auto overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="A premium, high-quality visual of a collaborative music queue interface with atmospheric lighting." src="https://lh3.googleusercontent.com/aida/ADBb0ugzwnpijLP4m1gpTnknODuG3x-jaJDDh6_l-uJfIzvjf617eWJoQXLfnRL6M8YCLBVrxPHG-x0lSM8RAGqPDuT_4c2iG7PwK1LMfTWgdj4kmXnhY_i56sI_86FDSPpgPdZjOIwofZxLsZxugJIWVRGKowYN0swcXfFZ1Jv_SYS5WgbkSAmWoFImH1OM7il6VFi2-7I2aEVBmPzNnBWSBGSUD9szQQvCBk3cN5fcrXKnOMutu_1-23lFZI9r"/>
-                  <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-transparent to-transparent"></div>
+                  <img
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                    alt="UpNext host dashboard hero visual"
+                    src="/hero_section_host.png"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/55 via-neutral-950/12 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/12 via-transparent to-transparent" />
+                  <div className="absolute inset-0 opacity-10 mix-blend-screen [background:radial-gradient(120%_90%_at_75%_30%,rgba(255,144,109,0.14)_0%,rgba(255,144,109,0)_58%)]" />
                 </div>
               </div>
             </div>
@@ -273,7 +279,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
               {/* Step 1 */}
               <div className="relative group">
-                <div className="text-8xl font-public font-black text-outline-variant/10 absolute -top-12 -left-4 group-hover:text-primary/20 transition-colors">1</div>
+                <div className="absolute -top-12 left-0 text-[120px] leading-none font-public font-black text-neutral-700/30 pointer-events-none select-none">1</div>
                 <div className="relative z-10 pt-8">
                   <div className="w-16 h-16 rounded-2xl bg-surface-container-highest border border-outline-variant/20 flex items-center justify-center mb-8 shadow-xl">
                     <span className="material-symbols-outlined text-primary text-3xl icon-glow-primary">add_circle</span>
@@ -285,7 +291,7 @@ export default function Home() {
               
               {/* Step 2 */}
               <div className="relative group">
-                <div className="text-8xl font-public font-black text-outline-variant/10 absolute -top-12 -left-4 group-hover:text-secondary/20 transition-colors">2</div>
+                <div className="absolute -top-12 left-0 text-[120px] leading-none font-public font-black text-neutral-700/30 pointer-events-none select-none">2</div>
                 <div className="relative z-10 pt-8">
                   <div className="w-16 h-16 rounded-2xl bg-surface-container-highest border border-outline-variant/20 flex items-center justify-center mb-8 shadow-xl">
                     <span className="material-symbols-outlined text-secondary text-3xl icon-glow-secondary">share</span>
@@ -297,7 +303,7 @@ export default function Home() {
               
               {/* Step 3 */}
               <div className="relative group">
-                <div className="text-8xl font-public font-black text-outline-variant/10 absolute -top-12 -left-4 group-hover:text-tertiary/20 transition-colors">3</div>
+                <div className="absolute -top-12 left-0 text-[120px] leading-none font-public font-black text-neutral-700/30 pointer-events-none select-none">3</div>
                 <div className="relative z-10 pt-8">
                   <div className="w-16 h-16 rounded-2xl bg-surface-container-highest border border-outline-variant/20 flex items-center justify-center mb-8 shadow-xl">
                     <span className="material-symbols-outlined text-tertiary text-3xl icon-glow-tertiary">thumbs_up_down</span>
@@ -336,13 +342,6 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
           <div className="flex items-center font-headline font-black text-neutral-100">
             <UpNextWordmark variant="footer" as="span" />
-          </div>
-          <div className="flex gap-8 font-medium">
-            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Privacy</button>
-            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Terms</button>
-            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Support</button>
-            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Twitter</button>
-            <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Instagram</button>
           </div>
           <div className="text-neutral-500 font-medium">
             © 2026 UpNext.
