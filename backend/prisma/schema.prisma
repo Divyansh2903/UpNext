@@ -15,6 +15,7 @@ enum SessionStatus {
 model User {
   id           String    @id @default(uuid()) @db.Uuid
   email        String    @unique
+  displayName  String?   @map("display_name")
   passwordHash String    @map("password_hash")
   createdAt    DateTime  @default(now()) @map("created_at")
   sessions     Session[]
@@ -29,6 +30,7 @@ model Session {
   currentSongId String?       @map("current_song_id") @db.Uuid
   status        SessionStatus @default(idle)
   createdAt     DateTime      @default(now()) @map("created_at")
+  expiresAt     DateTime      @default(now()) @map("expires_at")
 
   host         User          @relation(fields: [hostId], references: [id], onDelete: Cascade)
   currentSong  Song?         @relation("CurrentSong", fields: [currentSongId], references: [id], onDelete: SetNull)

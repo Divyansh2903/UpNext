@@ -1,55 +1,101 @@
 "use client";
 
-import { use, useEffect, useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import { UpNextWordmark } from "../../components/UpNextWordmark";
 import { cn } from "../../lib/utils";
-import { PARTICIPANT_QUEUE_MOCK } from "../../mocks/queue";
-import { getQueueCountLabel, sortQueueByVotes } from "../../mocks/selectors";
-import { PARTICIPANT_REACTION_MOCK, PARTICIPANT_SESSION_MOCK } from "../../mocks/session";
-import type { SongViewModel } from "../../mocks/types";
+import { getQueueCountLabel } from "../../mocks/selectors";
+import { SessionProvider, useSessionState } from "./SessionProvider";
+import { getStoredDisplayName, setStoredDisplayName } from "../../lib/sessionIdentity";
+import { extractYouTubeVideoId } from "../../lib/youtube";
+
+type PlayedSong = {
+  key: string;
+  title: string;
+  author: string;
+  thumbnail: string;
+  playedAt: string;
+};
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
-  const [queue, setQueue] = useState<SongViewModel[]>(PARTICIPANT_QUEUE_MOCK);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [initialDisplayName, setInitialDisplayName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id !== "demo") {
-      router.replace("/session/demo");
-    }
-  }, [id, router]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInitialDisplayName(getStoredDisplayName() || "Guest");
+  }, []);
+
+  if (!initialDisplayName) {
+    return null;
+  }
+
+  return (
+    <SessionProvider
+      sessionId={id}
+      joinCode={id.slice(0, 6).toUpperCase()}
+      hostName="Host"
+      roomName="Live Session"
+      initialDisplayName={initialDisplayName}
+    >
+      <SessionPageInner id={id} />
+    </SessionProvider>
+  );
+}
+
+function SessionPageInner({ id }: { id: string }) {
+  const { queue, session, participants, playbackProgressPercent, displayName, updateName, sendAddSong, sendVote, error } =
+    useSessionState();
+  const [activeView, setActiveView] = useState<"live" | "history" | "people">("live");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [addSongError, setAddSongError] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState(displayName);
+  const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
+  const [playedSongs, setPlayedSongs] = useState<PlayedSong[]>([]);
+
+  useEffect(() => {
+    setNameDraft(displayName);
+  }, [displayName]);
+
+  useEffect(() => {
+    const title = session.nowPlaying.title?.trim();
+    if (!title || title.toLowerCase() === "now playing") return;
+
+    const historyKey = `${session.nowPlaying.title}|${session.nowPlaying.author}|${session.nowPlaying.albumArtUrl}`;
+    setPlayedSongs((prev) => {
+      if (prev.length > 0 && prev[prev.length - 1]?.key === historyKey) {
+        return prev;
+      }
+      const next = [
+        ...prev,
+        {
+          key: historyKey,
+          title: session.nowPlaying.title,
+          author: session.nowPlaying.author,
+          thumbnail: session.nowPlaying.albumArtUrl,
+          playedAt: new Date().toISOString(),
+        },
+      ];
+      return next.length > 60 ? next.slice(next.length - 60) : next;
+    });
+  }, [session.nowPlaying.albumArtUrl, session.nowPlaying.author, session.nowPlaying.title]);
 
   const handleVote = (songId: string) => {
-    setQueue((prev) => {
-      const newQueue = prev.map((s) => {
-        if (s.id === songId) {
-          return { ...s, votes: s.votes + 1 };
-        }
-        return s;
-      });
-      return newQueue.sort((a, b) => b.votes - a.votes);
-    });
+    sendVote(songId);
   };
 
   const handleAddSong = (e: FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-
-    const newSong: SongViewModel = {
-      id: Math.random().toString(),
-      title: searchQuery,
-      author: "YouTube User",
-      thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&q=80",
-      votes: 1,
-      addedBy: PARTICIPANT_SESSION_MOCK.hostName,
-    };
-
-    setQueue((prev) => sortQueueByVotes([...prev, newSong]));
+    const videoId = extractYouTubeVideoId(searchQuery);
+    if (!videoId) {
+      setAddSongError("Paste a valid YouTube URL or 11-character video ID.");
+      return;
+    }
+    setAddSongError(null);
+    sendAddSong(videoId);
     setSearchQuery("");
   };
 
@@ -73,10 +119,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             <div className="grid w-full shrink-0 grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-3 pb-2 pl-1 pr-1 pt-3">
               <button
                 type="button"
-                onClick={() => setSidebarCollapsed((c) => !c)}
+                onClick={() => setSidebarCollapsed(false)}
                 className="flex h-10 w-10 items-center justify-center justify-self-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-800/50 hover:text-orange-300"
                 aria-expanded={!sidebarCollapsed}
-                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label="Expand sidebar"
               >
                 <span className="material-symbols-outlined text-[22px]">
                   {sidebarCollapsed ? "chevron_right" : "chevron_left"}
@@ -90,8 +136,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             </div>
             <div className="mb-4 shrink-0 pl-1 pr-1">
               <div className={cn(sidebarLabelCol, "space-y-0.5")}>
-                <h3 className="truncate font-headline text-sm font-bold">{PARTICIPANT_SESSION_MOCK.roomName}</h3>
-                <p className="truncate text-xs text-neutral-500">{PARTICIPANT_SESSION_MOCK.listenerCount} active listeners</p>
+                <h3 className="truncate font-headline text-sm font-bold">{session.roomName}</h3>
+                <p className="truncate text-xs text-neutral-500">{session.listenerCount} active listeners</p>
               </div>
             </div>
           </>
@@ -101,11 +147,15 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           <button
             type="button"
             title="Live Session"
-            onClick={() => compact && setMobileNavOpen(false)}
+            onClick={() => {
+              setActiveView("live");
+              if (compact) setMobileNavOpen(false);
+            }}
             className={cn(
               navRowGrid,
-              "text-orange-500 transition-colors duration-200 ease-out",
-              !compact && "bg-orange-500/10",
+              "transition-colors duration-200 ease-out",
+              activeView === "live" ? "text-orange-500" : "text-neutral-500 hover:bg-neutral-800/30",
+              !compact && activeView === "live" && "bg-orange-500/10",
             )}
           >
             <span className="flex h-10 w-10 items-center justify-center justify-self-center">
@@ -117,20 +167,17 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           </button>
           <button
             type="button"
-            title="Queue"
-            onClick={() => compact && setMobileNavOpen(false)}
-            className={cn(navRowGrid, "text-neutral-500 transition-colors duration-200 ease-out hover:bg-neutral-800/30")}
-          >
-            <span className="flex h-10 w-10 items-center justify-center justify-self-center">
-              <span className="material-symbols-outlined shrink-0">queue_music</span>
-            </span>
-            <span className={cn(sidebarLabelCol, "font-label text-sm font-semibold")}>Queue</span>
-          </button>
-          <button
-            type="button"
             title="History"
-            onClick={() => compact && setMobileNavOpen(false)}
-            className={cn(navRowGrid, "text-neutral-500 transition-colors duration-200 ease-out hover:bg-neutral-800/30")}
+            onClick={() => {
+              setActiveView("history");
+              if (compact) setMobileNavOpen(false);
+            }}
+            className={cn(
+              navRowGrid,
+              "transition-colors duration-200 ease-out",
+              activeView === "history" ? "text-orange-500" : "text-neutral-500 hover:bg-neutral-800/30",
+              !compact && activeView === "history" && "bg-orange-500/10",
+            )}
           >
             <span className="flex h-10 w-10 items-center justify-center justify-self-center">
               <span className="material-symbols-outlined shrink-0">history</span>
@@ -143,8 +190,16 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           <button
             type="button"
             title="People"
-            onClick={() => compact && setMobileNavOpen(false)}
-            className={cn(navRowGrid, "text-neutral-500 transition-colors duration-200 ease-out hover:bg-neutral-800/30")}
+            onClick={() => {
+              setActiveView("people");
+              if (compact) setMobileNavOpen(false);
+            }}
+            className={cn(
+              navRowGrid,
+              "transition-colors duration-200 ease-out",
+              activeView === "people" ? "text-orange-500" : "text-neutral-500 hover:bg-neutral-800/30",
+              !compact && activeView === "people" && "bg-orange-500/10",
+            )}
           >
             <span className="flex h-10 w-10 items-center justify-center justify-self-center">
               <span className="material-symbols-outlined shrink-0">group</span>
@@ -192,10 +247,13 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     <div className="flex min-h-screen bg-surface font-body text-on-surface selection:bg-primary/30">
       {/* Desktop sidebar */}
       <aside
+        onMouseEnter={() => setSidebarCollapsed(false)}
+        onMouseLeave={() => setSidebarCollapsed(true)}
+        onMouseDown={() => setSidebarCollapsed(false)}
         className={cn(
           "fixed left-0 top-0 z-40 hidden h-screen flex-col overflow-x-hidden border-r border-neutral-800/20 bg-neutral-950/60 backdrop-blur-3xl transition-[width] duration-300 ease-in-out motion-reduce:transition-none lg:flex",
           "bg-gradient-to-r from-neutral-900/20 to-transparent",
-          sidebarCollapsed ? "w-[4.5rem]" : "w-64",
+          sidebarCollapsed ? "w-16" : "w-56",
         )}
       >
         {participantSidebarNav()}
@@ -205,7 +263,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       <div
         className={cn(
           "hidden shrink-0 transition-[width] duration-300 ease-in-out motion-reduce:transition-none lg:block",
-          sidebarCollapsed ? "w-[4.5rem]" : "w-64",
+          sidebarCollapsed ? "w-16" : "w-56",
         )}
         aria-hidden
       />
@@ -240,8 +298,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             </Link>
           </div>
           <div className="mt-4 space-y-0.5">
-            <h3 className="font-headline text-sm font-bold">{PARTICIPANT_SESSION_MOCK.roomName}</h3>
-            <p className="text-xs text-neutral-500">{PARTICIPANT_SESSION_MOCK.listenerCount} active listeners</p>
+            <h3 className="font-headline text-sm font-bold">{session.roomName}</h3>
+            <p className="text-xs text-neutral-500">{session.listenerCount} active listeners</p>
           </div>
         </div>
         {participantSidebarNav({ compact: true })}
@@ -258,6 +316,97 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <main className="mx-auto w-full max-w-5xl px-4 pb-10 pt-14 sm:px-6 sm:pb-12 lg:pt-8">
+          {activeView === "history" ? (
+            <section className="space-y-6">
+              <div className="space-y-2">
+                <span className="font-label text-xs font-bold uppercase tracking-[0.2em] text-primary">History</span>
+                <h1 className="font-headline text-3xl font-black tracking-tighter sm:text-4xl">Previously Played</h1>
+                <p className="text-sm text-on-surface-variant">Room #{id.slice(0, 6).toUpperCase()}</p>
+              </div>
+
+              <div className="glass-panel rounded-lg outline outline-1 outline-outline-variant/10">
+                <div className="flex items-center justify-between border-b border-outline-variant/10 px-6 py-4">
+                  <h2 className="font-headline text-lg font-bold">Past Songs</h2>
+                  <span className="text-xs font-semibold text-outline">
+                    {Math.max(playedSongs.length - 1, 0)} songs played
+                  </span>
+                </div>
+                <div className="custom-scrollbar max-h-[60vh] overflow-y-auto p-3">
+                  {playedSongs.length > 1 ? (
+                    playedSongs
+                      .slice(0, -1)
+                      .reverse()
+                      .map((song, idx) => (
+                        <div
+                          key={`${song.key}-${idx}`}
+                          className="group flex items-center gap-4 rounded-lg px-3 py-3 transition-all hover:bg-white/5"
+                        >
+                          <span className="w-8 text-sm font-bold text-outline">{String(idx + 1).padStart(2, "0")}</span>
+                          <img className="h-12 w-12 rounded object-cover" src={song.thumbnail} alt={song.title} />
+                          <div className="min-w-0 flex-1">
+                            <h3 className="truncate text-base font-semibold text-on-surface">{song.title}</h3>
+                            <p className="truncate text-xs text-on-surface-variant">{song.author}</p>
+                          </div>
+                          <span className="text-[11px] font-medium text-outline">
+                            {new Date(song.playedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                      ))
+                  ) : (
+                    <p className="px-3 py-8 text-sm text-outline">No songs played yet. Tracks will appear here after they finish.</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          ) : activeView === "people" ? (
+            <section className="space-y-6">
+              <div className="space-y-2">
+                <span className="font-label text-xs font-bold uppercase tracking-[0.2em] text-primary">People</span>
+                <h1 className="font-headline text-3xl font-black tracking-tighter sm:text-4xl">Members Joined</h1>
+                <p className="text-sm text-on-surface-variant">Room #{id.slice(0, 6).toUpperCase()}</p>
+              </div>
+
+              <div className="glass-panel rounded-lg outline outline-1 outline-outline-variant/10">
+                <div className="flex items-center justify-between border-b border-outline-variant/10 px-6 py-4">
+                  <h2 className="font-headline text-lg font-bold">Current Members</h2>
+                  <span className="text-xs font-semibold text-outline">{participants.length} joined</span>
+                </div>
+                <div className="custom-scrollbar max-h-[60vh] overflow-y-auto p-3">
+                  {participants.length > 0 ? (
+                    participants.map((participant, idx) => (
+                      (() => {
+                        const normalizedName = participant.name.trim().toLowerCase();
+                        const normalizedHostName = session.hostName.trim().toLowerCase();
+                        const isHost = normalizedName === normalizedHostName || normalizedName === "host";
+                        return (
+                      <div
+                        key={participant.id}
+                        className="group flex items-center gap-4 rounded-lg px-3 py-3 transition-all hover:bg-white/5"
+                      >
+                        <span className="w-8 text-sm font-bold text-outline">{String(idx + 1).padStart(2, "0")}</span>
+                        <img className="h-12 w-12 rounded-full object-cover" src={participant.avatarUrl} alt={participant.name} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="truncate text-base font-semibold text-on-surface">{participant.name}</h3>
+                            {isHost ? (
+                              <span className="shrink-0 rounded-full border border-primary/30 bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
+                                Host
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                        );
+                      })()
+                    ))
+                  ) : (
+                    <p className="px-3 py-8 text-sm text-outline">No members in this room yet.</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          ) : (
+            <>
           <section className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div className="space-y-2">
               <span className="font-label text-xs font-bold uppercase tracking-[0.2em] text-primary">Session Identity</span>
@@ -265,10 +414,16 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 <h1 className="font-headline text-3xl font-black tracking-tighter sm:text-4xl md:text-5xl">
                   Joined as{" "}
                   <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    {PARTICIPANT_SESSION_MOCK.hostName}
+                    {displayName}
                   </span>
                 </h1>
-                <button type="button" className="text-outline transition-colors hover:text-primary">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsNameDialogOpen(true);
+                  }}
+                  className="text-outline transition-colors hover:text-primary"
+                >
                   <span className="material-symbols-outlined text-[20px]">edit_note</span>
                 </button>
               </div>
@@ -276,7 +431,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             <div className="flex items-center gap-3 rounded-full bg-surface-container-low px-5 py-3 outline outline-1 outline-outline-variant/10">
               <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
               <span className="text-sm font-medium text-on-surface-variant">
-                {PARTICIPANT_SESSION_MOCK.listenerCount} Listeners Tuned In
+                {session.listenerCount} Listeners Tuned In
               </span>
             </div>
           </section>
@@ -307,6 +462,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   </button>
                 </form>
                 <p className="mt-4 text-xs font-medium text-outline">Tracks are voted on by the community before playing.</p>
+                {addSongError ? <p className="mt-2 text-xs font-medium text-error">{addSongError}</p> : null}
               </div>
 
               <div className="space-y-6">
@@ -408,24 +564,27 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                     <img
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                       alt="album art"
-                      src={PARTICIPANT_SESSION_MOCK.nowPlaying.albumArtUrl}
+                      src={session.nowPlaying.albumArtUrl}
                     />
                   </div>
 
                   <div className="mb-8 space-y-1">
-                    <h3 className="font-headline text-2xl font-black leading-tight tracking-tight">
-                      {PARTICIPANT_SESSION_MOCK.nowPlaying.title}
+                    <h3 className="font-headline text-xl font-black leading-[1] tracking-tight break-words overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] sm:text-2xl">
+                      {session.nowPlaying.title}
                     </h3>
-                    <p className="font-medium text-on-surface-variant">{PARTICIPANT_SESSION_MOCK.nowPlaying.author}</p>
+                    <p className="font-medium text-on-surface-variant">{session.nowPlaying.author}</p>
                   </div>
 
                   <div className="mb-4 space-y-2">
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-highest">
-                      <div className="h-full w-2/3 bg-gradient-to-r from-primary to-secondary shadow-[0_0_8px_rgba(255,144,109,0.5)]" />
+                      <div
+                        className="h-full bg-gradient-to-r from-primary to-secondary shadow-[0_0_8px_rgba(255,144,109,0.5)]"
+                        style={{ width: `${playbackProgressPercent}%` }}
+                      />
                     </div>
                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter text-outline">
-                      <span>{PARTICIPANT_SESSION_MOCK.nowPlaying.elapsed}</span>
-                      <span>{PARTICIPANT_SESSION_MOCK.nowPlaying.duration}</span>
+                      <span>{session.nowPlaying.elapsed}</span>
+                      <span>{session.nowPlaying.duration}</span>
                     </div>
                   </div>
 
@@ -433,7 +592,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                     <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-outline">Live Reactions</p>
                     <div className="flex items-center gap-3">
                       <div className="flex -space-x-2">
-                        {PARTICIPANT_REACTION_MOCK.map((participant) => (
+                        {participants.slice(0, 5).map((participant) => (
                           <img
                             key={participant.id}
                             className="h-8 w-8 rounded-full border-2 border-surface"
@@ -442,23 +601,73 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                           />
                         ))}
                       </div>
-                      <span className="text-xs font-medium italic text-on-surface-variant">Sarah and 4 others are vibing...</span>
+                      <span className="text-xs font-medium italic text-on-surface-variant">
+                        {participants.length > 0 ? `${participants[0].name} and others are vibing...` : "Waiting for listeners..."}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
+              {error ? <p className="mt-3 text-xs text-error">{error}</p> : null}
+            </div>
+          </div>
+            </>
+          )}
+        </main>
+      </div>
 
+      {isNameDialogOpen ? (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-xl border border-white/10 bg-surface-container-low p-6 shadow-2xl backdrop-blur-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-headline text-2xl font-black">Edit display name</h3>
               <button
                 type="button"
-                className="glass-panel mt-6 flex w-full items-center justify-center gap-2 rounded-lg py-4 text-sm font-bold text-on-surface-variant outline outline-1 outline-outline-variant/10 transition-colors hover:text-primary"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface-container-high text-neutral-300 hover:bg-surface-container-highest"
+                onClick={() => {
+                  setNameDraft(displayName);
+                  setIsNameDialogOpen(false);
+                }}
+                aria-label="Close name dialog"
               >
-                <span className="material-symbols-outlined text-sm">chat_bubble</span>
-                Open Session Chat
+                <span className="material-symbols-outlined text-[22px] leading-none">close</span>
+              </button>
+            </div>
+            <input
+              autoFocus
+              className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              placeholder="Update your display name"
+            />
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-md bg-surface-container-high px-4 py-2 text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+                onClick={() => {
+                  setNameDraft(displayName);
+                  setIsNameDialogOpen(false);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white hover:brightness-110 transition-colors"
+                onClick={() => {
+                  const trimmed = nameDraft.trim();
+                  if (!trimmed) return;
+                  setStoredDisplayName(trimmed);
+                  updateName(trimmed);
+                  setIsNameDialogOpen(false);
+                }}
+              >
+                Save
               </button>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

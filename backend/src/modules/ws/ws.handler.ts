@@ -11,6 +11,7 @@ import {
   JoinSessionMessage,
   type AddSongMessage,
   type SongEndedMessage,
+  type SyncPlaybackMessage,
   type UpdateNameMessage,
   type VoteMessage,
 } from "./ws.messages.js";
@@ -83,13 +84,19 @@ async function handleJoin(
   socket: WebSocket,
   msg: z.infer<typeof JoinSessionMessage>,
 ): Promise<SocketContext | null> {
+  const now = new Date();
   const session = await prisma.session.findUnique({
     where: { id: msg.sessionId },
-    select: { id: true, hostId: true },
+    select: { id: true, hostId: true, expiresAt: true },
   });
   if (!session) {
     sendTo(socket, { type: "ERROR", code: "SessionNotFound" });
     socket.close(1008, "SessionNotFound");
+    return null;
+  }
+  if (session.expiresAt <= now) {
+    sendTo(socket, { type: "ERROR", code: "SessionExpired" });
+    socket.close(1008, "SessionExpired");
     return null;
   }
 
@@ -99,9 +106,15 @@ async function handleJoin(
       const decoded = jwt.verify(msg.token, env.JWT_SECRET) as { sub: string };
       if (decoded.sub === session.hostId) {
         role = "HOST";
+      } else {
+        sendTo(socket, { type: "ERROR", code: "HostAccessDenied" });
+        socket.close(1008, "HostAccessDenied");
+        return null;
       }
     } catch {
       sendTo(socket, { type: "ERROR", code: "InvalidToken" });
+      socket.close(1008, "InvalidToken");
+      return null;
     }
   }
 
@@ -151,6 +164,8 @@ async function dispatch(
       return handleVote(ctx, msg);
     case "SONG_ENDED":
       return handleSongEnded(ctx, msg);
+    case "SYNC_PLAYBACK":
+      return handleSyncPlayback(ctx, msg);
     case "UPDATE_NAME":
       return handleUpdateName(ctx, msg);
   }
@@ -195,13 +210,24 @@ async function handleAddSong(
       thumbnailUrl: metadata?.thumbnailUrl ?? null,
       addedBy: ctx.userId,
     },
-    select: { id: true, videoId: true },
+    select: { id: true, videoId: true, title: true, thumbnailUrl: true, durationSeconds: true, addedBy: true, _count: { select: { votes: true } } },
   });
 
   const claimed = await tryClaimInitialPlayback(prisma, ctx.sessionId, song.id);
 
   if (claimed) {
-    broadcast(ctx.sessionId, { type: "PLAY_SONG", videoId: song.videoId });
+    broadcast(ctx.sessionId, {
+      type: "PLAY_SONG",
+      song: {
+        id: song.id,
+        videoId: song.videoId,
+        title: song.title,
+        thumbnailUrl: song.thumbnailUrl,
+        durationSeconds: song.durationSeconds,
+        addedBy: song.addedBy,
+        votes: song._count.votes,
+      },
+    });
   }
 
   const session = await prisma.session.findUnique({
@@ -269,7 +295,18 @@ async function handleSongEnded(
   const next = await promoteNextSong(prisma, ctx.sessionId);
 
   if (next) {
-    broadcast(ctx.sessionId, { type: "PLAY_SONG", videoId: next.videoId });
+    broadcast(ctx.sessionId, {
+      type: "PLAY_SONG",
+      song: {
+        id: next.id,
+        videoId: next.videoId,
+        title: next.title,
+        thumbnailUrl: next.thumbnailUrl,
+        durationSeconds: next.durationSeconds,
+        addedBy: next.addedBy,
+        votes: next.votes,
+      },
+    });
   }
 
   const currentSongId = next?.id ?? null;
@@ -294,4 +331,19 @@ async function handleUpdateName(
 
   const participants = await fetchParticipants(prisma, ctx.sessionId);
   broadcast(ctx.sessionId, { type: "PARTICIPANTS_UPDATED", participants });
+}
+
+async function handleSyncPlayback(
+  ctx: SocketContext,
+  msg: z.infer<typeof SyncPlaybackMessage>,
+): Promise<void> {
+  if (ctx.role !== "HOST") {
+    return sendTo(ctx.socket, { type: "ERROR", code: "HostOnly" });
+  }
+
+  broadcast(ctx.sessionId, {
+    type: "PLAYBACK_SYNC",
+    elapsedSeconds: msg.elapsedSeconds,
+    paused: msg.paused,
+  });
 }

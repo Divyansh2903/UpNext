@@ -1,14 +1,37 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
 import { UpNextWordmark } from "./components/UpNextWordmark";
+import { extractJoinCodeFromInput } from "./lib/joinCode";
 import { HOME_HERO_MOCK } from "./mocks/home";
 
 export default function Home() {
   const router = useRouter();
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [joinCodeInput, setJoinCodeInput] = useState("");
+  const [joinCodeError, setJoinCodeError] = useState<string | null>(null);
 
-  const goSession = () => {
-    router.push("/session/demo");
+  const goGetStarted = () => {
+    router.push("/session/demo/host");
+  };
+
+  const openJoinModal = () => {
+    setJoinCodeInput("");
+    setJoinCodeError(null);
+    setJoinModalOpen(true);
+  };
+
+  const submitJoinRoom = (e: FormEvent) => {
+    e.preventDefault();
+    const code = extractJoinCodeFromInput(joinCodeInput);
+    if (!code) {
+      setJoinCodeError("Enter a 6-character room code or paste your invite link.");
+      return;
+    }
+    setJoinCodeError(null);
+    router.push(`/session/${code}/join`);
+    setJoinModalOpen(false);
   };
 
   return (
@@ -23,9 +46,9 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6">
             <button 
-              onClick={goSession}
+              onClick={goGetStarted}
               className="cta-gradient text-on-primary-fixed px-6 py-2.5 rounded-full font-extrabold text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/10">
-              Host a Session
+              Get Started
             </button>
           </div>
         </div>
@@ -44,11 +67,15 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <button 
-                  onClick={goSession}
+                  onClick={goGetStarted}
                   className="cta-gradient text-on-primary-fixed px-10 py-4 rounded-full font-black text-lg hover:brightness-110 transition-all shadow-xl shadow-primary/20 font-headline">
-                  Host a Session
+                  Get Started
                 </button>
-                <button className="bg-surface-container-highest border border-outline-variant/15 text-on-surface px-10 py-4 rounded-full font-bold text-lg hover:bg-surface-container-high transition-all font-headline">
+                <button
+                  type="button"
+                  onClick={openJoinModal}
+                  className="bg-surface-container-highest border border-outline-variant/15 text-on-surface px-10 py-4 rounded-full font-bold text-lg hover:bg-surface-container-high transition-all font-headline"
+                >
                   Join Link
                 </button>
               </div>
@@ -217,9 +244,9 @@ export default function Home() {
                       </div>
                     </div>
                     <button 
-                      onClick={goSession}
+                      onClick={goGetStarted}
                       className="text-white font-bold hover:text-primary transition-colors flex items-center gap-2 group/btn font-headline">
-                      Host a Private Session <span className="material-symbols-outlined transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
+                      Get Started <span className="material-symbols-outlined transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
                     </button>
                   </div>
                 </div>
@@ -290,9 +317,9 @@ export default function Home() {
             <p className="text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto font-medium font-body">Join thousands of hosts using UpNext to transform the way they listen together.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
-                onClick={goSession}
+                onClick={goGetStarted}
                 className="cta-gradient text-on-primary-fixed px-12 py-5 rounded-full font-black text-xl hover:scale-105 transition-transform shadow-2xl shadow-primary/30 font-headline">
-                Host a Session
+                Get Started
               </button>
               <button className="bg-surface-container-highest border border-outline-variant/15 text-on-surface px-12 py-5 rounded-full font-black text-xl hover:bg-surface-container-high transition-all font-headline">
                 View Demo
@@ -307,9 +334,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-neutral-950 w-full py-12 px-8 border-t border-neutral-800/15 font-body text-sm">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
-          <div className="font-headline font-black text-neutral-100 flex items-center gap-2">
+          <div className="flex items-center font-headline font-black text-neutral-100">
             <UpNextWordmark variant="footer" as="span" />
-            <span className="text-neutral-500 font-medium tracking-tight">| The Kinetic Gallery.</span>
           </div>
           <div className="flex gap-8 font-medium">
             <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Privacy</button>
@@ -319,10 +345,64 @@ export default function Home() {
             <button type="button" className="text-neutral-500 hover:text-orange-300 transition-colors">Instagram</button>
           </div>
           <div className="text-neutral-500 font-medium">
-            © 2024 UpNext. The Kinetic Gallery.
+            © 2026 UpNext.
           </div>
         </div>
       </footer>
+
+      {joinModalOpen ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-xl border border-white/10 bg-surface-container-low p-6 shadow-2xl backdrop-blur-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-headline text-2xl font-black">Join a room</h2>
+              <button
+                type="button"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface-container-high text-neutral-300 hover:bg-surface-container-highest"
+                onClick={() => setJoinModalOpen(false)}
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined text-[22px] leading-none">close</span>
+              </button>
+            </div>
+            <p className="mb-4 text-sm text-neutral-400">Type the 6-character room code, or paste a link.</p>
+            <form onSubmit={submitJoinRoom} className="space-y-4">
+              <input
+                autoFocus
+                className="w-full rounded-md border border-outline-variant/20 bg-surface-container-high px-3 py-3 font-mono text-lg uppercase tracking-widest text-on-surface outline-none focus:border-primary/50"
+                placeholder="e.g. ABC123"
+                maxLength={12}
+                value={joinCodeInput}
+                onChange={(e) => {
+                  setJoinCodeInput(e.target.value);
+                  setJoinCodeError(null);
+                }}
+                aria-invalid={Boolean(joinCodeError)}
+                aria-describedby={joinCodeError ? "join-code-error" : undefined}
+              />
+              {joinCodeError ? (
+                <p id="join-code-error" className="text-xs text-error">
+                  {joinCodeError}
+                </p>
+              ) : null}
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  className="rounded-md bg-surface-container-high px-4 py-2 text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+                  onClick={() => setJoinModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white hover:brightness-110 transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

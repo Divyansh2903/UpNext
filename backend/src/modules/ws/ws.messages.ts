@@ -26,6 +26,13 @@ export const SongEndedMessage = z.object({
   sessionId: z.uuid(),
 });
 
+export const SyncPlaybackMessage = z.object({
+  type: z.literal("SYNC_PLAYBACK"),
+  sessionId: z.uuid(),
+  elapsedSeconds: z.number().min(0).max(86400),
+  paused: z.boolean(),
+});
+
 export const UpdateNameMessage = z.object({
   type: z.literal("UPDATE_NAME"),
   sessionId: z.uuid(),
@@ -38,6 +45,7 @@ export const ClientMessage = z.discriminatedUnion("type", [
   AddSongMessage,
   VoteMessage,
   SongEndedMessage,
+  SyncPlaybackMessage,
   UpdateNameMessage,
 ]);
 
@@ -46,7 +54,8 @@ export type ClientMessage = z.infer<typeof ClientMessage>;
 export type ServerMessage =
   | { type: "SESSION_STATE"; queue: QueueEntry[]; currentSong: CurrentSong | null; participants: ParticipantDTO[] }
   | { type: "QUEUE_UPDATED"; queue: QueueEntry[] }
-  | { type: "PLAY_SONG"; videoId: string }
+  | { type: "PLAY_SONG"; song: CurrentSong }
+  | { type: "PLAYBACK_SYNC"; elapsedSeconds: number; paused: boolean }
   | { type: "PARTICIPANTS_UPDATED"; participants: ParticipantDTO[] }
   | { type: "ERROR"; code: string; message?: string };
 
@@ -67,6 +76,8 @@ export type CurrentSong = {
   title: string;
   thumbnailUrl: string | null;
   durationSeconds: number | null;
+  addedBy: string;
+  votes: number;
 };
 
 export type ParticipantDTO = {

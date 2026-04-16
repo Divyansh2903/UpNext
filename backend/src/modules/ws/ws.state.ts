@@ -61,6 +61,8 @@ export async function buildSessionState(
           title: true,
           thumbnailUrl: true,
           durationSeconds: true,
+          addedBy: true,
+          _count: { select: { votes: true } },
         },
       },
     },
@@ -78,6 +80,8 @@ export async function buildSessionState(
         title: session.currentSong.title,
         thumbnailUrl: session.currentSong.thumbnailUrl,
         durationSeconds: session.currentSong.durationSeconds,
+        addedBy: session.currentSong.addedBy,
+        votes: session.currentSong._count.votes,
       }
     : null;
 

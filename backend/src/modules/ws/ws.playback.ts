@@ -6,6 +6,8 @@ export type PromotedSong = {
   title: string;
   thumbnailUrl: string | null;
   durationSeconds: number | null;
+  addedBy: string;
+  votes: number;
 };
 
 export async function promoteNextSong(
@@ -20,6 +22,7 @@ export async function promoteNextSong(
       title: true,
       thumbnailUrl: true,
       durationSeconds: true,
+      addedBy: true,
       createdAt: true,
       _count: { select: { votes: true } },
     },
@@ -50,6 +53,8 @@ export async function promoteNextSong(
     title: next.title,
     thumbnailUrl: next.thumbnailUrl,
     durationSeconds: next.durationSeconds,
+    addedBy: next.addedBy,
+    votes: next._count.votes,
   };
 }
 

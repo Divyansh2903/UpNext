@@ -1,27 +1,43 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { UpNextWordmark } from "../../../components/UpNextWordmark";
-import { use, useEffect, useState, FormEvent } from "react";
-import { JOIN_PAGE_MOCK } from "../../../mocks/session";
+import { use, useMemo, useState, FormEvent } from "react";
+import { api } from "../../../lib/api";
+import { queryKeys } from "../../../lib/queryKeys";
+import { getOrCreateGuestUserId, setStoredDisplayName } from "../../../lib/sessionIdentity";
 
 export default function JoinRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [name, setName] = useState("");
-
-  useEffect(() => {
-    if (id !== "demo") {
-      router.replace("/session/demo/join");
-    }
-  }, [id, router]);
+  const joinCode = id.toUpperCase();
+  const sessionQuery = useQuery({
+    queryKey: queryKeys.sessionByCode(joinCode),
+    queryFn: () => api.getSessionByCode(joinCode),
+    enabled: joinCode.length === 6,
+  });
 
   const handleJoin = (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    // In a real app, you might save the name to Context or API here
-    router.push(`/session/${id}`);
+    const trimmed = name.trim();
+    if (!trimmed || !sessionQuery.data?.session.id) return;
+
+    setStoredDisplayName(trimmed);
+    getOrCreateGuestUserId();
+    router.push(`/session/${sessionQuery.data.session.id}`);
   };
+
+  const view = useMemo(
+    () => ({
+      listenerCount: 0,
+      hostName: sessionQuery.data?.session.host?.displayName?.trim() || "Host",
+      roomName: `Room ${joinCode}`,
+      ...sessionQuery.data?.session,
+    }),
+    [joinCode, sessionQuery.data?.session],
+  );
 
   return (
     <div className="bg-surface text-on-surface font-body min-h-screen flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary selection:text-on-primary">
@@ -37,7 +53,7 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
         <UpNextWordmark className="font-headline" />
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-neutral-400">group</span>
-          <span className="text-neutral-400 text-sm font-medium">{JOIN_PAGE_MOCK.listenerCount} Listeners online</span>
+          <span className="text-neutral-400 text-sm font-medium">{view.listenerCount} Listeners online</span>
         </div>
       </header>
 
@@ -64,7 +80,7 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
               <img 
                 alt="Host Avatar" 
                 className="w-14 h-14 rounded-full object-cover" 
-                src={JOIN_PAGE_MOCK.hostAvatarUrl} 
+                src="/host_img.png" 
               />
               <div className="absolute -bottom-1 -right-1 bg-primary w-4 h-4 rounded-full border-2 border-surface flex items-center justify-center">
                 <span className="material-symbols-outlined text-[10px] text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>mic</span>
@@ -72,8 +88,8 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
             </div>
             <div>
               <p className="text-on-surface-variant text-[10px] uppercase tracking-widest font-label mb-1">Session Host</p>
-              <p className="font-headline text-lg font-bold leading-none">{JOIN_PAGE_MOCK.roomName}</p>
-              <p className="text-neutral-500 text-xs">Curated by {JOIN_PAGE_MOCK.hostName}</p>
+              <p className="font-headline text-lg font-bold leading-none">{view.roomName}</p>
+              <p className="text-neutral-500 text-xs">Curated by {view.hostName}</p>
             </div>
           </div>
         </div>
@@ -93,10 +109,14 @@ export default function JoinRoomPage({ params }: { params: Promise<{ id: string 
           </div>
           <button 
             type="submit"
+            disabled={sessionQuery.isPending || !sessionQuery.data}
             className="w-full py-5 rounded-md font-headline font-bold text-lg text-on-primary-container bg-gradient-to-br from-[#ff906d] to-[#ee8361] shadow-[0_10px_40px_-10px_rgba(255,144,109,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
           >
-            Enter the Gallery
+            {sessionQuery.isPending ? "Checking room..." : "Enter the Gallery"}
           </button>
+          {sessionQuery.error ? (
+            <p className="text-xs font-label uppercase tracking-widest text-error">Session not found for code {joinCode}</p>
+          ) : null}
           <p className="text-neutral-500 text-xs font-label uppercase tracking-widest pt-4">
             No account required to listen
           </p>
