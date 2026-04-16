@@ -46,8 +46,17 @@ type YouTubeApiResponse = {
 type YouTubeSearchResponse = {
   items?: Array<{
     id?: { videoId?: string };
-    snippet?: { title?: string };
+    snippet?: {
+      title?: string;
+      thumbnails?: Record<string, { url?: string }>;
+    };
   }>;
+};
+
+export type YouTubeSearchResult = {
+  videoId: string;
+  title: string;
+  thumbnailUrl: string | null;
 };
 
 export async function fetchYouTubeMetadata(videoId: string): Promise<YouTubeMetadata | null> {
@@ -93,23 +102,42 @@ function scoreYouTubeResult(title: string): number {
 }
 
 export async function searchYouTubeVideoId(query: string): Promise<string | null> {
+  const results = await searchYouTubeSongs(query, 5);
+  if (!results.length) return null;
+  const best = [...results].sort((a, b) => {
+    const scoreA = scoreYouTubeResult(a.title);
+    const scoreB = scoreYouTubeResult(b.title);
+    return scoreB - scoreA;
+  })[0];
+  return best?.videoId ?? results[0]?.videoId ?? null;
+}
+
+export async function searchYouTubeSongs(query: string, maxResults = 5): Promise<YouTubeSearchResult[]> {
   const url = new URL("https://www.googleapis.com/youtube/v3/search");
   url.searchParams.set("part", "snippet");
-  url.searchParams.set("maxResults", "5");
+  url.searchParams.set("maxResults", String(Math.max(1, Math.min(maxResults, 10))));
   url.searchParams.set("q", query);
   url.searchParams.set("type", "video");
   url.searchParams.set("key", env.YOUTUBE_API_KEY);
 
   const res = await fetch(url);
-  if (!res.ok) return null;
+  if (!res.ok) return [];
   const data = (await res.json()) as YouTubeSearchResponse;
   const items = data.items ?? [];
-  if (!items.length) return null;
-
-  const best = [...items].sort((a, b) => {
-    const scoreA = scoreYouTubeResult(a.snippet?.title ?? "");
-    const scoreB = scoreYouTubeResult(b.snippet?.title ?? "");
-    return scoreB - scoreA;
-  })[0];
-  return best?.id?.videoId ?? items[0]?.id?.videoId ?? null;
+  return items
+    .map((item) => {
+      const videoId = item.id?.videoId ?? "";
+      const thumbnails = item.snippet?.thumbnails ?? {};
+      const thumbnailUrl =
+        thumbnails["high"]?.url ??
+        thumbnails["medium"]?.url ??
+        thumbnails["default"]?.url ??
+        null;
+      return {
+        videoId,
+        title: item.snippet?.title ?? videoId,
+        thumbnailUrl,
+      };
+    })
+    .filter((item) => Boolean(item.videoId));
 }

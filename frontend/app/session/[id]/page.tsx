@@ -3,6 +3,8 @@
 import { use, useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import { UpNextWordmark } from "../../components/UpNextWordmark";
+import { api } from "../../lib/api";
+import type { SongSearchResult } from "../../lib/types";
 import { cn } from "../../lib/utils";
 import { getQueueCountLabel } from "../../mocks/selectors";
 import { SessionProvider, useSessionState } from "./SessionProvider";
@@ -16,6 +18,9 @@ type PlayedSong = {
   thumbnail: string;
   playedAt: string;
 };
+
+const SPOTIFY_TRACK_URL_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)[A-Za-z0-9]{22}/i;
+const YOUTUBE_URL_REGEX = /(youtube\.com|youtu\.be)/i;
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -54,7 +59,10 @@ function SessionPageInner({ id }: { id: string }) {
   const [nameDraft, setNameDraft] = useState(displayName);
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
   const [playedSongs, setPlayedSongs] = useState<PlayedSong[]>([]);
-  const SPOTIFY_TRACK_URL_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)[A-Za-z0-9]{22}/i;
+  const [searchResults, setSearchResults] = useState<SongSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [highlightedSearchIndex, setHighlightedSearchIndex] = useState(0);
 
   useEffect(() => {
     setNameDraft(displayName);
@@ -87,14 +95,33 @@ function SessionPageInner({ id }: { id: string }) {
     sendVote(songId);
   };
 
+  const handleSelectSearchResult = (result: SongSearchResult) => {
+    setAddSongError(null);
+    sendAddSong(result.videoId);
+    setSearchQuery("");
+    setSearchResults([]);
+    setShowSearchDropdown(false);
+    setHighlightedSearchIndex(0);
+  };
+
   const handleAddSong = (e: FormEvent) => {
     e.preventDefault();
     const value = searchQuery.trim();
     if (!value) return;
+    if (!YOUTUBE_URL_REGEX.test(value) && !SPOTIFY_TRACK_URL_REGEX.test(value)) {
+      if (searchResults[0]) {
+        handleSelectSearchResult(searchResults[0]);
+      } else {
+        setAddSongError("No songs found. Try a different search.");
+      }
+      return;
+    }
     if (SPOTIFY_TRACK_URL_REGEX.test(value)) {
       setAddSongError(null);
       sendAddSong(value);
       setSearchQuery("");
+      setSearchResults([]);
+      setShowSearchDropdown(false);
       return;
     }
     const videoId = extractYouTubeVideoId(value);
@@ -105,7 +132,38 @@ function SessionPageInner({ id }: { id: string }) {
     setAddSongError(null);
     sendAddSong(videoId);
     setSearchQuery("");
+    setSearchResults([]);
+    setShowSearchDropdown(false);
   };
+
+  useEffect(() => {
+    const value = searchQuery.trim();
+    const isLink = YOUTUBE_URL_REGEX.test(value) || SPOTIFY_TRACK_URL_REGEX.test(value);
+    if (!value || isLink) {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      setIsSearching(false);
+      setHighlightedSearchIndex(0);
+      return;
+    }
+
+    const timeout = window.setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const response = await api.searchSongs(value);
+        setSearchResults(response.results);
+        setShowSearchDropdown(true);
+        setHighlightedSearchIndex(0);
+      } catch {
+        setSearchResults([]);
+        setShowSearchDropdown(true);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [searchQuery]);
 
   const participantSidebarNav = (opts: { compact?: boolean } = {}) => {
     const { compact } = opts;
@@ -456,11 +514,67 @@ function SessionPageInner({ id }: { id: string }) {
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">link</span>
                     <input
                       className="w-full rounded-md border-none bg-transparent bg-surface-variant/20 py-4 pl-12 pr-4 text-on-surface outline outline-1 outline-outline-variant/20 transition-all placeholder:text-outline/50 focus:bg-surface-variant/40 focus:ring-0 focus:outline-primary/40"
-                      placeholder="Paste YouTube or Spotify link..."
+                      placeholder="Search or paste YouTube / Spotify link"
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => {
+                        if (searchResults.length > 0 || isSearching) setShowSearchDropdown(true);
+                      }}
+                      onBlur={() => {
+                        window.setTimeout(() => setShowSearchDropdown(false), 120);
+                      }}
+                      onKeyDown={(e) => {
+                        if (!showSearchDropdown || !searchResults.length) return;
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          setHighlightedSearchIndex((prev) => (prev + 1) % searchResults.length);
+                        } else if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          setHighlightedSearchIndex((prev) => (prev - 1 + searchResults.length) % searchResults.length);
+                        } else if (e.key === "Enter") {
+                          e.preventDefault();
+                          const selected = searchResults[highlightedSearchIndex] ?? searchResults[0];
+                          if (selected) handleSelectSearchResult(selected);
+                        }
+                      }}
                     />
+                    {showSearchDropdown ? (
+                      <div className="absolute left-0 right-0 top-[calc(100%+0.4rem)] z-20 overflow-hidden rounded-lg bg-surface-container-low shadow-2xl outline outline-1 outline-outline-variant/20">
+                        {isSearching ? (
+                          <div className="flex items-center gap-2 px-3 py-3 text-xs text-outline">
+                            <div className="h-3 w-3 animate-spin rounded-full border border-primary border-t-transparent" />
+                            Searching…
+                          </div>
+                        ) : searchResults.length ? (
+                          <div className="max-h-64 overflow-y-auto py-1">
+                            {searchResults.map((result, idx) => (
+                              <button
+                                key={`${result.videoId}-${idx}`}
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  handleSelectSearchResult(result);
+                                }}
+                                className={cn(
+                                  "flex w-full items-center gap-3 px-3 py-2 text-left transition-colors",
+                                  idx === highlightedSearchIndex ? "bg-primary/15" : "hover:bg-surface-container-high",
+                                )}
+                              >
+                                <img
+                                  src={result.thumbnail ?? session.nowPlaying.albumArtUrl}
+                                  alt={result.title}
+                                  className="h-10 w-10 shrink-0 rounded object-cover"
+                                />
+                                <span className="truncate text-sm font-medium text-on-surface">{result.title}</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="px-3 py-3 text-xs text-outline">No songs found</p>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                   <button
                     type="submit"

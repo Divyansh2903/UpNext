@@ -5,6 +5,7 @@ import type {
   HostSessionSummaryResponse,
   HostSessionsResponse,
   SessionResponse,
+  SongSearchResult,
 } from "./types";
 
 type HttpMethod = "GET" | "POST";
@@ -74,5 +75,9 @@ export const api = {
     return request<HostSessionSummaryResponse>(`/sessions/by-id/${sessionId}/summary`, {
       token,
     });
+  },
+  searchSongs(query: string) {
+    const params = new URLSearchParams({ q: query });
+    return request<{ results: SongSearchResult[] }>(`/search?${params.toString()}`);
   },
 };

@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 
 import { env } from "./config/env.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
+import { searchRouter } from "./modules/search/search.routes.js";
 import { sessionRouter } from "./modules/session/session.routes.js";
 
 const app = express();
@@ -17,6 +18,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/sessions", sessionRouter);
+app.use("/search", searchRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ZodError) {

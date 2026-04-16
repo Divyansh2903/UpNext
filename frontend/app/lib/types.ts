@@ -3,6 +3,12 @@ export type ApiErrorPayload = {
   message?: string;
 };
 
+export type SongSearchResult = {
+  videoId: string;
+  title: string;
+  thumbnail: string | null;
+};
+
 export type AuthUser = {
   id: string;
   email: string;
