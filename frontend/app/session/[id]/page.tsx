@@ -54,6 +54,7 @@ function SessionPageInner({ id }: { id: string }) {
   const [nameDraft, setNameDraft] = useState(displayName);
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
   const [playedSongs, setPlayedSongs] = useState<PlayedSong[]>([]);
+  const SPOTIFY_TRACK_URL_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)[A-Za-z0-9]{22}/i;
 
   useEffect(() => {
     setNameDraft(displayName);
@@ -88,10 +89,17 @@ function SessionPageInner({ id }: { id: string }) {
 
   const handleAddSong = (e: FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    const videoId = extractYouTubeVideoId(searchQuery);
+    const value = searchQuery.trim();
+    if (!value) return;
+    if (SPOTIFY_TRACK_URL_REGEX.test(value)) {
+      setAddSongError(null);
+      sendAddSong(value);
+      setSearchQuery("");
+      return;
+    }
+    const videoId = extractYouTubeVideoId(value);
     if (!videoId) {
-      setAddSongError("Paste a valid YouTube URL or 11-character video ID.");
+      setAddSongError("Paste a valid YouTube or Spotify track link.");
       return;
     }
     setAddSongError(null);

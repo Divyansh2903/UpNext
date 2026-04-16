@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 
 export type PromotedSong = {
   id: string;
+  platform: "youtube" | "spotify";
   videoId: string;
   title: string;
   thumbnailUrl: string | null;
@@ -18,6 +19,7 @@ export async function promoteNextSong(
     where: { sessionId, currentInSession: { none: {} } },
     select: {
       id: true,
+      platform: true,
       videoId: true,
       title: true,
       thumbnailUrl: true,
@@ -49,6 +51,7 @@ export async function promoteNextSong(
 
   return {
     id: next.id,
+    platform: next.platform,
     videoId: next.videoId,
     title: next.title,
     thumbnailUrl: next.thumbnailUrl,

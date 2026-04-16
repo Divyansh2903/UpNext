@@ -19,6 +19,7 @@ export async function buildQueue(
     },
     select: {
       id: true,
+      platform: true,
       videoId: true,
       title: true,
       thumbnailUrl: true,
@@ -33,6 +34,7 @@ export async function buildQueue(
   return songs
     .map((s) => ({
       id: s.id,
+      platform: s.platform,
       videoId: s.videoId,
       title: s.title,
       thumbnailUrl: s.thumbnailUrl,
@@ -59,6 +61,7 @@ export async function buildSessionState(
       currentSong: {
         select: {
           id: true,
+          platform: true,
           videoId: true,
           title: true,
           thumbnailUrl: true,
@@ -78,6 +81,7 @@ export async function buildSessionState(
   const currentSong: CurrentSong | null = session?.currentSong
     ? {
         id: session.currentSong.id,
+        platform: session.currentSong.platform,
         videoId: session.currentSong.videoId,
         title: session.currentSong.title,
         thumbnailUrl: session.currentSong.thumbnailUrl,

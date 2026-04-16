@@ -5,7 +5,8 @@ import { z } from "zod";
 import { env } from "../../config/env.js";
 import { prisma } from "../../db/prisma.js";
 import { ADD_SONG_LIMIT, tryConsume } from "../../lib/rateLimiter.js";
-import { extractVideoId, fetchYouTubeMetadata } from "../../lib/youtube.js";
+import { extractSpotifyTrackId, fetchSpotifyTrackMetadata } from "../../lib/spotify.js";
+import { extractVideoId, fetchYouTubeMetadata, searchYouTubeVideoId } from "../../lib/youtube.js";
 import {
   ClientMessage,
   JoinSessionMessage,
@@ -180,7 +181,30 @@ async function handleAddSong(
     return sendTo(ctx.socket, { type: "ERROR", code: "RateLimited" });
   }
 
-  const videoId = extractVideoId(msg.videoId);
+  let platform: "youtube" | "spotify" = "youtube";
+  let submittedVideoId = msg.videoId;
+  const spotifyTrackId = extractSpotifyTrackId(msg.videoId);
+  if (spotifyTrackId) {
+    platform = "spotify";
+    let spotifyMetadata: Awaited<ReturnType<typeof fetchSpotifyTrackMetadata>> = null;
+    try {
+      spotifyMetadata = await fetchSpotifyTrackMetadata(spotifyTrackId);
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "SpotifyResolveFailed";
+      return sendTo(ctx.socket, { type: "ERROR", code });
+    }
+    if (!spotifyMetadata) {
+      return sendTo(ctx.socket, { type: "ERROR", code: "SpotifyTrackNotFound" });
+    }
+    const query = `${spotifyMetadata.title} ${spotifyMetadata.artist} official`;
+    const resolvedVideoId = await searchYouTubeVideoId(query);
+    if (!resolvedVideoId) {
+      return sendTo(ctx.socket, { type: "ERROR", code: "YouTubeSearchFailed" });
+    }
+    submittedVideoId = resolvedVideoId;
+  }
+
+  const videoId = extractVideoId(submittedVideoId);
   if (!videoId) {
     return sendTo(ctx.socket, { type: "ERROR", code: "InvalidVideoId" });
   }
@@ -203,6 +227,7 @@ async function handleAddSong(
   const song = await prisma.song.create({
     data: {
       sessionId: ctx.sessionId,
+      platform,
       videoId,
       originalUrl: msg.videoId !== videoId ? msg.videoId : null,
       title: metadata?.title ?? videoId,
@@ -210,7 +235,16 @@ async function handleAddSong(
       thumbnailUrl: metadata?.thumbnailUrl ?? null,
       addedBy: ctx.userId,
     },
-    select: { id: true, videoId: true, title: true, thumbnailUrl: true, durationSeconds: true, addedBy: true, _count: { select: { votes: true } } },
+    select: {
+      id: true,
+      platform: true,
+      videoId: true,
+      title: true,
+      thumbnailUrl: true,
+      durationSeconds: true,
+      addedBy: true,
+      _count: { select: { votes: true } },
+    },
   });
 
   const claimed = await tryClaimInitialPlayback(prisma, ctx.sessionId, song.id);
@@ -220,6 +254,7 @@ async function handleAddSong(
       type: "PLAY_SONG",
       song: {
         id: song.id,
+        platform: song.platform,
         videoId: song.videoId,
         title: song.title,
         thumbnailUrl: song.thumbnailUrl,
@@ -326,6 +361,7 @@ async function handleSongEnded(
       type: "PLAY_SONG",
       song: {
         id: next.id,
+        platform: next.platform,
         videoId: next.videoId,
         title: next.title,
         thumbnailUrl: next.thumbnailUrl,

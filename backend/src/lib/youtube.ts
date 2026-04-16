@@ -43,6 +43,13 @@ type YouTubeApiResponse = {
   }>;
 };
 
+type YouTubeSearchResponse = {
+  items?: Array<{
+    id?: { videoId?: string };
+    snippet?: { title?: string };
+  }>;
+};
+
 export async function fetchYouTubeMetadata(videoId: string): Promise<YouTubeMetadata | null> {
   const url = new URL("https://www.googleapis.com/youtube/v3/videos");
   url.searchParams.set("part", "snippet,contentDetails");
@@ -71,4 +78,38 @@ export async function fetchYouTubeMetadata(videoId: string): Promise<YouTubeMeta
       : null,
     thumbnailUrl: thumbnail,
   };
+}
+
+function scoreYouTubeResult(title: string): number {
+  const lower = title.toLowerCase();
+  let score = 0;
+  if (lower.includes("official")) score += 4;
+  if (lower.includes("audio")) score += 2;
+  if (lower.includes("lyrics")) score += 1;
+  if (lower.includes("remix")) score -= 3;
+  if (lower.includes("live")) score -= 3;
+  if (lower.includes("cover")) score -= 3;
+  return score;
+}
+
+export async function searchYouTubeVideoId(query: string): Promise<string | null> {
+  const url = new URL("https://www.googleapis.com/youtube/v3/search");
+  url.searchParams.set("part", "snippet");
+  url.searchParams.set("maxResults", "5");
+  url.searchParams.set("q", query);
+  url.searchParams.set("type", "video");
+  url.searchParams.set("key", env.YOUTUBE_API_KEY);
+
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = (await res.json()) as YouTubeSearchResponse;
+  const items = data.items ?? [];
+  if (!items.length) return null;
+
+  const best = [...items].sort((a, b) => {
+    const scoreA = scoreYouTubeResult(a.snippet?.title ?? "");
+    const scoreB = scoreYouTubeResult(b.snippet?.title ?? "");
+    return scoreB - scoreA;
+  })[0];
+  return best?.id?.videoId ?? items[0]?.id?.videoId ?? null;
 }

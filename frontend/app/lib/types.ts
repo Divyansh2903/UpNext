@@ -69,6 +69,7 @@ export type HostSessionSummaryResponse = {
 
 export type QueueEntry = {
   id: string;
+  platform: "youtube" | "spotify";
   videoId: string;
   title: string;
   thumbnailUrl: string | null;
@@ -81,6 +82,7 @@ export type QueueEntry = {
 
 export type CurrentSong = {
   id: string;
+  platform: "youtube" | "spotify";
   videoId: string;
   title: string;
   thumbnailUrl: string | null;
