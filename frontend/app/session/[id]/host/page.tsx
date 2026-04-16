@@ -916,7 +916,7 @@ function HostViewPageInner({
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col pb-20 md:pb-4">
         <main className="flex-1 px-4 pb-20 pt-10 sm:px-6 sm:pb-20 md:px-12 md:pb-20 lg:pt-5">
-          {activeView === "history" ? (
+          <div className={cn(activeView === "history" ? "block" : "hidden")}>
             <div className="mx-auto w-full max-w-5xl space-y-6 pb-10 pt-2 sm:pb-12 lg:pt-2">
               <section className="space-y-6">
                 <div className="space-y-2">
@@ -962,7 +962,8 @@ function HostViewPageInner({
                 </div>
               </section>
             </div>
-          ) : activeView === "people" ? (
+          </div>
+          <div className={cn(activeView === "people" ? "block" : "hidden")}>
             <div className="mx-auto w-full max-w-5xl space-y-6 pb-10 pt-2 sm:pb-12 lg:pt-2">
               <section className="space-y-6">
                 <div className="space-y-2">
@@ -1013,8 +1014,8 @@ function HostViewPageInner({
                 </div>
               </section>
             </div>
-          ) : (
-            <>
+          </div>
+          <div className={cn(activeView === "live" ? "block" : "hidden")}>
           <div className="mt-1 grid grid-cols-1 gap-6 xl:grid-cols-12">
             <div className="space-y-6 xl:col-span-7">
               <section className="group relative">
@@ -1115,101 +1116,6 @@ function HostViewPageInner({
                 </div>
               </section>
 
-              <section className="fixed bottom-6 left-1/2 z-40 hidden w-[min(1080px,calc(100vw-2rem))] -translate-x-1/2 items-center gap-x-4 gap-y-1.5 rounded-full border border-white/10 bg-neutral-950/85 px-5 py-2.5 shadow-[0_20px_70px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:grid md:grid-cols-[minmax(220px,1fr)_minmax(360px,540px)_auto] md:grid-rows-[auto_auto]">
-                <div className="min-w-0 flex items-center gap-4 md:row-span-2">
-                  <img
-                    alt={session.nowPlaying.title}
-                    className={cn(
-                      "h-12 w-12 shrink-0 rounded-full border-2 border-primary/40 object-cover shadow-[0_0_0_2px_rgba(255,255,255,0.08)]",
-                      currentVideoId && !isPaused && "animate-[spin_9s_linear_infinite]",
-                    )}
-                    src={session.nowPlaying.albumArtUrl}
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate font-headline text-lg font-normal tracking-wide text-white">
-                      {session.nowPlaying.title}
-                    </p>
-                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-400">
-                      {session.nowPlaying.author || "Broadcasting live"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-1 md:col-start-2 md:row-start-1 md:justify-self-center">
-                  <button
-                    type="button"
-                    disabled={!currentVideoId}
-                    onClick={() => {
-                      if (!currentVideoId) return;
-                      setIsPaused((prev) => !prev);
-                    }}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105 active:scale-95"
-                    aria-label={isPaused ? "Play" : "Pause"}
-                  >
-                    <span
-                      className="material-symbols-outlined text-[26px] leading-none"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      {isPaused ? "play_arrow" : "pause"}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!currentVideoId}
-                    onClick={() => {
-                      if (!currentVideoId) return;
-                      setIsPaused(false);
-                      sendSongEnded();
-                    }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
-                    aria-label="Next song"
-                  >
-                    <span className="material-symbols-outlined text-[17px]">skip_next</span>
-                  </button>
-                </div>
-
-                <div className="min-w-0 md:col-start-2 md:row-start-2">
-                  <div className="flex items-center gap-3 text-[10px] font-bold tracking-tighter text-neutral-500">
-                    <span className="w-8 text-right">{session.nowPlaying.elapsed}</span>
-                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-neutral-800">
-                      <div
-                        className="h-full bg-gradient-to-r from-primary to-secondary shadow-[0_0_10px_rgba(255,144,109,0.5)]"
-                        style={{ width: `${playbackProgressPercent}%` }}
-                      />
-                    </div>
-                    <span className="w-8 text-left">{session.nowPlaying.duration}</span>
-                  </div>
-                </div>
-
-                <div className="flex w-full max-w-[180px] items-center gap-2 justify-self-end md:row-span-2">
-                  <span className="material-symbols-outlined text-neutral-500">volume_down</span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={volume}
-                    onChange={(e) => setVolume(Number(e.target.value))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-800
-                      [&::-webkit-slider-thumb]:appearance-none
-                      [&::-webkit-slider-thumb]:h-4
-                      [&::-webkit-slider-thumb]:w-4
-                      [&::-webkit-slider-thumb]:rounded-full
-                      [&::-webkit-slider-thumb]:bg-white
-                      [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(0,0,0,0.3)]
-                      [&::-moz-range-thumb]:h-4
-                      [&::-moz-range-thumb]:w-4
-                      [&::-moz-range-thumb]:rounded-full
-                      [&::-moz-range-thumb]:border-0
-                      [&::-moz-range-thumb]:bg-white"
-                    style={{
-                      background: `linear-gradient(to right, rgb(255, 144, 109) 0%, rgb(255, 144, 109) ${volume}%, rgb(38, 38, 42) ${volume}%, rgb(38, 38, 42) 100%)`,
-                    }}
-                    aria-label="Player volume"
-                  />
-                  <span className="material-symbols-outlined text-neutral-500">volume_up</span>
-                </div>
-              </section>
             </div>
 
             <div className="space-y-6 xl:col-span-5">
@@ -1286,10 +1192,100 @@ function HostViewPageInner({
           {stopSessionMutation.isError ? (
             <p className="mt-4 text-center text-xs text-error">{(stopSessionMutation.error as Error).message}</p>
           ) : null}
-            </>
-          )}
+          </div>
         </main>
       </div>
+
+      <section className="fixed bottom-6 left-1/2 z-40 hidden w-[min(1080px,calc(100vw-2rem))] -translate-x-1/2 items-center gap-x-4 gap-y-1.5 rounded-full border border-white/10 bg-neutral-950/85 px-5 py-2.5 shadow-[0_20px_70px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:grid md:grid-cols-[minmax(220px,1fr)_minmax(360px,540px)_auto] md:grid-rows-[auto_auto]">
+        <div className="min-w-0 flex items-center gap-4 md:row-span-2">
+          <img
+            alt={session.nowPlaying.title}
+            className={cn(
+              "h-12 w-12 shrink-0 rounded-full border-2 border-primary/40 object-cover shadow-[0_0_0_2px_rgba(255,255,255,0.08)]",
+              currentVideoId && !isPaused && "animate-[spin_9s_linear_infinite]",
+            )}
+            src={session.nowPlaying.albumArtUrl}
+          />
+          <div className="min-w-0">
+            <p className="truncate font-headline text-lg font-normal tracking-wide text-white">{session.nowPlaying.title}</p>
+            <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-400">
+              {session.nowPlaying.author || "Broadcasting live"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-1 md:col-start-2 md:row-start-1 md:justify-self-center">
+          <button
+            type="button"
+            disabled={!currentVideoId}
+            onClick={() => {
+              if (!currentVideoId) return;
+              setIsPaused((prev) => !prev);
+            }}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105 active:scale-95"
+            aria-label={isPaused ? "Play" : "Pause"}
+          >
+            <span className="material-symbols-outlined text-[26px] leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>
+              {isPaused ? "play_arrow" : "pause"}
+            </span>
+          </button>
+          <button
+            type="button"
+            disabled={!currentVideoId}
+            onClick={() => {
+              if (!currentVideoId) return;
+              setIsPaused(false);
+              sendSongEnded();
+            }}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
+            aria-label="Next song"
+          >
+            <span className="material-symbols-outlined text-[17px]">skip_next</span>
+          </button>
+        </div>
+
+        <div className="min-w-0 md:col-start-2 md:row-start-2">
+          <div className="flex items-center gap-3 text-[10px] font-bold tracking-tighter text-neutral-500">
+            <span className="w-8 text-right">{session.nowPlaying.elapsed}</span>
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-neutral-800">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-secondary shadow-[0_0_10px_rgba(255,144,109,0.5)]"
+                style={{ width: `${playbackProgressPercent}%` }}
+              />
+            </div>
+            <span className="w-8 text-left">{session.nowPlaying.duration}</span>
+          </div>
+        </div>
+
+        <div className="flex w-full max-w-[180px] items-center gap-2 justify-self-end md:row-span-2">
+          <span className="material-symbols-outlined text-neutral-500">volume_down</span>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={1}
+            value={volume}
+            onChange={(e) => setVolume(Number(e.target.value))}
+            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-800
+              [&::-webkit-slider-thumb]:appearance-none
+              [&::-webkit-slider-thumb]:h-4
+              [&::-webkit-slider-thumb]:w-4
+              [&::-webkit-slider-thumb]:rounded-full
+              [&::-webkit-slider-thumb]:bg-white
+              [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(0,0,0,0.3)]
+              [&::-moz-range-thumb]:h-4
+              [&::-moz-range-thumb]:w-4
+              [&::-moz-range-thumb]:rounded-full
+              [&::-moz-range-thumb]:border-0
+              [&::-moz-range-thumb]:bg-white"
+            style={{
+              background: `linear-gradient(to right, rgb(255, 144, 109) 0%, rgb(255, 144, 109) ${volume}%, rgb(38, 38, 42) ${volume}%, rgb(38, 38, 42) 100%)`,
+            }}
+            aria-label="Player volume"
+          />
+          <span className="material-symbols-outlined text-neutral-500">volume_up</span>
+        </div>
+      </section>
 
       {activeView === "live" ? (
       <div className="fixed bottom-6 left-1/2 z-50 w-[90%] -translate-x-1/2 md:hidden">
