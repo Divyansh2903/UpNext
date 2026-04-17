@@ -11,7 +11,8 @@ upnext_v_0_specification.md
 frontend_cleanup_audit.md
 testsprite_hacathon.md
 SECURITY_AUDIT_POST_HACKATHON.md
-TESTSPRITE_PRD.md
+Product_PRD.md
+testsprite_tests_round1
 # =============================================================================
 # Shared — every package (backend, frontend, tooling)
 # =============================================================================

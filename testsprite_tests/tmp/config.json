@@ -1,0 +1,20 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "admin@gmail.com",
+  "loginPassword": "admin123",
+  "executionArgs": {
+    "projectName": "upnext",
+    "projectPath": "/Users/divyanshsingh/Developer/Personal Projs/upnext",
+    "testIds": [],
+    "additionalInstruction": "This is a real-time collaborative music queue app. Seed host credentials: email=admin@gmail.com password=admin123. Always create a fresh session per test run — never reuse hardcoded join codes. Extract join code from the URL (?code=XXXXXX) or host session view header. Backend API at http://localhost:4000, WebSocket at ws://localhost:4001. Host auth errors surface as toasts only (no inline field errors). YouTube player only mounts when a song is active — do not assert player presence on freshly created empty session. Clipboard API may be flaky in headless Chromium — include retry windows for Copy Link assertions. Transient WS connection errors are suppressed for ~1.2s — do not assert immediate connection error toast. View Demo and Features/How It Works nav buttons are inert marketing placeholders.",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-Y1-WhOjSzvKEn0vERSnZQz2eoHCTf-bAYh_-MWk35L2Lqzs8SrrmjuUH8nPQrW577I1U0qM1FtRA-1ty3YnLr06HV8ABwPzYP03QvJUD93YaBmJ0_oBYO4_C0TrW8IhgjJQ"
+    }
+  },
+  "serverPort": 63578,
+  "proxy": "http://42a39965-b1d1-4c57-bf5a-ecec7ee7ad5e:akajrJwLkUZ7DkfBdwrPWD40ml2NDsZY@tun.testsprite.com:8080"
+}

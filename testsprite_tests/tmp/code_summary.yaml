@@ -1,0 +1,183 @@
+version: "2"
+type: frontend
+tech_stack:
+  - language: TypeScript
+  - framework: Next.js 16 (App Router)
+  - ui_library: Tailwind CSS v4
+  - other: React Query (TanStack), React 19, WebSocket (native), YouTube IFrame API
+
+routes:
+  - path: /
+    file: frontend/app/page.tsx
+    auth_required: false
+    description: Landing page with marketing content and Join Room modal
+  - path: /host
+    file: frontend/app/host/page.tsx
+    auth_required: false
+    description: Redirects to /host/auth
+  - path: /host/auth
+    file: frontend/app/host/auth/page.tsx
+    auth_required: false
+    description: Host authentication gate (login/signup) and authenticated dashboard
+  - path: /session/[id]/join
+    file: frontend/app/session/[id]/join/page.tsx
+    auth_required: false
+    description: Participant pre-join screen where guest enters display name
+  - path: /session/[id]
+    file: frontend/app/session/[id]/page.tsx
+    auth_required: false
+    description: Participant live session view with queue, voting, history, people tabs
+  - path: /session/[id]/host
+    file: frontend/app/session/[id]/host/page.tsx
+    auth_required: true
+    description: Host live session view with playback controls, settings modal, and ended recap
+
+features:
+  - name: Host Signup
+    description: New host creates an account with display name, email, and password
+    files:
+      - frontend/app/host/auth/page.tsx
+    entry_route: /host/auth
+    user_interactions:
+      - Click Sign up tab
+      - Fill display name input
+      - Fill email input
+      - Fill password input
+      - Click Create account button
+      - See error toast on duplicate email (EmailAlreadyInUse)
+    api_calls:
+      - method: POST
+        endpoint: /auth/signup
+    auth_required: false
+
+  - name: Host Login
+    description: Existing host logs in with email and password
+    files:
+      - frontend/app/host/auth/page.tsx
+    entry_route: /host/auth
+    user_interactions:
+      - Fill email input
+      - Fill password input
+      - Click Login button
+      - See error toast on invalid credentials (InvalidCredentials)
+    api_calls:
+      - method: POST
+        endpoint: /auth/login
+    auth_required: false
+
+  - name: Host Dashboard
+    description: Authenticated host dashboard showing previous sessions and create session button
+    files:
+      - frontend/app/host/auth/page.tsx
+    entry_route: /host/auth
+    user_interactions:
+      - Click Host a session button (label changes to Creating... while pending)
+      - View previous sessions list with Live/Ended badges
+      - Click Open dashboard or View room for a session row
+      - Click Logout button to clear JWT and return to auth gate
+    api_calls:
+      - method: POST
+        endpoint: /sessions/
+      - method: GET
+        endpoint: /sessions/host/mine
+    auth_required: true
+
+  - name: Join Room Modal (Landing Page)
+    description: Modal on landing page allowing participant to join via 6-char code or invite URL
+    files:
+      - frontend/app/page.tsx
+    entry_route: /
+    user_interactions:
+      - Click Join Link button in hero section to open modal
+      - Type 6-character room code or paste full invite URL
+      - Click Continue button (label becomes Checking... while validating)
+      - See inline error Please enter a valid URL. for invalid format
+      - See inline error Session not found for code {CODE} for valid but non-existent session
+      - Click Cancel or X to close modal
+    api_calls:
+      - method: GET
+        endpoint: /sessions/:code
+    auth_required: false
+
+  - name: Participant Pre-Join Screen
+    description: Guest enters display name before joining live session
+    files:
+      - frontend/app/session/[id]/join/page.tsx
+    entry_route: /session/[id]/join
+    user_interactions:
+      - View session info card with room code and host name
+      - Fill display name input
+      - Click Enter the Gallery button (label is Checking room... while session lookup pending)
+      - See Session not found for code {CODE} if session lookup fails
+    api_calls:
+      - method: GET
+        endpoint: /sessions/:code
+    auth_required: false
+
+  - name: Participant Live Session View
+    description: Guest participant view with queue, voting, history, people, and invite functionality
+    files:
+      - frontend/app/session/[id]/page.tsx
+      - frontend/app/session/[id]/SessionProvider.tsx
+    entry_route: /session/[id]
+    user_interactions:
+      - View Now Playing panel with progress bar
+      - Type search query or YouTube/Spotify URL in Add to Queue input
+      - Select search suggestion via keyboard (ArrowUp/ArrowDown/Enter) or click
+      - Click Add Track to add song
+      - Click upvote button on queue items (toggles filled state)
+      - Click pencil icon to edit display name; save or cancel
+      - Switch sidebar tabs: Live Session, History, People
+      - Click Invite Friends button to open invite modal
+      - Click Copy Link in invite modal (state: Copy Link -> Copied -> reset)
+      - Click X to close invite modal
+      - View People tab with Host badge on host participant
+      - View History tab with Previously Played list
+      - See Host ended this session screen with Go Home and Create Your Own Session CTAs when session expires
+    api_calls:
+      - method: GET
+        endpoint: /search?q={query}
+    auth_required: false
+
+  - name: Host Live Session View
+    description: Host controls playback, views queue and live feed, manages session via settings modal
+    files:
+      - frontend/app/session/[id]/host/page.tsx
+    entry_route: /session/[id]/host
+    user_interactions:
+      - View now playing card, live feed, queue list
+      - Click play/pause and skip next in floating playback dock
+      - Click Invite your crowd Copy Link button
+      - Open Settings sidebar item to show Host Settings modal
+      - Click Create new session in settings modal (label becomes Creating...)
+      - Click Stop Session in settings modal (label becomes Stopping...)
+      - View EndedHostSessionRecap with Session Ended heading after stop
+      - View recap participant list and songs played list
+    api_calls:
+      - method: GET
+        endpoint: /sessions/by-id/:sessionId/summary
+      - method: POST
+        endpoint: /sessions/by-id/:sessionId/stop
+      - method: POST
+        endpoint: /sessions/
+    auth_required: true
+
+known_limitations:
+  - issue: YouTube iframe player mounts only when currentVideoId is set; freshly created empty session has no player
+    location: frontend/app/session/[id]/host/page.tsx
+    impact: Playback controls are disabled until first song is active; do not assert player presence immediately after session creation
+  - issue: Features, How It Works top-nav buttons and View Demo CTA button are marketing placeholders with no navigation
+    location: frontend/app/page.tsx
+    impact: Do not assert navigation on these buttons
+  - issue: Guest identity stored in localStorage only; no authenticated participant accounts
+    location: frontend/app/session/[id]/SessionProvider.tsx
+    impact: Guest state does not persist across browsers or incognito sessions
+  - issue: Clipboard API may be flaky in headless Chromium
+    location: frontend/app/session/[id]/page.tsx
+    impact: Copy Link -> Copied assertion may need retry window
+  - issue: Transient WebSocket connection errors are delayed ~1.2s and suppressed on reconnect
+    location: frontend/app/session/[id]/SessionProvider.tsx
+    impact: Do not assert immediate connection-error toast on first blip
+  - issue: Host auth feedback is toast-only; no inline field-level error banners
+    location: frontend/app/host/auth/page.tsx
+    impact: Assert toast body text, not inline form errors
