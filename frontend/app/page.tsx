@@ -18,6 +18,12 @@ export default function Home() {
     router.push("/host/auth");
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const openJoinModal = () => {
     setJoinCodeInput("");
     setJoinCodeError(null);
@@ -54,8 +60,20 @@ export default function Home() {
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           <UpNextWordmark />
           <div className="hidden md:flex items-center gap-10">
-            <button type="button" className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium">Features</button>
-            <button type="button" className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium">How It Works</button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("what-is-upnext")}
+              className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium"
+            >
+              What is UpNext
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("how-it-works")}
+              className="text-neutral-400 hover:text-neutral-100 transition-colors font-medium"
+            >
+              How It Works
+            </button>
           </div>
           <div className="flex items-center gap-6">
             <button 
@@ -155,7 +173,7 @@ export default function Home() {
         </section>
 
         {/* Redesigned Bento Grid Features */}
-        <section className="py-32 px-8 max-w-7xl mx-auto relative overflow-visible">
+        <section id="features" className="scroll-mt-28 py-32 px-8 max-w-7xl mx-auto relative overflow-visible">
           <div className="volumetric-streak right-[5%] top-20 h-[800px] z-0 opacity-40"></div>
           
           <div className="mb-20 text-center relative z-10">
@@ -280,7 +298,7 @@ export default function Home() {
         </section>
 
         {/* How It Works (Transitioned with Streaks) */}
-        <section className="py-32 bg-surface-container-lowest relative overflow-hidden">
+        <section id="how-it-works" className="scroll-mt-28 py-32 bg-surface-container-lowest relative overflow-hidden">
           <div className="volumetric-streak right-[15%] bottom-[-200px] h-[800px] opacity-30"></div>
           
           <div className="max-w-7xl mx-auto px-8">
@@ -324,6 +342,39 @@ export default function Home() {
                   <h4 className="text-2xl font-public font-black mb-4 tracking-tight">Vote</h4>
                   <p className="text-on-surface-variant font-medium leading-relaxed font-body">Watch the queue evolve in real-time as your friends add tracks and vote. The best music always wins.</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* What Is UpNext */}
+        <section id="what-is-upnext" className="scroll-mt-28 py-28 px-8 bg-neutral-950 relative overflow-hidden">
+          <div className="volumetric-streak left-[8%] top-[-140px] h-[780px] opacity-20"></div>
+          <div className="max-w-5xl mx-auto">
+            <div className="rounded-4xl heavy-glass border border-white/10 p-8 md:p-14 relative z-10">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                <span className="text-[11px] tracking-[0.22em] uppercase font-black text-primary font-label">Product Snapshot</span>
+              </div>
+
+              <h2 className="font-public text-4xl md:text-5xl font-black tracking-tight mb-5 leading-tight">
+                What is UpNext?
+              </h2>
+              <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed font-body max-w-4xl mb-7">
+                UpNext is a real-time collaborative music queue. Hosts spin up a session, participants join via a 6-character code, and everyone can search for tracks or add YouTube and Spotify links before voting on what plays next.
+              </p>
+
+              <div className="flex flex-wrap gap-3 mb-7">
+                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-neutral-200">6-character room code</span>
+                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-neutral-200">YouTube + Spotify links</span>
+                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-neutral-200">Search tracks instantly</span>
+                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-neutral-200">Live vote-based ordering</span>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/25 px-5 py-4">
+                <p className="text-base md:text-lg text-on-surface-variant leading-relaxed font-body">
+                  The queue re-orders live by vote count, while the host&apos;s browser plays audio for the room.
+                </p>
               </div>
             </div>
           </div>
