@@ -13,7 +13,8 @@
     "start:ws": "node --env-file=.env dist/ws-server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "seed:test-user": "tsx --env-file=.env scripts/seed-test-user.ts"
   },
   "keywords": [],
   "author": "",

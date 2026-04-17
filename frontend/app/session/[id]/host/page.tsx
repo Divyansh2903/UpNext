@@ -9,6 +9,7 @@ import { YouTubePlayer } from "../../../components/YouTubePlayer";
 import { UpNextWordmark } from "../../../components/UpNextWordmark";
 import { api } from "../../../lib/api";
 import { queryKeys } from "../../../lib/queryKeys";
+import { getHostParticipantId, isHostParticipant } from "../../../lib/sessionHost";
 import type { HostSessionSummaryResponse } from "../../../lib/types";
 import {
   clearGuestIdentity,
@@ -34,6 +35,7 @@ type LiveFeedEvent = {
   actorName: string;
   songTitle?: string;
   createdAt: string;
+  isHost?: boolean;
 };
 
 function formatFeedTime(isoValue: string) {
@@ -655,8 +657,19 @@ function HostViewPageInner({
 }) {
   const router = useRouter();
   const { showToast } = useToast();
-  const { session, queue, participants, voteActivity, currentVideoId, playbackProgressPercent, sendSongEnded, sendPlaybackSync, error } =
-    useSessionState();
+  const {
+    session,
+    queue,
+    participants,
+    voteActivity,
+    currentVideoId,
+    playbackProgressPercent,
+    sendSongEnded,
+    sendPlaybackSync,
+    error,
+    isConnected,
+    isConnecting,
+  } = useSessionState();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
@@ -670,11 +683,23 @@ function HostViewPageInner({
   const lastSyncRef = useRef<{ elapsedSeconds: number; paused: boolean } | null>(null);
   const seenParticipantIdsRef = useRef<Set<string>>(new Set());
   const seenVoteEventsRef = useRef<Set<string>>(new Set());
+  const hostParticipantId = useMemo(() => getHostParticipantId(participants), [participants]);
 
   useEffect(() => {
     if (!error || error === "HostAccessDenied" || error === "InvalidToken") return;
-    showToast({ message: toReadableErrorMessage(error), variant: "error" });
-  }, [error, showToast]);
+    const isConnectionIssue = error === "ConnectionFailed" || error === "ReconnectFailed";
+    if (isConnectionIssue && (isConnecting || isConnected)) return;
+
+    const timeout = window.setTimeout(
+      () => {
+        if (isConnectionIssue && (isConnecting || isConnected)) return;
+        showToast({ message: toReadableErrorMessage(error), variant: "error" });
+      },
+      isConnectionIssue ? 1200 : 0,
+    );
+
+    return () => window.clearTimeout(timeout);
+  }, [error, isConnected, isConnecting, showToast]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -715,11 +740,13 @@ function HostViewPageInner({
     for (const participant of participants) {
       if (knownParticipants.has(participant.id)) continue;
       knownParticipants.add(participant.id);
+      const isHost = isHostParticipant(participant, hostParticipantId, session.hostName);
       newEvents.push({
         id: `joined-${participant.id}-${Date.now()}`,
         type: "joined",
         actorName: participant.name,
         createdAt: participant.joinedAt ?? new Date().toISOString(),
+        isHost,
       });
     }
     if (newEvents.length) {
@@ -771,14 +798,11 @@ function HostViewPageInner({
   const stopSessionMutation = useMutation({
     mutationFn: () => api.stopSession(token, id),
     onSuccess: () => {
-      if (typeof window !== "undefined") {
-        window.localStorage.removeItem(`upnext.host.joinCode.${id}`);
-      }
       queryClient.invalidateQueries({ queryKey: queryKeys.hostSessions });
       queryClient.invalidateQueries({ queryKey: queryKeys.sessionByCode(joinCode) });
       queryClient.invalidateQueries({ queryKey: queryKeys.hostSessionSummary(id) });
       setIsSettingsOpen(false);
-      router.replace("/host/auth");
+      router.replace(`/session/${id}/host?code=${joinCode}`);
     },
   });
 
@@ -1075,9 +1099,7 @@ function HostViewPageInner({
                   <div className="custom-scrollbar max-h-[60vh] overflow-y-auto p-3">
                     {participants.length > 0 ? (
                       participants.map((participant, idx) => {
-                        const normalizedName = participant.name.trim().toLowerCase();
-                        const normalizedHostName = session.hostName.trim().toLowerCase();
-                        const isHost = normalizedName === normalizedHostName || normalizedName === "host";
+                        const isHost = isHostParticipant(participant, hostParticipantId, session.hostName);
                         return (
                           <div
                             key={participant.id}
@@ -1199,9 +1221,11 @@ function HostViewPageInner({
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                         <img src={song.thumbnail} alt={song.title} className="h-10 w-10 shrink-0 rounded-md object-cover" />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="truncate text-base font-black tracking-tight text-white">{song.title}</p>
-                          <p className="truncate text-xs uppercase tracking-[0.08em] text-neutral-500">{song.author}</p>
+                          <p className="truncate text-xs uppercase tracking-[0.08em] text-neutral-500">
+                            Added by {song.addedBy ?? "Unknown"} : {song.votes} {song.votes < 2 ? "vote" : "votes"}
+                          </p>
                         </div>
                       </div>
                     ))
@@ -1267,7 +1291,7 @@ function HostViewPageInner({
                         <div className="min-w-0 flex-1">
                           <h4 className="truncate text-sm font-bold">
                             {event.type === "joined"
-                              ? `${event.actorName} joined the jam`
+                              ? `${event.actorName} ${event.isHost ? "started" : "joined"} the jam`
                               : `${event.actorName} voted for ${event.songTitle ?? "a track"}`}
                           </h4>
                           <p className="truncate text-xs text-neutral-500">{formatFeedTime(event.createdAt)}</p>

@@ -54,7 +54,7 @@ export function mapNowPlaying(
 
   return {
     title: currentSong.title,
-    author: `${addedByLabel}: ${currentSong.votes} votes`,
+    author: `Added by ${addedByLabel} : ${currentSong.votes} ${currentSong.votes < 2 ? "vote" : "votes"}`,
     albumArtUrl: currentSong.thumbnailUrl ?? FALLBACK_ART,
     elapsed,
     duration: formatDuration(currentSong.durationSeconds),

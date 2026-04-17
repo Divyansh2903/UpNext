@@ -1,10 +1,11 @@
 "use client";
 
-import { use, useState, FormEvent, useEffect } from "react";
+import { use, useState, FormEvent, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useToast } from "../../components/ToastProvider";
 import { UpNextWordmark } from "../../components/UpNextWordmark";
 import { api } from "../../lib/api";
+import { getHostParticipantId, isHostParticipant } from "../../lib/sessionHost";
 import type { SongSearchResult } from "../../lib/types";
 import { cn } from "../../lib/utils";
 import { getQueueCountLabel } from "../../mocks/selectors";
@@ -62,7 +63,19 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
 function SessionPageInner({ id }: { id: string }) {
   const { showToast } = useToast();
-  const { queue, session, participants, playbackProgressPercent, displayName, updateName, sendAddSong, sendVote, error } =
+  const {
+    queue,
+    session,
+    participants,
+    playbackProgressPercent,
+    displayName,
+    updateName,
+    sendAddSong,
+    sendVote,
+    error,
+    isConnected,
+    isConnecting,
+  } =
     useSessionState();
   const [activeView, setActiveView] = useState<"live" | "history" | "people">("live");
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,6 +91,7 @@ function SessionPageInner({ id }: { id: string }) {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [highlightedSearchIndex, setHighlightedSearchIndex] = useState(0);
+  const hostParticipantId = useMemo(() => getHostParticipantId(participants), [participants]);
 
   useEffect(() => {
     setNameDraft(displayName);
@@ -91,8 +105,19 @@ function SessionPageInner({ id }: { id: string }) {
 
   useEffect(() => {
     if (!error || error === "SessionExpired" || error === "SessionNotFound") return;
-    showToast({ message: toReadableErrorMessage(error), variant: "error" });
-  }, [error, showToast]);
+    const isConnectionIssue = error === "ConnectionFailed" || error === "ReconnectFailed";
+    if (isConnectionIssue && (isConnecting || isConnected)) return;
+
+    const timeout = window.setTimeout(
+      () => {
+        if (isConnectionIssue && (isConnecting || isConnected)) return;
+        showToast({ message: toReadableErrorMessage(error), variant: "error" });
+      },
+      isConnectionIssue ? 1200 : 0,
+    );
+
+    return () => window.clearTimeout(timeout);
+  }, [error, isConnected, isConnecting, showToast]);
 
   useEffect(() => {
     const title = session.nowPlaying.title?.trim();
@@ -504,9 +529,7 @@ function SessionPageInner({ id }: { id: string }) {
                   {participants.length > 0 ? (
                     participants.map((participant, idx) => (
                       (() => {
-                        const normalizedName = participant.name.trim().toLowerCase();
-                        const normalizedHostName = session.hostName.trim().toLowerCase();
-                        const isHost = normalizedName === normalizedHostName || normalizedName === "host";
+                        const isHost = isHostParticipant(participant, hostParticipantId, session.hostName);
                         return (
                       <div
                         key={participant.id}
@@ -567,7 +590,7 @@ function SessionPageInner({ id }: { id: string }) {
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
             <div className="space-y-8 lg:col-span-8">
-              <div className="glass-panel rounded-lg p-8 outline outline-1 outline-outline-variant/10">
+              <div className="glass-panel relative z-30 rounded-lg p-8 outline outline-1 outline-outline-variant/10">
                 <h2 className="mb-6 flex items-center gap-2 font-headline text-xl font-bold">
                   <span className="material-symbols-outlined text-primary">add_circle</span>
                   Add to Queue
@@ -669,37 +692,11 @@ function SessionPageInner({ id }: { id: string }) {
 
                       <div className="min-w-0 flex-grow">
                         <h4 className="truncate font-bold text-on-surface">{song.title}</h4>
-                        <p className="truncate text-sm text-on-surface-variant">{song.author}</p>
                         {song.addedBy ? (
                           <p className="mt-0.5 truncate text-[11px] font-medium text-outline">
                             Added by {song.addedBy}
                           </p>
                         ) : null}
-
-                        {song.isTopVoted && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <div className="flex -space-x-2">
-                              <div className="h-6 w-6 rounded-full bg-surface-container ring-2 ring-surface">
-                                <img
-                                  className="h-full w-full rounded-full object-cover"
-                                  alt=""
-                                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCePyb7bIu4bRRPxJkDQJYSSei8U3MxRIeWXmlU95lPwEgZG0-4LG5snY7JFBszudKjCNnGPO4v7il_yjel-c-kDDLeNOPSl3FV2WfavomqEyYAG776hWFtrJUqPnLeM1H6OO-5R28gU7GbWU2pGFilPvwyeUx-7rIATpbRyaUcWkx6_EluJcAGYSi8BqMWR-9thDrl06mWG9BnIL0UC6EbZGpMG5dPLHdjWKTj8tbfGttyN2kZQvER6GPtLv5RUXyEJ2d1QhCy3pQ"
-                                />
-                              </div>
-                              <div className="h-6 w-6 rounded-full bg-surface-container ring-2 ring-surface">
-                                <img
-                                  className="h-full w-full rounded-full object-cover"
-                                  alt=""
-                                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPHcrbXi-0PDiH42PYV9DY3eWtgyzHvrMDPyMj-cFGuSTDlMBoPlTDP67dZV2jW8f_P0CNATtEYrghmTWmOF3-mgFPOwduC5xob533JN-70OzIMSSGlhcAQBexRbRquj1lfBjrU9LyZ_CK8_NM6MCA7phs83Mfnr58cc-ee7U7bnO37HPEJ4oDmythxY1vLE2LkBiS9vL8ydccUYpc20xBaQ-Q8syykZeCO2R1ZBYogXNoD65a7o9QoAmnsWoSDFoZbnVpKqZUfv8"
-                                />
-                              </div>
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-container text-[8px] font-bold text-outline ring-2 ring-surface">
-                                +12
-                              </div>
-                            </div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Voted by community</span>
-                          </div>
-                        )}
                       </div>
 
                       <button
@@ -756,7 +753,7 @@ function SessionPageInner({ id }: { id: string }) {
                     <h3 className="font-headline text-xl font-black leading-[1] tracking-tight break-words overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] sm:text-2xl">
                       {session.nowPlaying.title}
                     </h3>
-                    <p className="font-medium text-on-surface-variant">{session.nowPlaying.author}</p>
+                    <p className="truncate text-sm font-medium text-on-surface-variant">{session.nowPlaying.author}</p>
                   </div>
 
                   <div className="mb-4 space-y-2">

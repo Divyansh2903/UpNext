@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { UpNextWordmark } from "./components/UpNextWordmark";
+import { api } from "./lib/api";
 import { extractJoinCodeFromInput } from "./lib/joinCode";
 import { HOME_HERO_MOCK } from "./mocks/home";
 
@@ -11,6 +12,7 @@ export default function Home() {
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinCodeInput, setJoinCodeInput] = useState("");
   const [joinCodeError, setJoinCodeError] = useState<string | null>(null);
+  const [isCheckingRoom, setIsCheckingRoom] = useState(false);
 
   const goGetStarted = () => {
     router.push("/host/auth");
@@ -22,16 +24,27 @@ export default function Home() {
     setJoinModalOpen(true);
   };
 
-  const submitJoinRoom = (e: FormEvent) => {
+  const submitJoinRoom = async (e: FormEvent) => {
     e.preventDefault();
+    if (isCheckingRoom) return;
+
     const code = extractJoinCodeFromInput(joinCodeInput);
     if (!code) {
-      setJoinCodeError("Enter a 6-character room code or paste your invite link.");
+      setJoinCodeError("Please enter a valid URL.");
       return;
     }
+
     setJoinCodeError(null);
-    router.push(`/session/${code}/join`);
-    setJoinModalOpen(false);
+    setIsCheckingRoom(true);
+    try {
+      await api.getSessionByCode(code);
+      router.push(`/session/${code}/join`);
+      setJoinModalOpen(false);
+    } catch {
+      setJoinCodeError(`Session not found for code ${code}`);
+    } finally {
+      setIsCheckingRoom(false);
+    }
   };
 
   return (
@@ -369,7 +382,7 @@ export default function Home() {
                 autoFocus
                 className="w-full rounded-md border border-outline-variant/20 bg-surface-container-high px-3 py-3 font-mono text-lg uppercase tracking-widest text-on-surface outline-none focus:border-primary/50"
                 placeholder="e.g. ABC123"
-                maxLength={12}
+                maxLength={512}
                 value={joinCodeInput}
                 onChange={(e) => {
                   setJoinCodeInput(e.target.value);
@@ -393,9 +406,10 @@ export default function Home() {
                 </button>
                 <button
                   type="submit"
+                  disabled={isCheckingRoom}
                   className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white hover:brightness-110 transition-colors"
                 >
-                  Continue
+                  {isCheckingRoom ? "Checking..." : "Continue"}
                 </button>
               </div>
             </form>

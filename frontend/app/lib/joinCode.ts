@@ -20,6 +20,5 @@ export function extractJoinCodeFromInput(raw: string): string | null {
 
   const compact = trimmed.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   if (compact.length === 6) return compact;
-  if (compact.length > 6) return compact.slice(0, 6);
   return null;
 }
