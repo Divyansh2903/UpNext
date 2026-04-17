@@ -8,14 +8,8 @@ Thumbs.db
 
 # --- Root docs  ---
 upnext_v_0_specification.md
-FRONTEND_CLEANUP_AND_API.md
-API_CONNECTION.md
-spotify_support.md
-search_functionality.md
 frontend_cleanup_audit.md
-DEPLOYMENT.md
 testsprite_hacathon.md
-claude_changes.md
 SECURITY_AUDIT_POST_HACKATHON.md
 TESTSPRITE_PRD.md
 # =============================================================================

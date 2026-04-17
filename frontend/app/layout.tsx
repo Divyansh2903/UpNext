@@ -19,7 +19,7 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "UpNext | Bionic Listening",
+  title: "UpNext | Play what the crowd wants",
   description: "The real-time collaborative music queue.",
 };
 
