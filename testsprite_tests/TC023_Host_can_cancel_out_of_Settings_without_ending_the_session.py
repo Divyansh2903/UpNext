@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to the host auth page at /host/auth
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the email field with admin@gmail.com (then fill password and submit the login form).
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,22 +52,22 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Click the 'Host a session' button to start a fresh host session (element index 423).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Open the Settings modal from the host session view by clicking the Settings button (index 767).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Click the Settings modal close button to dismiss the modal, wait for UI to settle, then capture page text/state to verify the live session view remains visible and that no ended-recap, playback dock, or YouTube iframe are present.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

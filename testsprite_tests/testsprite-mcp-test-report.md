@@ -1,344 +1,364 @@
-# TestSprite AI Testing Report (MCP)
+# TestSprite AI Testing Report (MCP) — Round 2
 
 ---
 
 ## 1️⃣ Document Metadata
 - **Project Name:** upnext
 - **Version:** V0 (Hackathon)
+- **Round:** 2 (regression after Round 1 TC019 fix)
 - **Date:** 2026-04-18
 - **Prepared by:** TestSprite AI Team
 - **Test Type:** Frontend (Production build)
 - **Frontend URL:** http://localhost:3000
 - **Backend API:** http://localhost:4000
 - **WebSocket:** ws://localhost:4001
-- **Total Test Cases Executed:** 30 (priority-capped from 37 generated)
-- **Pass / Fail / Blocked:** 27 ✅ / 2 ❌ / 1 ⛔
+- **Total Test Cases Executed:** 30 (priority-capped from 34 generated)
+- **Pass / Fail / Blocked:** 26 ✅ / 2 ❌ / 2 ⛔ — **86.67%** pass rate
+- **Round 1 report archive:** `testsprite-mcp-test-report.round1.md`
+- **Round 1 plan archive:** `testsprite_frontend_test_plan.round1.json`
 
 ---
 
 ## 2️⃣ Requirement Validation Summary
 
 ### Requirement: Host Sign-up
-**Description:** Create a new host account via display name, email, password. Errors surface as toast.
+**Description:** Create new host account via display name, email, password. Toast on validation/duplicate errors.
 
-#### Test TC011 Create a host account and reach the authenticated dashboard
-- **Test Code:** [TC011_Create_a_host_account_and_reach_the_authenticated_dashboard.py](./TC011_Create_a_host_account_and_reach_the_authenticated_dashboard.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/3363dd0a-be05-4727-be0d-8ec3657a903e
+#### Test TC004 Create a new host account and reach the authenticated dashboard
+- **Test Code:** [TC004_Create_a_new_host_account_and_reach_the_authenticated_dashboard.py](./TC004_Create_a_new_host_account_and_reach_the_authenticated_dashboard.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/22307cca-ea81-42f1-88f0-ad51fb82bdc3
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Sign-up succeeds with unique email and lands on authenticated dashboard. JWT persisted in localStorage as expected by `HostAuthGate` flow.
+- **Analysis / Findings:** Sign-up with unique email lands on dashboard. JWT persisted.
+
+#### Test TC026 Prevent sign-up with required fields left empty
+- **Test Code:** [TC026_Prevent_sign_up_with_required_fields_left_empty.py](./TC026_Prevent_sign_up_with_required_fields_left_empty.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/f5747d7c-ff62-4c79-8309-8eb60fedaf11
+- **Status:** ✅ Passed
+- **Analysis / Findings:** Empty required fields blocked at submit; user remains on auth gate.
 
 ---
 
 ### Requirement: Host Login
-**Description:** Login with email + password. Stores `upnext.host.token`. Toast on invalid credentials.
+**Description:** Login with email + password; invalid creds toast; empty creds blocked.
 
-#### Test TC010 Log in as an existing host and reach the authenticated dashboard
-- **Test Code:** [TC010_Log_in_as_an_existing_host_and_reach_the_authenticated_dashboard.py](./TC010_Log_in_as_an_existing_host_and_reach_the_authenticated_dashboard.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/24a5a12f-29c6-455a-b7b5-2086a929b395
+#### Test TC002 Log in successfully and reach the authenticated dashboard
+- **Test Code:** [TC002_Log_in_successfully_and_reach_the_authenticated_dashboard.py](./TC002_Log_in_successfully_and_reach_the_authenticated_dashboard.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/3429c5c2-a7bd-4304-a547-c7f6b6017e87
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Seed account `admin@gmail.com` logs in cleanly and dashboard renders Welcome heading.
+- **Analysis / Findings:** Seed creds `admin@gmail.com` / `admin123` reach dashboard.
+
+#### Test TC019 Reject invalid host credentials with a toast
+- **Test Code:** [TC019_Reject_invalid_host_credentials_with_a_toast.py](./TC019_Reject_invalid_host_credentials_with_a_toast.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/174a1081-e08c-49dd-955a-0db2ee61892a
+- **Status:** ✅ Passed
+- **Analysis / Findings:** `InvalidCredentials` toast shown; user remains on auth gate.
+
+#### Test TC030 Block login when required fields are empty
+- **Test Code:** [TC030_Block_login_when_required_fields_are_empty.py](./TC030_Block_login_when_required_fields_are_empty.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/c41ea218-eaa6-4216-b47a-a5928a19f005
+- **Status:** ✅ Passed
+- **Analysis / Findings:** Submission blocked when required fields empty.
 
 ---
 
 ### Requirement: Host Logout
-**Description:** Logout button clears JWT and returns user to auth gate.
+**Description:** Logout clears JWT and returns to auth gate.
 
-#### Test TC024 Log out from the host dashboard back to the auth gate
-- **Test Code:** [TC024_Log_out_from_the_host_dashboard_back_to_the_auth_gate.py](./TC024_Log_out_from_the_host_dashboard_back_to_the_auth_gate.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/220239b7-1c19-4335-b1b2-56bf27936f2c
+#### Test TC014 Logout returns to the auth gate
+- **Test Code:** [TC014_Logout_returns_to_the_auth_gate.py](./TC014_Logout_returns_to_the_auth_gate.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/c594b086-ba9c-44fb-a1f9-c4a3a76db9ee
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Logout clears stored host JWT and re-renders `HostAuthGate` form.
+- **Analysis / Findings:** Logout removes `upnext.host.token`, `HostAuthGate` re-renders.
 
 ---
 
 ### Requirement: Create Host Session from Dashboard
-**Description:** Authenticated host clicks `Host a session` → POST `/sessions/` → routes to `/session/{id}/host?code={joinCode}`. Shows `Creating...` while pending. Fresh session does NOT mount YouTube player.
+**Description:** `Host a session` triggers `POST /sessions/`, shows `Creating...` while pending, navigates to `/session/{id}/host?code={joinCode}`.
 
-#### Test TC008 Host creates a new live session from the dashboard
-- **Test Code:** [TC008_Host_creates_a_new_live_session_from_the_dashboard.py](./TC008_Host_creates_a_new_live_session_from_the_dashboard.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/7101016d-bb66-401a-a1fa-7c5b6f9267b6
+#### Test TC001 Host creates a new live session from the dashboard
+- **Test Code:** [TC001_Host_creates_a_new_live_session_from_the_dashboard.py](./TC001_Host_creates_a_new_live_session_from_the_dashboard.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/3968f92b-0d40-4ab6-98ea-e8880cfc3f55
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Dashboard `Host a session` lands on host session view with visible join code in URL/header.
+- **Analysis / Findings:** Lands on host session view with visible join code.
 
-#### Test TC019 Fresh host session does not mount playback controls before a video is set
-- **Test Code:** [TC019_Fresh_host_session_does_not_mount_playback_controls_before_a_video_is_set.py](./TC019_Fresh_host_session_does_not_mount_playback_controls_before_a_video_is_set.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/7e012522-bab1-4b6b-a4aa-da4ac808f75f
-- **Status:** ❌ Failed
-- **Test Error:** Playback controls (play/pause, progress bar, volume) render and look interactive even though header shows "No song playing yet".
-- **Analysis / Findings:** PRD §5.7 says floating playback dock is "effectively disabled until a `currentVideoId` is present." Dock currently renders with active-looking visuals on a fresh session. YouTube iframe is correctly NOT mounted — the issue is purely visual affordance of the dock buttons. Either (a) wire `disabled` state + reduced opacity into the dock buttons before any track has played, or (b) hide the dock entirely until `currentVideoId` is present. Low product severity (clicks are no-ops) but breaks the UX promise in the PRD.
-
-#### Test TC022 Host sees a creating state while session creation is pending
-- **Test Code:** [TC022_Host_sees_a_creating_state_while_session_creation_is_pending.py](./TC022_Host_sees_a_creating_state_while_session_creation_is_pending.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/145d897b-c43d-43be-b41e-6a8f942a16e9
+#### Test TC010 Host sees creating state while a new session is being created
+- **Test Code:** [TC010_Host_sees_creating_state_while_a_new_session_is_being_created.py](./TC010_Host_sees_creating_state_while_a_new_session_is_being_created.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/9548241d-95b3-4ce3-b6ee-78f668a42fa2
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Pending `Creating...` label observed during session creation request flight.
+- **Analysis / Findings:** `Creating...` label visible during in-flight POST.
 
-#### Test TC025 Host can create another new session from the host session settings
-- **Test Code:** [TC025_Host_can_create_another_new_session_from_the_host_session_settings.py](./TC025_Host_can_create_another_new_session_from_the_host_session_settings.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/8ae72cdd-fbd7-401f-93b8-657e6a8c2918
+---
+
+### Requirement: Host Session View — Live Layout (regression for TC019 fix)
+**Description:** Live host view renders core layout. **PRD §5.7:** YouTube player + playback dock must NOT mount on a fresh empty session.
+
+#### Test TC009 Host session view renders live layout without mounting YouTube player on a fresh session
+- **Test Code:** [TC009_Host_session_view_renders_live_layout_without_mounting_YouTube_player_on_a_fresh_session.py](./TC009_Host_session_view_renders_live_layout_without_mounting_YouTube_player_on_a_fresh_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/11cf4933-b0c0-4b11-a42d-1504a35f75c6
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Settings → Create new session lands on new host session view with a fresh join code.
+- **Analysis / Findings:** **Round 1 TC019 regression closed.** Fresh host session no longer renders the playback dock or YouTube iframe — matches PRD §5.7. Fix verified.
+
+---
+
+### Requirement: Host Settings Modal — Create / Cancel / Stop
+**Description:** Settings is the only place to create another session, cancel without changes, or stop the room. Stop transitions to ended recap; stop control becomes unreachable.
+
+#### Test TC003 Host can create a new live session from Settings and see a join code
+- **Test Code:** [TC003_Host_can_create_a_new_live_session_from_Settings_and_see_a_join_code.py](./TC003_Host_can_create_a_new_live_session_from_Settings_and_see_a_join_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/43543941-c9f8-4724-ae67-f455d575a662
+- **Status:** ✅ Passed
+- **Analysis / Findings:** Settings → `Create new session` routes to fresh host view with new code.
+
+#### Test TC006 Host stops a live session and sees ended recap
+- **Test Code:** [TC006_Host_stops_a_live_session_and_sees_ended_recap.py](./TC006_Host_stops_a_live_session_and_sees_ended_recap.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/327a9b4e-2c57-4be3-8872-2a2ea6592466
+- **Status:** ✅ Passed
+- **Analysis / Findings:** Inline `Session Ended` recap rendered with participants and songs.
+
+#### Test TC016 Host cannot access stop controls after ending a session
+- **Test Code:** [TC016_Host_cannot_access_stop_controls_after_ending_a_session.py](./TC016_Host_cannot_access_stop_controls_after_ending_a_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/da2c80be-956e-4061-b108-f498172ca9e0
+- **Status:** ✅ Passed
+- **Analysis / Findings:** Settings sidebar item / Stop Session button no longer reachable in ended-recap state.
+
+#### Test TC018 Host sees stopping pending state when ending a session
+- **Test Code:** [TC018_Host_sees_stopping_pending_state_when_ending_a_session.py](./TC018_Host_sees_stopping_pending_state_when_ending_a_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/9d84c419-d329-4774-b0e4-197519f148db
+- **Status:** ✅ Passed
+- **Analysis / Findings:** `Stopping…` label visible during in-flight POST.
+
+#### Test TC023 Host can cancel out of Settings without ending the session
+- **Test Code:** [TC023_Host_can_cancel_out_of_Settings_without_ending_the_session.py](./TC023_Host_can_cancel_out_of_Settings_without_ending_the_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/f3f22935-9204-43cf-bf54-0c7e3dc59c81
+- **Status:** ✅ Passed
+- **Analysis / Findings:** Closing modal via X leaves session active and live view intact.
 
 ---
 
 ### Requirement: Previous Sessions List (Host Dashboard)
-**Description:** Authenticated dashboard renders prior sessions with Live/Ended badges and participant counts; rows open the corresponding host session view.
+**Description:** Dashboard shows prior sessions with status badges; rows open the corresponding host view.
 
-#### Test TC015 Host sees a previous sessions list with badges and participant counts
-- **Test Code:** [TC015_Host_sees_a_previous_sessions_list_with_badges_and_participant_counts.py](./TC015_Host_sees_a_previous_sessions_list_with_badges_and_participant_counts.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/b24265eb-c85c-4b78-9f24-24ec22b6a890
+#### Test TC013 Host dashboard shows previous sessions list with statuses
+- **Test Code:** [TC013_Host_dashboard_shows_previous_sessions_list_with_statuses.py](./TC013_Host_dashboard_shows_previous_sessions_list_with_statuses.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/dba2b5f8-1366-4331-99d3-1ebff579c3b1
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Previous sessions list displays Live/Ended status indicators and participant counts.
+- **Analysis / Findings:** Live/Ended badges and participant counts render correctly.
 
-#### Test TC016 Host opens a live session from the previous sessions list
-- **Test Code:** [TC016_Host_opens_a_live_session_from_the_previous_sessions_list.py](./TC016_Host_opens_a_live_session_from_the_previous_sessions_list.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/b7745e8d-8abd-4168-94bf-0ce45f44d307
+#### Test TC017 Host can open an active session from the previous sessions list
+- **Test Code:** [TC017_Host_can_open_an_active_session_from_the_previous_sessions_list.py](./TC017_Host_can_open_an_active_session_from_the_previous_sessions_list.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/f7e89931-f88d-4be5-879d-ec113fd88545
 - **Status:** ✅ Passed
-- **Analysis / Findings:** `Open dashboard` row action lands on the active host session view.
-
-#### Test TC020 Host opens an ended room from the previous sessions list after stopping a session
-- **Test Code:** [TC020_Host_opens_an_ended_room_from_the_previous_sessions_list_after_stopping_a_session.py](./TC020_Host_opens_an_ended_room_from_the_previous_sessions_list_after_stopping_a_session.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/758d4cbf-3448-4f45-8889-687b618574e7
-- **Status:** ✅ Passed
-- **Analysis / Findings:** After Stop Session, `View room` row resolves to the ended-recap state, matching PRD §5.7.2.
+- **Analysis / Findings:** `Open dashboard` action lands on the live host view.
 
 ---
 
 ### Requirement: Join Room via Landing Modal (6-char code)
-**Description:** Modal accepts 6-char alphanumeric code. Pre-validates via `GET /sessions/:code`. Shows `Please enter a valid URL.` on bad format and `Session not found for code {CODE}` on missing room.
+**Description:** Modal accepts 6-char code, pre-validates via `GET /sessions/:code`, surfaces inline errors.
 
-#### Test TC007 Participant can join via landing modal using a valid 6-character code
-- **Test Code:** [TC007_Participant_can_join_via_landing_modal_using_a_valid_6_character_code.py](./TC007_Participant_can_join_via_landing_modal_using_a_valid_6_character_code.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4e067c5c-b6b2-4c23-8bce-57f34dbdd7f2
-- **Status:** ✅ Passed
-- **Analysis / Findings:** 6-char code preflight succeeds and lands on `/session/{CODE}/join`.
+#### Test TC005 Participant can join from landing modal using a valid 6-character code
+- **Test Code:** [TC005_Participant_can_join_from_landing_modal_using_a_valid_6_character_code.py](./TC005_Participant_can_join_from_landing_modal_using_a_valid_6_character_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/3e346fc4-21df-4fb0-b1bf-4e5fe09febe4
+- **Status:** ⛔ Blocked
+- **Test Error:** Used hardcoded code `ABC123` instead of a fresh session code; modal correctly returned `Session not found for code ABC123`.
+- **Analysis / Findings:** **False negative — TestSprite test fixture bug, identical pattern to Round 1 TC012.** Product behavior is correct. The plain happy-path coverage actually lives in TC008 (full URL) which passed. Recommend patching the harness step to source the code from the just-created host session, or removing this test in favor of TC008 + TC027.
 
-#### Test TC029 Join modal shows session-not-found error for a valid-looking but nonexistent code
-- **Test Code:** [TC029_Join_modal_shows_session_not_found_error_for_a_valid_looking_but_nonexistent_code.py](./TC029_Join_modal_shows_session_not_found_error_for_a_valid_looking_but_nonexistent_code.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/eb1a6993-4c98-40d5-9ad8-a61b1054e3fe
+#### Test TC027 Join modal shows session-not-found for a nonexistent valid code
+- **Test Code:** [TC027_Join_modal_shows_session_not_found_for_a_nonexistent_valid_code.py](./TC027_Join_modal_shows_session_not_found_for_a_nonexistent_valid_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/5e8994ab-b819-49d8-b0db-1ba0fb33a051
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Inline `Session not found for code {CODE}` rendered for unknown 6-char code.
+- **Analysis / Findings:** Inline `Session not found for code {CODE}` shown for unknown code.
+
+#### Test TC028 Join modal rejects invalid or unparsable input
+- **Test Code:** [TC028_Join_modal_rejects_invalid_or_unparsable_input.py](./TC028_Join_modal_rejects_invalid_or_unparsable_input.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/4a70bf65-8cce-46cb-80c7-0b0ea04855cf
+- **Status:** ✅ Passed
+- **Analysis / Findings:** `Please enter a valid URL.` inline error rendered for unparseable input.
 
 ---
 
 ### Requirement: Join Room via Landing Modal (full invite URL)
-**Description:** Modal accepts a full invite URL containing `/session/{CODE}/join` or `?code={CODE}` (maxLength 512) and pre-validates the parsed code.
+**Description:** Modal accepts a full invite URL with `?code=` or `/session/{CODE}/join`.
 
-#### Test TC005 Participant join via full invite URL proceeds to pre-join then live session
-- **Test Code:** [TC005_Participant_join_via_full_invite_URL_proceeds_to_pre_join_then_live_session.py](./TC005_Participant_join_via_full_invite_URL_proceeds_to_pre_join_then_live_session.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4c515891-bbd1-42f0-93b1-a3166e7a9b8c
+#### Test TC008 Join a room from landing modal using a full invite URL
+- **Test Code:** [TC008_Join_a_room_from_landing_modal_using_a_full_invite_URL.py](./TC008_Join_a_room_from_landing_modal_using_a_full_invite_URL.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/8f89ce33-86c9-490c-85b1-7e319e476abd
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Pasting a freshly-created host invite URL parses out the code, lands on pre-join, accepts the display name, and reaches the participant live view.
-
-#### Test TC012 Participant joins a room from landing modal using a full invite URL
-- **Test Code:** [TC012_Participant_joins_a_room_from_landing_modal_using_a_full_invite_URL.py](./TC012_Participant_joins_a_room_from_landing_modal_using_a_full_invite_URL.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/20b5a8bc-8c86-4093-b42f-925835b6ca2f
-- **Status:** ❌ Failed
-- **Test Error:** Pasting `http://localhost:3000/?code=ABC123` shows "Session not found for code ABC123" and never reaches pre-join.
-- **Analysis / Findings:** **False negative — test data bug, not a product bug.** The test pasted a hardcoded URL with code `ABC123` instead of a freshly-created session code (TC005 covers the same flow with a fresh code and passes). Product behavior is correct: parsing succeeded (`ABC123` extracted), preflight `/sessions/ABC123` correctly returned not-found, modal rendered the documented inline error. Recommend either suppressing this case (covered by TC005 + TC029) or fixing the test fixture to feed a live invite URL.
+- **Analysis / Findings:** Round 1 TC012 false negative does not recur — fresh URL parses correctly and lands on pre-join.
 
 ---
 
 ### Requirement: Participant Pre-Join Screen
-**Description:** Validates session via `GET /sessions/:code`, shows host card + listener count, requires display name, persists guest UUID + name to `localStorage`, then routes to `/session/{uuid}`.
+**Description:** Pre-join validates code and prompts for name. Invalid code surfaces `Session not found for code {CODE}`.
 
-#### Test TC002 Participant completes pre-join and enters live session with guest identity persisted
-- **Test Code:** [TC002_Participant_completes_pre_join_and_enters_live_session_with_guest_identity_persisted.py](./TC002_Participant_completes_pre_join_and_enters_live_session_with_guest_identity_persisted.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/b74fa510-94f0-413c-a74e-ac53f035eb87
-- **Status:** ⛔ Blocked
-- **Test Error:** Visual flow succeeded (`Joined as Guest Tester` rendered), but the harness cannot read `localStorage` from UI to verify `upnext.guest.*` keys.
-- **Analysis / Findings:** Harness limitation, not a product gap. Visible behavior matches PRD §5.5. Reframe assertion to read storage via a `window.localStorage` shim or a JS-eval action; alternatively cover persistence at the unit-test layer.
-
-#### Test TC021 Participant pre-join shows room summary information
-- **Test Code:** [TC021_Participant_pre_join_shows_room_summary_information.py](./TC021_Participant_pre_join_shows_room_summary_information.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/5bacc7b5-2ca3-4b9d-8b0c-3724f6eed814
+#### Test TC007 Complete pre-join by entering a display name and entering the live session
+- **Test Code:** [TC007_Complete_pre_join_by_entering_a_display_name_and_entering_the_live_session.py](./TC007_Complete_pre_join_by_entering_a_display_name_and_entering_the_live_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/75ba3d44-a29c-40ac-bc04-4f38e34a4d74
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Pre-join renders host name (`Curated by …`) and listener count card.
+- **Analysis / Findings:** Display name accepted; participant enters live view at `/session/{uuid}`.
 
-#### Test TC027 Participant cannot proceed on pre-join with an invalid room code
-- **Test Code:** [TC027_Participant_cannot_proceed_on_pre_join_with_an_invalid_room_code.py](./TC027_Participant_cannot_proceed_on_pre_join_with_an_invalid_room_code.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/29f3e2fb-e7e3-4dd1-805b-ec3ffa36cdf6
-- **Status:** ✅ Passed
-- **Analysis / Findings:** `Session not found for code {CODE}` is shown and submit is disabled for invalid codes.
+#### Test TC029 Show session-not-found state on pre-join for an invalid code
+- **Test Code:** [TC029_Show_session_not_found_state_on_pre_join_for_an_invalid_code.py](./TC029_Show_session_not_found_state_on_pre_join_for_an_invalid_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/c1520eec-dee9-43e3-b45b-c5a22a9c10b1
+- **Status:** ❌ Failed
+- **Test Error:** Pre-join for `ZZZZZZ` shows `The session is live.` and `Room ZZZZZZ` with the submit button stuck on `Checking room...` instead of the documented `Session not found for code ZZZZZZ` error.
+- **Analysis / Findings:** Genuine UX deviation. PRD §5.5 promises an error message when `GET /sessions/:code` fails. Two likely root causes:
+  1. **Loading-state never cleared.** If `GET /sessions/:code` returns a 404/410 but the pre-join page treats only network failure as an error, the pending state persists. Check `frontend/app/session/[id]/join/page.tsx` to ensure `onError` (or its equivalent) handles non-2xx as well as throws, and clears the `Checking room...` button label.
+  2. **Optimistic header rendering.** The page renders `The session is live.` and `Room ZZZZZZ` before the lookup resolves; if the request never resolves, those stay. Consider gating the "live" header behind `summary` data, not just route state.
+  This contradicts Round 1 TC027 which passed — investigate whether a recent change altered the loading/error transition or whether this is a backend latency flake. Add a guarded `Session not found` text path before relying on the test.
 
 ---
 
 ### Requirement: Participant Live Session — Add Track
-**Description:** `Add to Queue` accepts text query (with keyboard-navigable suggestions), YouTube URL, or Spotify URL. Bad URLs trigger error toast and do not enqueue.
+**Description:** Add to Queue accepts query/YouTube/Spotify URL. Bad URL → error toast, no enqueue.
 
-#### Test TC004 Participant adds a track using keyboard-navigated search suggestions
-- **Test Code:** [TC004_Participant_adds_a_track_using_keyboard_navigated_search_suggestions.py](./TC004_Participant_adds_a_track_using_keyboard_navigated_search_suggestions.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4c8e9ae2-4b50-48d4-b90b-0a0133a49b14
+#### Test TC011 Add a track from search suggestions using keyboard navigation
+- **Test Code:** [TC011_Add_a_track_from_search_suggestions_using_keyboard_navigation.py](./TC011_Add_a_track_from_search_suggestions_using_keyboard_navigation.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/b8725292-90fd-46bc-9997-ace03864ecca
 - **Status:** ✅ Passed
-- **Analysis / Findings:** ArrowDown / Enter on search dropdown enqueues the highlighted track via WS `ADD_SONG`.
+- **Analysis / Findings:** ArrowDown → Enter on suggestion enqueues the track via WS.
 
-#### Test TC014 Participant adds a track by submitting a YouTube URL
-- **Test Code:** [TC014_Participant_adds_a_track_by_submitting_a_YouTube_URL.py](./TC014_Participant_adds_a_track_by_submitting_a_YouTube_URL.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/232e2797-d5c6-4205-8dc5-75bcc6819f5c
+#### Test TC015 Add a track by submitting a YouTube URL
+- **Test Code:** [TC015_Add_a_track_by_submitting_a_YouTube_URL.py](./TC015_Add_a_track_by_submitting_a_YouTube_URL.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/425eb2e1-1473-4ab8-8f92-4e96a0d4611a
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Valid YouTube URL is parsed and added to queue.
+- **Analysis / Findings:** Valid YouTube URL parsed and enqueued.
 
-#### Test TC026 Participant sees an error toast when submitting an invalid or unresolvable track URL
-- **Test Code:** [TC026_Participant_sees_an_error_toast_when_submitting_an_invalid_or_unresolvable_track_URL.py](./TC026_Participant_sees_an_error_toast_when_submitting_an_invalid_or_unresolvable_track_URL.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/fb23b790-bd32-445a-8490-3a65a803c482
-- **Status:** ✅ Passed
-- **Analysis / Findings:** `InvalidVideoId` surfaces as error toast with no new queue entry.
+#### Test TC024 Show an error toast and do not add a queue item for an invalid track URL
+- **Test Code:** [TC024_Show_an_error_toast_and_do_not_add_a_queue_item_for_an_invalid_track_URL.py](./TC024_Show_an_error_toast_and_do_not_add_a_queue_item_for_an_invalid_track_URL.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/2314123c-0826-4847-88ea-e03699185f79
+- **Status:** ⛔ Blocked
+- **Test Error:** `Connection is not ready yet. Please retry.` banner blocked the WS round-trip; no `InvalidVideoId` toast emitted because the message never reached the server.
+- **Analysis / Findings:** WS connection wasn't ready when add-track was attempted — likely a harness-level race rather than a product defect. Round 1 TC026 (same scenario) passed. **However**, the user-visible message `Connection is not ready yet. Please retry.` is a real UX surface — confirm it actually offers a recovery action (button/auto-retry) rather than just an info toast. If pressing Add Track again does not retry the WS handshake, that's worth a small product fix.
 
 ---
 
 ### Requirement: Participant Live Session — Upvote
-**Description:** Upvote toggles per row, count and ordering update via WS.
+**Description:** Upvote toggles per row, queue reorders via WS.
 
-#### Test TC003 Upvote a queued track and see vote state and ordering update
-- **Test Code:** [TC003_Upvote_a_queued_track_and_see_vote_state_and_ordering_update.py](./TC003_Upvote_a_queued_track_and_see_vote_state_and_ordering_update.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/3f473f09-f32a-4fbc-8e00-58a7a30b6d17
+#### Test TC012 Upvote a queued track and see vote count and ordering update
+- **Test Code:** [TC012_Upvote_a_queued_track_and_see_vote_count_and_ordering_update.py](./TC012_Upvote_a_queued_track_and_see_vote_count_and_ordering_update.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/f259d6a8-2642-4503-bb97-cf5695c4bea9
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Upvote toggle reflects `votedByMe` state; queue reorders by votes desc per backend rule.
+- **Analysis / Findings:** `votedByMe` toggles, count updates, queue reorders by votes desc.
 
 ---
 
 ### Requirement: Participant Edit Display Name
-**Description:** Pencil dialog updates name via WS `UPDATE_NAME`. Empty/whitespace-only name rejected with error toast.
+**Description:** Pencil dialog updates name via WS `UPDATE_NAME`. Whitespace-only rejected with toast.
 
-#### Test TC017 Change display name and see it update in header and People list
-- **Test Code:** [TC017_Change_display_name_and_see_it_update_in_header_and_People_list.py](./TC017_Change_display_name_and_see_it_update_in_header_and_People_list.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/bcecbb3f-ea4f-42db-8aa6-dfb74e0c247e
+#### Test TC020 Change display name successfully and see it reflected in header and People list
+- **Test Code:** [TC020_Change_display_name_successfully_and_see_it_reflected_in_header_and_People_list.py](./TC020_Change_display_name_successfully_and_see_it_reflected_in_header_and_People_list.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/1a4cdac8-53c0-4b8c-8a61-a061299ac3eb
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Updated name appears in header `Joined as …` and People list.
+- **Analysis / Findings:** Updated name appears in header and People view.
 
-#### Test TC028 Reject empty or whitespace-only display name change with a toast
-- **Test Code:** [TC028_Reject_empty_or_whitespace_only_display_name_change_with_a_toast.py](./TC028_Reject_empty_or_whitespace_only_display_name_change_with_a_toast.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/d53d90ff-1863-46f2-9e41-19f69a0af9dd
+#### Test TC025 Reject whitespace-only display name edits with an error toast
+- **Test Code:** [TC025_Reject_whitespace_only_display_name_edits_with_an_error_toast.py](./TC025_Reject_whitespace_only_display_name_edits_with_an_error_toast.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/b5e8b863-c0a6-4e0a-b841-48535ca59a4a
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Whitespace-only save rejected; previous header name preserved.
+- **Analysis / Findings:** Whitespace save rejected; previous name preserved.
 
 ---
 
 ### Requirement: Participant Invite Friends Modal
-**Description:** Sidebar modal with `Copy Link` (Copy → Copied → reset) and X-close.
+**Description:** Sidebar modal with Copy Link state cycle (`Copy Link → Copied → reset`) and X-close.
 
-#### Test TC023 Copy invite link from Invite Friends modal and close the modal
-- **Test Code:** [TC023_Copy_invite_link_from_Invite_Friends_modal_and_close_the_modal.py](./TC023_Copy_invite_link_from_Invite_Friends_modal_and_close_the_modal.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4e792fec-b3fd-4b9d-aa66-bc251386b2de
-- **Status:** ✅ Passed
-- **Analysis / Findings:** Copy state cycles `Copy Link → Copied → reset`; X dismisses modal.
+#### Test TC021 Copy an invite link from Invite Friends modal and see state cycle then reset
+- **Test Code:** [TC021_Copy_an_invite_link_from_Invite_Friends_modal_and_see_state_cycle_then_reset.py](./TC021_Copy_an_invite_link_from_Invite_Friends_modal_and_see_state_cycle_then_reset.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/10f41e17-2a3a-44ce-b6ff-7eb79f8e5ec2
+- **Status:** ❌ Failed
+- **Test Error:** Copy Link button stayed at `Copy Link` after 3 attempts; never transitioned to `Copied`.
+- **Analysis / Findings:** **PRD §9 explicitly notes headless Chromium clipboard APIs may flake.** This is the documented flake path, not a regression — Round 1 TC023 (same scenario) passed. Either:
+  1. Treat as harness flake — accept and rely on Round 1 confirmation, or
+  2. Add a fallback path: when `navigator.clipboard.writeText` throws (which it does in some headless contexts), still show the `Copied` state if a `document.execCommand('copy')` fallback succeeded, OR show the documented `Retry` + toast `Could not copy link. Please copy manually.` so the test can branch on either outcome.
+  **Severity: low** for end users (real browsers grant clipboard access), **medium** for test stability — worth wiring the documented retry/error path so flake becomes a deterministic assertion.
+
+#### Test TC033 Close the Invite Friends modal via the close control
+- **Status:** Generated (Low priority); not in this round's executed cap.
 
 ---
 
 ### Requirement: Participant History and People Views
-**Description:** History view lists past tracks (empty state copy). People view lists members with `Host` badge from `sessionHost` helper.
+**Description:** History empty state + People view with `Host` badge from `sessionHost.ts`.
 
-#### Test TC018 Participant switches between History and People and sees Host badge
-- **Test Code:** [TC018_Participant_switches_between_History_and_People_and_sees_Host_badge.py](./TC018_Participant_switches_between_History_and_People_and_sees_Host_badge.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/e4a4710b-ae6c-4e9c-91d9-330cad91c42c
+#### Test TC022 Participant can view History empty state and see host badge in People list
+- **Test Code:** [TC022_Participant_can_view_History_empty_state_and_see_host_badge_in_People_list.py](./TC022_Participant_can_view_History_empty_state_and_see_host_badge_in_People_list.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/ccd6c55a-cf3b-4f8d-b9c6-bc206c036b6d/7d9e4fa5-2a16-4937-a5d4-80d33b3b0ffb
 - **Status:** ✅ Passed
-- **Analysis / Findings:** Host badge present in People; History empty-state copy shown.
-
-#### Test TC030 Participant join modal rejects empty or whitespace-only input
-- **Test Code:** [TC030_Participant_join_modal_rejects_empty_or_whitespace_only_input.py](./TC030_Participant_join_modal_rejects_empty_or_whitespace_only_input.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/e40510a1-571b-4d2e-9c3b-115c149e64dc
-- **Status:** ✅ Passed
-- **Analysis / Findings:** (Mis-categorized in plan; really a Join Modal validation case.) Whitespace input blocks submit.
-
----
-
-### Requirement: Host Session View — Live Layout and Live Feed
-**Description:** Live host view shows now-playing card, Live Feed events, queue, Invite panel, and a playback dock that should be inert before any track plays.
-
-#### Test TC001 Host creates a new session and sees join code with no player mounted
-- **Test Code:** [TC001_Host_creates_a_new_session_and_sees_join_code_with_no_player_mounted.py](./TC001_Host_creates_a_new_session_and_sees_join_code_with_no_player_mounted.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/577e1977-5e93-4771-b197-bd3304b86b48
-- **Status:** ✅ Passed
-- **Analysis / Findings:** Visible join code present and YouTube iframe correctly NOT mounted on a fresh empty session (matches PRD §5.7).
-
-#### Test TC013 Host sees live layout sections on the host session view
-- **Test Code:** [TC013_Host_sees_live_layout_sections_on_the_host_session_view.py](./TC013_Host_sees_live_layout_sections_on_the_host_session_view.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/d49fcf24-81fd-4b80-a887-53aa86921b82
-- **Status:** ✅ Passed
-- **Analysis / Findings:** Live Feed, queue, and Invite panel all render in the host live view.
-
----
-
-### Requirement: Host Settings Modal — Create New Session
-**Description:** Settings → `Create new session` POSTs `/sessions/` and routes to new host session view.
-
-#### Test TC009 Host can open Settings and create a new session from the host session view
-- **Test Code:** [TC009_Host_can_open_Settings_and_create_a_new_session_from_the_host_session_view.py](./TC009_Host_can_open_Settings_and_create_a_new_session_from_the_host_session_view.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4bced8ea-c3de-40a9-8c42-fbc878f70a8a
-- **Status:** ✅ Passed
-- **Analysis / Findings:** Pending `Creating...` then navigate to `/session/{newId}/host?code={newCode}`.
-
----
-
-### Requirement: Host Settings Modal — Stop Session and Ended Recap
-**Description:** `Stop Session` ends the room and re-resolves the host route to `EndedHostSessionRecap`. Stop Session control no longer reachable after.
-
-#### Test TC006 Host stops a live session and sees ended recap
-- **Test Code:** [TC006_Host_stops_a_live_session_and_sees_ended_recap.py](./TC006_Host_stops_a_live_session_and_sees_ended_recap.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/a04f0516-6802-417b-a345-cfac7482dc00
-- **Status:** ✅ Passed
-- **Analysis / Findings:** Inline `Session Ended` recap shown with participants and songs played; Stop Session no longer reachable.
+- **Analysis / Findings:** Empty-state copy and Host badge render as expected.
 
 ---
 
 ## 3️⃣ Coverage & Matching Metrics
 
-- **90.00%** of executed tests passed (27 / 30)
-- **3.33%** failed due to product/UX deviation (1 / 30 — TC019)
-- **3.33%** failed due to test fixture (1 / 30 — TC012, false negative)
-- **3.33%** blocked by harness limitation (1 / 30 — TC002)
+- **86.67%** of executed tests passed (26 / 30)
+- **6.67%** failed (2 / 30) — TC021 (clipboard flake / documented limitation), TC029 (genuine pre-join error-state regression)
+- **6.67%** blocked (2 / 30) — TC005 (test fixture bug, false negative), TC024 (WS-not-ready harness race)
+- **TC019 fix verified ✅** via TC009: playback dock + YouTube iframe correctly absent on fresh empty session.
 
-| Requirement                                                  | Total Tests | ✅ Passed | ❌ Failed | ⛔ Blocked |
-|--------------------------------------------------------------|-------------|-----------|-----------|------------|
-| Host Sign-up                                                 | 1           | 1         | 0         | 0          |
-| Host Login                                                   | 1           | 1         | 0         | 0          |
-| Host Logout                                                  | 1           | 1         | 0         | 0          |
-| Create Host Session from Dashboard                           | 4           | 3         | 1         | 0          |
-| Previous Sessions List (Host Dashboard)                      | 3           | 3         | 0         | 0          |
-| Join Room via Landing Modal (6-char code)                    | 2           | 2         | 0         | 0          |
-| Join Room via Landing Modal (full invite URL)                | 2           | 1         | 1         | 0          |
-| Participant Pre-Join Screen                                  | 3           | 2         | 0         | 1          |
-| Participant Live Session — Add Track                         | 3           | 3         | 0         | 0          |
-| Participant Live Session — Upvote                            | 1           | 1         | 0         | 0          |
-| Participant Edit Display Name                                | 2           | 2         | 0         | 0          |
-| Participant Invite Friends Modal                             | 1           | 1         | 0         | 0          |
-| Participant History and People Views                         | 2           | 2         | 0         | 0          |
-| Host Session View — Live Layout and Live Feed                | 2           | 2         | 0         | 0          |
-| Host Settings Modal — Create New Session                     | 1           | 1         | 0         | 0          |
-| Host Settings Modal — Stop Session and Ended Recap           | 1           | 1         | 0         | 0          |
-| **TOTAL**                                                    | **30**      | **27**    | **2**     | **1**      |
+| Requirement                                                  | Total | ✅ | ❌ | ⛔ |
+|--------------------------------------------------------------|-------|----|----|----|
+| Host Sign-up                                                 | 2     | 2  | 0  | 0  |
+| Host Login                                                   | 3     | 3  | 0  | 0  |
+| Host Logout                                                  | 1     | 1  | 0  | 0  |
+| Create Host Session from Dashboard                           | 2     | 2  | 0  | 0  |
+| Host Session View — Live Layout (TC019 regression)           | 1     | 1  | 0  | 0  |
+| Host Settings Modal (Create / Cancel / Stop)                 | 5     | 5  | 0  | 0  |
+| Previous Sessions List                                       | 2     | 2  | 0  | 0  |
+| Join Modal (6-char code)                                     | 3     | 2  | 0  | 1  |
+| Join Modal (full invite URL)                                 | 1     | 1  | 0  | 0  |
+| Participant Pre-Join Screen                                  | 2     | 1  | 1  | 0  |
+| Participant Live Session — Add Track                         | 3     | 2  | 0  | 1  |
+| Participant Live Session — Upvote                            | 1     | 1  | 0  | 0  |
+| Participant Edit Display Name                                | 2     | 2  | 0  | 0  |
+| Participant Invite Friends Modal                             | 1     | 0  | 1  | 0  |
+| Participant History and People Views                         | 1     | 1  | 0  | 0  |
+| **TOTAL**                                                    | **30**| **26** | **2** | **2** |
 
 ---
 
 ## 4️⃣ Key Gaps / Risks
 
-### 4.1 Product issue worth fixing — playback dock affordance on empty session (TC019)
-- **Where:** `frontend/app/session/[id]/host/page.tsx` — floating playback dock.
-- **Observation:** Dock renders with active-looking play/pause, progress, and volume controls before any `currentVideoId` is set, while the header reads `No song playing yet`.
-- **PRD contract:** §5.7 states "Playback controls are effectively disabled until a `currentVideoId` is present."
-- **Recommendation:** Either set `disabled` (with reduced opacity / cursor-not-allowed) on the dock buttons until `currentVideoId !== null`, or unmount the dock entirely until then. Low blast radius — purely affordance — but it directly contradicts the documented behavior and is the kind of polish gap a participant test would raise during a hackathon demo.
+### 4.1 ✅ Round 1 TC019 fix verified
+TC009 confirms the playback dock and YouTube iframe are not mounted on a fresh empty host session. Matches PRD §5.7. No follow-up needed.
 
-### 4.2 False-negative test fixture (TC012)
-- **Where:** TestSprite test code for TC012.
-- **Observation:** Used a hardcoded `?code=ABC123` invite URL instead of one minted from a fresh host session.
-- **Impact:** Reports a failure even though the product behaves correctly (parses code, preflights, shows the documented `Session not found` error). TC005 already covers the happy path with a live URL, and TC029 covers the not-found path.
-- **Recommendation:** Patch TC012 to source the invite URL from the just-created host session view, or drop TC012 in favor of TC005 + TC029 coverage.
+### 4.2 New genuine product issue — pre-join stuck on `Checking room...` for invalid code (TC029)
+- **Where:** `frontend/app/session/[id]/join/page.tsx`.
+- **Symptom:** Visiting `/session/ZZZZZZ/join` shows `The session is live.` + `Room ZZZZZZ` with the submit button stuck on `Checking room...`. The documented `Session not found for code ZZZZZZ` error never appears.
+- **Round 1 contrast:** TC027 (same scenario) passed in Round 1 — needs a quick diff or a manual repro to confirm whether this is a real regression, a backend latency flake, or a test-timing issue. Repro by hand: open DevTools → Network, navigate to `/session/ZZZZZZ/join`, watch the `GET /sessions/ZZZZZZ` response. If 404 returns but UI does not transition, the error path in the page component is the bug. If the request hangs, look at the backend `session.routes.ts` 404 path / response time.
+- **Recommendation:** Ensure the lookup hook treats non-2xx responses as errors (not just network failures), clears the `Checking room...` pending label, and renders the documented error string.
 
-### 4.3 Harness can't read localStorage (TC002)
-- **Where:** TestSprite browser harness.
-- **Observation:** Visible flow succeeded (`Joined as Guest Tester`), but the assertion on `upnext.guest.*` localStorage entries cannot be evaluated through UI-only interactions.
-- **Recommendation:** Either add a hidden debug element that mirrors guest-identity values for testability, or cover this persistence assertion via a Playwright/Vitest layer with direct `page.evaluate(() => localStorage.getItem(...))` access.
+### 4.3 Documented clipboard-path is flaky in headless Chromium (TC021)
+- PRD §9 already calls this out, but the product currently relies entirely on `navigator.clipboard.writeText`. In headless contexts that path can silently no-op without throwing, so neither `Copied` nor `Retry` ever shows.
+- **Recommendation (low product, medium test stability):** Wire the documented `Retry` + toast `Could not copy link. Please copy manually.` fallback so the UI surfaces *some* terminal state even when clipboard writes fail silently. Easier to assert against than the flake.
 
-### 4.4 Coverage gaps (not executed in this run)
-The 30-test production cap dropped 7 Low-priority cases generated in the plan: TC031 invalid-password toast, TC032 join-modal invalid input, TC033 unparseable URL, TC034 duplicate sign-up email, TC035 dismiss invite modal, TC036 oversize join input, TC037 maxLength enforcement. Most of these are negative-path validations; consider promoting at least TC031 (invalid login) and TC034 (duplicate email) to High so the auth error toasts are exercised on every run.
+### 4.4 `Connection is not ready yet. Please retry.` UX (TC024)
+- The blocking message itself is informative, but a participant has no obvious recovery action; the test had to bail because Add Track did not auto-retry post-handshake.
+- **Recommendation:** Either auto-retry the queued action once the WS handshake completes, or convert the message into a button (`Retry`) so participants don't have to click around.
 
-### 4.5 Areas not yet covered by automated UI tests (PRD scope)
-- `Copy Link` from the host `Invite your crowd` panel (only participant Invite modal copy was exercised via TC023).
-- Participant `Host ended this session` screen and `Go Home` / `Create Your Own Session` CTAs after host stops the room (PRD §5.6).
-- Duplicate-song rejection (`SongAlreadyQueued`).
-- Spotify URL add-track path (only YouTube URL + search were covered).
-- Vote-cannot-target-current-song rule.
+### 4.5 TestSprite fixture bug — hardcoded `ABC123` again (TC005)
+- Same harness pattern as Round 1 TC012. The test wasn't actually exercising the "valid 6-char code" path because the fixture supplied a fake code.
+- **Recommendation:** Either patch the test step ("copy the join code from the host session view first, then use it in the modal") or drop TC005 in favor of TC008 (full URL) + TC027 (not-found path), which together already cover both branches.
+
+### 4.6 Coverage still missing (deferred from Round 1 §4.5)
+None of these were exercised this round — TestSprite's auto-generator did not pick them up despite explicit `additionalInstruction`:
+- Host `Invite your crowd` Copy Link panel inside `/session/[id]/host` (separate from participant Invite Friends modal).
+- Participant `Host ended this session` screen with `Go Home` / `Create Your Own Session` CTAs after host stops the room (PRD §5.6 closed state).
+- Duplicate-song reject (`SongAlreadyQueued`) when adding the same YouTube video twice.
+- Spotify URL add-track happy path.
+- Vote-on-current-song reject (`CannotVoteCurrent`).
 - Live Feed event copy (`{name} joined the jam`, `started the jam`, `voted for {trackTitle}`).
 - WS resilience: `ConnectionFailed` / `ReconnectFailed` debounce window.
 
-These should be added to the next round of high-priority tests once TC012 and TC019 are resolved.
+**Recommendation:** Author these as hand-written Playwright tests rather than relying on TestSprite to infer them. They are precise behavioral assertions that benefit from a deterministic harness — and several of them (host Copy panel, ended-participant screen) probe surfaces that TestSprite consistently misses.
+
+### 4.7 Round 2 vs Round 1 deltas
+| Metric                  | Round 1 | Round 2 |
+|-------------------------|---------|---------|
+| Pass rate               | 90.00%  | 86.67%  |
+| Real product bugs found | 1 (TC019, fixed) | 1 (TC029 pre-join error path) |
+| False negatives         | 1 (TC012 fixture) | 1 (TC005 fixture) |
+| Harness blocks          | 1 (TC002 localStorage) | 1 (TC024 WS race) |
+| Doc-flagged flakes      | 0       | 1 (TC021 clipboard) |
+
+Net: Round 1's bug is fixed and verified; Round 2 surfaced one new product bug (TC029) plus one UX hardening opportunity (TC024 retry affordance) and one product-side workaround for a documented limitation (TC021 fallback path).

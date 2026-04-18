@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to the host login page at /host/auth to sign in as the host (admin@gmail.com).
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the host credentials (admin@gmail.com / admin123) and submit the login form, then wait for the dashboard to load.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,28 +52,41 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Start a new host session by clicking 'Host a session' on the host dashboard.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Navigate to the session join page (/session/4KLDRR/join) so we can join as a guest and attempt to add an invalid track URL.
+        await page.goto("http://localhost:3000/session/4KLDRR/join")
+        
+        # -> Enter display name 'BadUrlGuest' and click 'Enter the Gallery' to join as a participant. After the UI updates, record the current queue count and then attempt to add an invalid/unresolvable track URL to verify an error toast appears and the queue count does not increase.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('BadUrlGuest')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Attempt to add an invalid/unresolvable track URL via the 'Add to Queue' input and verify that an error toast appears and the number of upcoming tracks stays the same (remains 0).
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/div/div/div/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('https://not-a-real-domain.invalid/watch?v=12345')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/div/div/div/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # --> Assertions to verify final state
         frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        assert await frame.locator("xpath=//*[contains(., 'Could not resolve track URL')]").nth(0).is_visible(), "An error toast should be visible after submitting an invalid or unresolvable track URL"
+        assert await frame.locator("xpath=//*[contains(., '0')]").nth(0).text_content() == '0', "The queue should remain unchanged at 0 items after the failed add-track attempt"
         await asyncio.sleep(5)
 
     finally:

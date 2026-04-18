@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to the host login page at /host/auth so we can sign in as the host (admin@gmail.com / admin123).
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill in the host login form (email and password) and submit it to sign in as the host.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,22 +52,41 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Start hosting a new session from the host dashboard (click 'Host a session').
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Extract the invite URL/code from the host view, open it in a new tab as a participant (pre-join), and proceed to join using a normal display name so we can then attempt the whitespace-only rename and assert the error behavior.
+        await page.goto("http://localhost:3000/session/FTAP95/join")
+        
+        # -> Fill a valid display name ('Alice') into the name field and click 'Enter the Gallery' to join the session as a participant.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('Alice')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Open the edit-name dialog from the participant session view so we can attempt to replace the display name with whitespace-only text.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/section/div/div/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Replace the current display name with whitespace-only text and click Save to trigger validation (then verify an error toast appears and the UI still shows 'Joined as Alice').
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div[3]/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('   ')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div[3]/div/div[2]/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

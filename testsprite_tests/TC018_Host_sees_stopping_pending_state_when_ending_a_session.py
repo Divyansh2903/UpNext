@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to /host/auth to reach the host login page so we can sign in as the host.
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the email field with admin@gmail.com, fill the password with admin123, then submit the login form (click Login).
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,19 +52,19 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Start hosting a new session by clicking the 'Host a session' button on the host dashboard, then verify the session page loads.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Open the session Settings panel so we can trigger Stop Session (click the 'Settings' button in the host session view).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Click the 'Stop Session' button, wait for the UI to update, and then capture visible page text to detect a stopping/pending indicator and later the ended-session recap.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)

@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to the host authentication page (/host/auth) to sign in as the admin host.
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the Email field with admin@gmail.com, fill Password with admin123, then submit the form to sign in as the host.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,22 +52,22 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Click the 'Open dashboard' button for the most-recent session (Room LXH79N) to enter its host dashboard/session view.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/section[2]/div[2]/div/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Open the Settings modal in the current host session view so we can trigger creating a new session from there.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Click the 'Create new session' button in the Host Settings modal to create a fresh session.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

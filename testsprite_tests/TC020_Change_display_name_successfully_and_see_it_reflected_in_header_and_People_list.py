@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to the host login page at /host/auth to sign in as the host (admin@gmail.com).
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the email and password fields with the admin credentials and submit the login form (click Login).
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,22 +52,41 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Click the 'Host a session' button to start a fresh host session so we can capture the join code/invite URL.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Open a separate participant context by navigating to the session join URL (/session/JS34V9/join) in a new tab so we can join as a participant and later rename the display name.
+        await page.goto("http://localhost:3000/session/JS34V9/join")
+        
+        # -> Enter a display name in the join form and click 'Enter the Gallery' to join the session as a participant.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('Guest')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Open the participant's edit-name dialog by clicking the edit button next to the 'Joined as Guest' header.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/section/div/div/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Replace the current display name with 'Guest Renamed', save it, wait for the UI to update, and then extract page content to verify the header and People list reflect the new name.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div[3]/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('Guest Renamed')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div[3]/div/div[2]/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

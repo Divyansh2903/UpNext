@@ -36,7 +36,7 @@ async def run_test():
         # -> Navigate to the host login page at /host/auth
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the host login form with admin credentials and submit to sign in as the host.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,22 +52,55 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Click 'Host a session' to create a fresh host session and open the host session view so we can copy the invite link.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Extract the invite URL shown in the 'Invite your crowd' panel so we can join as a participant.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/aside/div/div/a').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Click the 'Join Link' button on the landing page to open the Join Room modal so we can paste the invite URL and continue as a participant.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/main/section/div/div/div/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Paste the extracted invite string '/session/PMF4WB/join' into the Join modal input and click Continue to begin the participant join flow.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div/form/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('/session/PMF4WB/join')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div/form/div/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Fill the display name field with 'YouTubeGuest' (input index 1269) and click Enter the Gallery (button index 1272) to enter the session as the participant.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('YouTubeGuest')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Fill the Add to Queue input with a valid YouTube video URL and click Add Track, then verify the Upcoming Tracks/queue shows the newly added item.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/div/div/div/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/div/div/div/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

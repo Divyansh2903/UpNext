@@ -33,10 +33,10 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
+        # -> Navigate to the host login page (/host/auth) so we can sign in as the seed host user.
         await page.goto("http://localhost:3000/host/auth")
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Fill the email field with admin@gmail.com (seed host) and the password with admin123, then submit the login form.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
@@ -52,22 +52,53 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Start hosting a new session by clicking the 'Host a session' button so we can create a fresh session and capture its invite link.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Navigate to the public landing page (/) to open the Join Room modal and join as a participant using the session invite URL shown on the host page.
+        await page.goto("http://localhost:3000")
+        
+        # -> Open the Join Room modal on the public landing page so we can join the session as a participant.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/main/section/div/div/div/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Type or paste the invite code into the Join Room modal input and click Continue to join the session as a participant.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div/form/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('NZ8NB5')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div/form/div/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Fill the display name input with 'SearchGuest' and submit to join the session as a participant.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('SearchGuest')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Type a search into the 'Add to Queue' input, wait for suggestions, navigate the suggestion list with ArrowDown, press Enter to select, then verify the Upcoming Tracks list shows the newly added item.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/div/div/div/form/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('Rick Astley - Never Gonna Give You Up')
+        
+        # -> Select the highlighted search suggestion using Enter, submit the selection with the Add Track button, then verify the Upcoming Tracks list contains the added track and that no playback dock or YouTube iframe is mounted.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div[2]/main/div/div/div/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

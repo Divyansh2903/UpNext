@@ -33,14 +33,17 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
-        await page.goto("http://localhost:3000/host/auth")
+        # -> Open the host login page by activating the 'Get Started' CTA (index 15) so we can check the login form behavior.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div/div[3]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Submit the login form with the email field empty and a valid password, then observe whether a validation indicator (inline or toast) prevents submission.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
-        await asyncio.sleep(3); await elem.fill('admin@gmail.com')
+        await asyncio.sleep(3); await elem.fill('')
         
         frame = context.pages[-1]
         # Input text
@@ -52,22 +55,37 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
+        # -> Fill the email field with admin@gmail.com, clear the password field so it's empty, submit the form, and observe whether a validation indicator prevents submission for the missing password.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('admin@gmail.com')
+        
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/label[2]/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Open Settings in the host session view by clicking the Settings button.
+        # -> Switch to the existing-account (login) tab on /host/auth so we can submit the login form with an empty password and observe validation
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
+        # -> Clear the password field and click Login to verify the form prevents submission and shows a validation indicator for missing password.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/label[2]/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('')
+        
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent

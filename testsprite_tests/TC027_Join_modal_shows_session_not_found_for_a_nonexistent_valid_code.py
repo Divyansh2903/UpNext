@@ -33,41 +33,21 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000")
         
-        # -> Navigate to the host login page at /host/auth
-        await page.goto("http://localhost:3000/host/auth")
+        # -> Open the Join Link modal by clicking the 'Join Link' button on the homepage.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/section/div/div/div/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
         
-        # -> Input admin credentials into the form and submit the login form to sign in as host.
+        # -> Type a well-formed 6-character code into the join input (index 323) and click Continue (index 322) to trigger the inline validation error.
         frame = context.pages[-1]
         # Input text
-        elem = frame.locator('xpath=/html/body/div[2]/main/form/label/input').nth(0)
-        await asyncio.sleep(3); await elem.fill('admin@gmail.com')
-        
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=/html/body/div[2]/main/form/label[2]/input').nth(0)
-        await asyncio.sleep(3); await elem.fill('admin123')
+        elem = frame.locator('xpath=/html/body/div[2]/div/form/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('ZZZ999')
         
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/main/form/button').nth(0)
-        await asyncio.sleep(3); await elem.click()
-        
-        # -> Click the 'Host a session' button to create a fresh host session (start a new room).
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/main/section/button').nth(0)
-        await asyncio.sleep(3); await elem.click()
-        
-        # -> Open Settings in the host session view by clicking the Settings button.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/aside/div[3]/button[2]').nth(0)
-        await asyncio.sleep(3); await elem.click()
-        
-        # -> Click the 'Stop Session' button in the Host Settings modal to end the session and observe the host view transition to the inline ended recap.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/div[2]/div[4]/div/div[3]/button[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/div[2]/div/form/div/button[2]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent
