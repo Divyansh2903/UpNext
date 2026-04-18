@@ -385,14 +385,13 @@ export default function Home() {
           <div className="max-w-4xl mx-auto relative z-10">
             <h2 className="font-public text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.9]">Ready to host your next <span className="text-primary italic">masterpiece?</span></h2>
             <p className="text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto font-medium font-body">Join thousands of hosts using UpNext to transform the way they listen together.</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button 
+            <div className="flex justify-center">
+              <button
+                type="button"
                 onClick={goGetStarted}
-                className="cta-gradient text-on-primary-fixed px-12 py-5 rounded-full font-black text-xl hover:scale-105 transition-transform shadow-2xl shadow-primary/30 font-headline">
+                className="cta-gradient text-on-primary-fixed px-12 py-5 rounded-full font-black text-xl hover:scale-105 transition-transform shadow-2xl shadow-primary/30 font-headline"
+              >
                 Get Started
-              </button>
-              <button className="bg-surface-container-highest border border-outline-variant/15 text-on-surface px-12 py-5 rounded-full font-black text-xl hover:bg-surface-container-high transition-all font-headline">
-                View Demo
               </button>
             </div>
           </div>
@@ -407,8 +406,17 @@ export default function Home() {
           <div className="flex items-center font-headline font-black text-neutral-100">
             <UpNextWordmark variant="footer" as="span" />
           </div>
-          <div className="text-neutral-500 font-medium">
-            © 2026 UpNext.
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-neutral-500 font-medium">
+            <a
+              href="https://github.com/Divyansh2903/upnext"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-400 transition-colors hover:text-neutral-200"
+            >
+              GitHub
+            </a>
+            <span className="text-neutral-600">·</span>
+            <span>© 2026 UpNext.</span>
           </div>
         </div>
       </footer>
