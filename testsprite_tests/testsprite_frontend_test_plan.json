@@ -1,206 +1,9 @@
 [
   {
     "id": "TC001",
-    "title": "Join a live session from pre-join by providing a display name",
-    "description": "Verifies a guest can enter a display name on the pre-join screen and enter the participant live session view.",
-    "category": "Participant Pre-Join Screen",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the pre-join form to enter the session"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the participant live session view is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC002",
-    "title": "Join a session from landing using a valid 6-character code",
-    "description": "Verifies a guest can enter a valid 6-character room code in the landing join modal and reach the participant pre-join screen for that session.",
-    "category": "Join Room Modal (Landing Page)",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the participant pre-join screen for that session is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC003",
-    "title": "Upvote a queued track and see the vote state change",
-    "description": "Verifies a participant can upvote a queue item and the UI reflects the toggled vote state and updated count.",
-    "category": "Participant Live Session View",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the pre-join form to enter the session"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid YouTube URL into the Add to Queue input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit adding the track to the queue"
-      },
-      {
-        "type": "action",
-        "description": "Click upvote for the newly added queue item"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the upvote state is toggled and the vote count is updated"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC004",
-    "title": "Join a session from landing using a full invite URL",
-    "description": "Verifies a guest can paste a valid invite URL into the landing join modal and reach the participant pre-join screen for the parsed session code.",
-    "category": "Join Room Modal (Landing Page)",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid invite URL containing a session join code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the participant pre-join screen for that session is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC005",
-    "title": "Add a track via keyboard search suggestions and see it in the queue",
-    "description": "Verifies a participant can search for a track, select a suggestion with the keyboard, add it, and see it appear in the queue.",
-    "category": "Participant Live Session View",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the pre-join form to enter the session"
-      },
-      {
-        "type": "action",
-        "description": "Fill a search query into the Add to Queue input field"
-      },
-      {
-        "type": "action",
-        "description": "Press ArrowDown to highlight a suggestion"
-      },
-      {
-        "type": "action",
-        "description": "Press Enter to select the highlighted suggestion"
-      },
-      {
-        "type": "action",
-        "description": "Submit adding the selected track to the queue"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the new track appears in the queue"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC006",
-    "title": "Create a new host session from the dashboard and reach host room with join code",
-    "description": "Verifies an authenticated host can create a new session from the dashboard and lands in the host session view with a join code visible.",
-    "category": "Host Dashboard (authenticated)",
+    "title": "Host creates a new session and sees join code with no player mounted",
+    "description": "Verifies a host can sign up, create a new session from the host dashboard, and land in the host session view with a visible join code and no mounted YouTube player on a fresh session.",
+    "category": "Host Session View — Live Layout and Live Feed",
     "steps": [
       {
         "type": "action",
@@ -208,81 +11,40 @@
       },
       {
         "type": "action",
-        "description": "Fill {{LOGIN_USER}} into the email field"
+        "description": "Switch the auth form to sign up mode"
       },
       {
         "type": "action",
-        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+        "description": "Fill in the email field with host+tc001@example.com"
       },
       {
         "type": "action",
-        "description": "Submit the login form"
+        "description": "Fill in the password field with ValidPass123!"
       },
       {
         "type": "action",
-        "description": "Click the action to host a new session"
+        "description": "Submit the auth form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
       },
       {
         "type": "assertion",
-        "description": "Verify the host lands in the host live session view for the newly created session"
+        "description": "Verify the host session view shows a join code or invite code for participants to join"
       },
       {
         "type": "assertion",
-        "description": "Verify a session join code is displayed"
+        "description": "Verify no YouTube player iframe is displayed on the fresh session"
       }
     ],
     "priority": "High"
   },
   {
-    "id": "TC007",
-    "title": "Add a track using a valid YouTube URL",
-    "description": "Verifies a participant can add a track by pasting a valid YouTube URL and the track appears in the queue.",
-    "category": "Participant Live Session View",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the pre-join form to enter the session"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid YouTube URL into the Add to Queue input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit adding the track to the queue"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the new track appears in the queue"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC008",
-    "title": "Stop a running session and see the ended-session recap inline",
-    "description": "Verifies the host can stop the session from Settings and then sees an inline ended-session recap with participant and song lists.",
-    "category": "Host Live Session View",
+    "id": "TC002",
+    "title": "Participant completes pre-join and enters live session with guest identity persisted",
+    "description": "Verifies a guest can submit a display name on the pre-join screen, persist guest UUID and display name to localStorage, and land in the participant live session view.",
+    "category": "Participant Pre-Join Screen",
     "steps": [
       {
         "type": "action",
@@ -298,7 +60,7 @@
       },
       {
         "type": "action",
-        "description": "Submit the authentication form"
+        "description": "Submit the host authentication form"
       },
       {
         "type": "action",
@@ -306,27 +68,414 @@
       },
       {
         "type": "action",
-        "description": "Open Settings from the sidebar"
+        "description": "Wait for the host session view to display a join code"
       },
       {
         "type": "action",
-        "description": "Click the control to stop the session"
+        "description": "Copy the join code value shown on the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the participant pre-join screen for that join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Submit to enter the live session"
       },
       {
         "type": "assertion",
-        "description": "Verify an ended-session recap view is displayed in the host session view"
+        "description": "Verify the participant live session view is displayed"
       },
       {
         "type": "assertion",
-        "description": "Verify participant and songs-played lists are displayed in the recap"
+        "description": "Verify guest identity values are present in localStorage under the upnext.guest namespace"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Upvote a queued track and see vote state and ordering update",
+    "description": "This test verifies a participant can upvote a queued track and the UI reflects the updated vote state and reorders the queue accordingly.",
+    "category": "Participant Live Session — Upvote",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code from the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /session/{CODE}/join using the copied join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Continue into the live session"
+      },
+      {
+        "type": "action",
+        "description": "Add a track to the queue using the add-track flow available in the participant session"
+      },
+      {
+        "type": "action",
+        "description": "Toggle upvote on the queued track"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the queued track shows the upvoted state and an updated vote count"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the queue ordering reflects the upvote prioritization"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Participant adds a track using keyboard-navigated search suggestions",
+    "description": "Verifies a participant can add a track by typing a search query, navigating suggestions with arrow keys, and pressing Enter to add to the queue.",
+    "category": "Participant Live Session — Add Track (search and URLs)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to create a new session"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the host session view to display a join code"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code value shown on the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the participant pre-join screen for that join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Submit to enter the live session"
+      },
+      {
+        "type": "action",
+        "description": "Fill a common search query into the add-to-queue input"
+      },
+      {
+        "type": "action",
+        "description": "Press ArrowDown"
+      },
+      {
+        "type": "action",
+        "description": "Press Enter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the queue updates to include a newly added track"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Participant join via full invite URL proceeds to pre-join then live session",
+    "description": "Verifies a participant can paste a full invite URL into the Join Room modal, pass pre-validation, enter a display name, and reach the participant live session view.",
+    "category": "Participant History and People Views",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Switch the auth form to sign up mode"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with host+tc005@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with ValidPass123!"
+      },
+      {
+        "type": "action",
+        "description": "Submit the auth form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Copy the invite link shown in the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill the join input with the copied full invite URL"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form to proceed to the pre-join screen"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the display name to enter the live session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the participant lands in the live session view with session controls and content displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Host stops a live session and sees ended recap",
+    "description": "Verifies that a host can stop an active session from Settings and the host view transitions into an ended recap state that shows session summary information and prevents further session stopping actions.",
+    "category": "Host Settings Modal — Stop Session and Ended Recap",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Open the host session view for the newly created session"
+      },
+      {
+        "type": "action",
+        "description": "Open Settings"
+      },
+      {
+        "type": "action",
+        "description": "Trigger Stop Session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the host view displays an ended session recap state with participants and songs played summaries"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Stop Session control is not available in the ended recap state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Participant can join via landing modal using a valid 6-character code",
+    "description": "Verifies a guest can open the landing join modal, enter a valid 6-character code for a fresh session, and reach the participant pre-join screen.",
+    "category": "Join Room via Landing Modal (6-char code)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code shown in the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill the join input with the copied 6-character code"
+      },
+      {
+        "type": "action",
+        "description": "Continue to join"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the participant pre-join screen for that code is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Host creates a new live session from the dashboard",
+    "description": "Verifies an authenticated host can create a fresh session from the dashboard and lands on the host session view with a join code visible.",
+    "category": "Create Host Session from Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the host lands on the live host session view and a join code is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC009",
-    "title": "Login shows authenticated dashboard",
-    "description": "Verifies an existing host can log in with valid credentials and reaches the authenticated dashboard.",
+    "title": "Host can open Settings and create a new session from the host session view",
+    "description": "Verifies the host can use Settings to create a new session and is navigated to a new host session view with a new join code after seeing a pending Creating state.",
+    "category": "Host Settings Modal — Create New Session",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Switch the auth form to sign up mode"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with host+tc003@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with ValidPass123!"
+      },
+      {
+        "type": "action",
+        "description": "Submit the auth form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Open the session settings"
+      },
+      {
+        "type": "action",
+        "description": "Trigger create new session"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the creating session pending state to complete"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the host is on a new host session view with a join code visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Log in as an existing host and reach the authenticated dashboard",
+    "description": "Verifies an existing host can log in with valid credentials and sees the authenticated dashboard.",
     "category": "Host Login",
     "steps": [
       {
@@ -335,32 +484,7 @@
       },
       {
         "type": "action",
-        "description": "Fill {{LOGIN_USER}} into the email field"
-      },
-      {
-        "type": "action",
-        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the login form"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the authenticated host dashboard is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC010",
-    "title": "Create a new session from Settings and get redirected to a new host room",
-    "description": "Verifies the host can use Settings to create a new session and is redirected to a new host session view with a join code.",
-    "category": "Host Live Session View",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /host/auth"
+        "description": "Ensure the login view is active"
       },
       {
         "type": "action",
@@ -372,36 +496,20 @@
       },
       {
         "type": "action",
-        "description": "Submit the authentication form"
-      },
-      {
-        "type": "action",
-        "description": "Click the control to create a new session"
-      },
-      {
-        "type": "action",
-        "description": "Open Settings from the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the control to create a new session from Settings"
+        "description": "Submit the login form"
       },
       {
         "type": "assertion",
-        "description": "Verify the host live session view is displayed for a newly created session"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a join code is visible in the host session view"
+        "description": "Verify the authenticated host dashboard is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC011",
-    "title": "Sign up creates a new host account and shows authenticated dashboard",
-    "description": "Verifies a new host can sign up with display name, email, and password and then sees the authenticated dashboard greeting.",
-    "category": "Host Signup",
+    "title": "Create a host account and reach the authenticated dashboard",
+    "description": "Verifies a new host can sign up with valid details and is taken to the authenticated dashboard on success.",
+    "category": "Host Sign-up",
     "steps": [
       {
         "type": "action",
@@ -409,77 +517,65 @@
       },
       {
         "type": "action",
-        "description": "Select the sign up tab"
+        "description": "Switch to the sign-up view"
       },
       {
         "type": "action",
-        "description": "Fill a new display name into the display name field"
+        "description": "Fill in the display name field with Test Host"
       },
       {
         "type": "action",
-        "description": "Fill a new unique email into the email field"
+        "description": "Fill in the email field with testhost+signup1@example.com"
       },
       {
         "type": "action",
-        "description": "Fill a valid password into the password field"
+        "description": "Fill in the password field with ValidPassword123!"
       },
       {
         "type": "action",
-        "description": "Submit the create account form"
+        "description": "Submit the sign-up form"
       },
       {
         "type": "assertion",
         "description": "Verify the authenticated host dashboard is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a welcome greeting is displayed that includes the new display name"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC012",
-    "title": "See empty-session state where playback is disabled when no current song is active",
-    "description": "Verifies the host can observe the empty-session state where playback controls are disabled before any current track is active.",
-    "category": "Host Live Session View",
+    "title": "Participant joins a room from landing modal using a full invite URL",
+    "description": "Verifies a guest can paste a full invite URL in the landing Join Room modal and proceed to the participant pre-join screen for that room code.",
+    "category": "Join Room via Landing Modal (full invite URL)",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /host/auth"
+        "description": "Navigate to /"
       },
       {
         "type": "action",
-        "description": "Fill in the email field with {{LOGIN_USER}}"
+        "description": "Click the control to open the Join Room modal"
       },
       {
         "type": "action",
-        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+        "description": "Fill a valid full invite URL into the join input"
       },
       {
         "type": "action",
-        "description": "Submit the authentication form"
-      },
-      {
-        "type": "action",
-        "description": "Click the control to create a new session"
+        "description": "Submit the join modal"
       },
       {
         "type": "assertion",
-        "description": "Verify playback controls are disabled in the floating playback dock"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the now playing area indicates nothing is currently playing"
+        "description": "Verify the participant pre-join screen is displayed for the extracted room code"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC013",
-    "title": "Open an existing session from the dashboard session list",
-    "description": "Verifies an authenticated host can open a session from the previous sessions list and reaches the host session view with the join code displayed.",
-    "category": "Host Dashboard (authenticated)",
+    "title": "Host sees live layout sections on the host session view",
+    "description": "Verifies the host session view renders the core live layout sections needed to run a session (live feed, queue, and invite panel).",
+    "category": "Host Session View — Live Layout and Live Feed",
     "steps": [
       {
         "type": "action",
@@ -487,36 +583,40 @@
       },
       {
         "type": "action",
-        "description": "Fill {{LOGIN_USER}} into the email field"
+        "description": "Switch the auth form to sign up mode"
       },
       {
         "type": "action",
-        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+        "description": "Fill in the email field with host+tc002@example.com"
       },
       {
         "type": "action",
-        "description": "Submit the login form"
+        "description": "Fill in the password field with ValidPass123!"
       },
       {
         "type": "action",
-        "description": "Click to open a session from the previous sessions list"
+        "description": "Submit the auth form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
       },
       {
         "type": "assertion",
-        "description": "Verify the host lands in the host live session view for that session"
+        "description": "Verify the live feed area is displayed"
       },
       {
         "type": "assertion",
-        "description": "Verify a session join code is displayed"
+        "description": "Verify the queue and invite panel are displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC014",
-    "title": "Copy invite link from the host session view",
-    "description": "Verifies the host can copy the invite link from the host session view and sees a copy confirmation state.",
-    "category": "Host Live Session View",
+    "title": "Participant adds a track by submitting a YouTube URL",
+    "description": "Verifies a participant can paste a valid YouTube URL and add it to the queue in the live session view.",
+    "category": "Participant Live Session — Add Track (search and URLs)",
     "steps": [
       {
         "type": "action",
@@ -532,7 +632,7 @@
       },
       {
         "type": "action",
-        "description": "Submit the authentication form"
+        "description": "Submit the host authentication form"
       },
       {
         "type": "action",
@@ -540,24 +640,114 @@
       },
       {
         "type": "action",
-        "description": "Click the invite link copy control"
+        "description": "Wait for the host session view to display a join code"
       },
       {
         "type": "action",
-        "description": "Wait for the copy confirmation state to appear"
+        "description": "Copy the join code value shown on the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the participant pre-join screen for that join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Submit to enter the live session"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid YouTube video URL into the add-to-queue input"
+      },
+      {
+        "type": "action",
+        "description": "Submit the add-track action"
       },
       {
         "type": "assertion",
-        "description": "Verify a copied confirmation state is visible for the invite link"
+        "description": "Verify the queue updates to include a newly added track"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC015",
-    "title": "Logout returns host to unauthenticated auth gate",
-    "description": "Verifies an authenticated host can log out from the dashboard and is returned to the unauthenticated auth gate view.",
-    "category": "Host Dashboard (authenticated)",
+    "title": "Host sees a previous sessions list with badges and participant counts",
+    "description": "Verifies the host dashboard shows a previous sessions list with status indicators and participant counts after authentication.",
+    "category": "Previous Sessions List (Host Dashboard)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previous sessions list is displayed with session status indicators and participant counts"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Host opens a live session from the previous sessions list",
+    "description": "Verifies the host can open an active session from the previous sessions list and lands on the host session view.",
+    "category": "Previous Sessions List (Host Dashboard)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation control to return to the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Open the most recent live session from the previous sessions list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the host lands on the live host session view"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Change display name and see it update in header and People list",
+    "description": "This test verifies a participant can update their display name to a valid value and the new name appears in the session header and People list.",
+    "category": "Participant Edit Display Name",
     "steps": [
       {
         "type": "action",
@@ -573,77 +763,27 @@
       },
       {
         "type": "action",
-        "description": "Submit the login form"
+        "description": "Submit the host authentication form"
       },
       {
         "type": "action",
-        "description": "Click logout"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the host sees the authentication gate with login and signup options"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC016",
-    "title": "Display session information on pre-join screen",
-    "description": "Verifies the pre-join screen shows the session info card including host name and room code for a valid session.",
-    "category": "Participant Pre-Join Screen",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
+        "description": "Create a new session from the host dashboard"
       },
       {
         "type": "action",
-        "description": "Open the Join Room modal"
+        "description": "Copy the join code from the host session view"
       },
       {
         "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
+        "description": "Navigate to /session/{CODE}/join using the copied join code"
       },
       {
         "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the session info card is displayed with host information and a room code"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC017",
-    "title": "Edit display name successfully and see it updated",
-    "description": "Verifies a participant can edit their display name and the updated name appears in the session header and People tab.",
-    "category": "Participant Live Session View",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
+        "description": "Fill a valid display name into the display name field"
       },
       {
         "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the pre-join form to enter the session"
+        "description": "Continue into the live session"
       },
       {
         "type": "action",
@@ -651,24 +791,109 @@
       },
       {
         "type": "action",
-        "description": "Fill a new non-empty display name into the display name field"
+        "description": "Replace the name with Unique Guest Name 1"
       },
       {
         "type": "action",
-        "description": "Save the display name change"
+        "description": "Save the new display name"
+      },
+      {
+        "type": "action",
+        "description": "Open the People view in the participant sidebar"
       },
       {
         "type": "assertion",
-        "description": "Verify the updated display name is shown in the session header"
+        "description": "Verify the participant header reflects the updated display name"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the People list includes the updated display name"
       }
     ],
     "priority": "Medium"
   },
   {
     "id": "TC018",
-    "title": "After stopping, session controls no longer allow stopping again",
-    "description": "Verifies that once the host stops a session, the stop-session control is no longer available in Settings.",
-    "category": "Host Live Session View",
+    "title": "Participant switches between History and People and sees Host badge",
+    "description": "Verifies a participant can switch to History and People views and sees an empty history state plus a members list with the host indicated by a Host badge.",
+    "category": "Participant History and People Views",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Switch the auth form to sign up mode"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with host+tc004@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with ValidPass123!"
+      },
+      {
+        "type": "action",
+        "description": "Submit the auth form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code shown in the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill the join input with the copied join code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form to proceed to the pre-join screen"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the display name to enter the live session"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the History view"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the People view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the members list is displayed and a Host badge is shown for the host user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the History view shows an empty state when no tracks have been played"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Fresh host session does not mount playback controls before a video is set",
+    "description": "Verifies a newly created host session starts with playback controls disabled or absent until a current video is selected.",
+    "category": "Create Host Session from Dashboard",
     "steps": [
       {
         "type": "action",
@@ -684,7 +909,89 @@
       },
       {
         "type": "action",
-        "description": "Submit the authentication form"
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify playback controls are disabled or not shown because no track is currently playing"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Host opens an ended room from the previous sessions list after stopping a session",
+    "description": "Verifies the host can stop a session, return to the dashboard, and then open the ended session from the previous sessions list.",
+    "category": "Previous Sessions List (Host Dashboard)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "action",
+        "description": "Open the session settings"
+      },
+      {
+        "type": "action",
+        "description": "Stop the session"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation control to return to the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Open the most recent ended session from the previous sessions list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the host can view the ended session state/recap for that room"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC021",
+    "title": "Participant pre-join shows room summary information",
+    "description": "Verifies the pre-join screen for a valid code displays the room host information and current listener count.",
+    "category": "Participant Pre-Join Screen",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
       },
       {
         "type": "action",
@@ -692,147 +999,97 @@
       },
       {
         "type": "action",
-        "description": "Open Settings from the sidebar"
+        "description": "Wait for the host session view to display a join code"
       },
       {
         "type": "action",
-        "description": "Click the control to stop the session"
+        "description": "Copy the join code value shown on the host session view"
       },
       {
         "type": "action",
-        "description": "Open Settings from the sidebar"
+        "description": "Navigate to the participant pre-join screen for that join code"
       },
       {
         "type": "assertion",
-        "description": "Verify the option to stop the session is not available"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC019",
-    "title": "Show session-not-found error for a non-existent code on landing",
-    "description": "Verifies entering a valid-looking 6-character code that does not exist shows a session-not-found inline error in the join modal.",
-    "category": "Join Room Modal (Landing Page)",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character code that is expected to not exist into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a session-not-found inline error is displayed"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC020",
-    "title": "Show session-not-found message on pre-join for an invalid session code",
-    "description": "Verifies navigating to a pre-join screen for a non-existent code shows a session-not-found message.",
-    "category": "Participant Pre-Join Screen",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /session/AAAAAA/join"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a session-not-found message is displayed for the code"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC021",
-    "title": "Reject whitespace-only display name changes",
-    "description": "Verifies a participant cannot save a whitespace-only display name and sees an error toast.",
-    "category": "Participant Live Session View",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the pre-join form to enter the session"
-      },
-      {
-        "type": "action",
-        "description": "Open the edit display name dialog"
-      },
-      {
-        "type": "action",
-        "description": "Fill whitespace-only text into the display name field"
-      },
-      {
-        "type": "action",
-        "description": "Save the display name change"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an error toast is displayed rejecting an empty display name"
+        "description": "Verify the room host information and listener count are displayed"
       }
     ],
     "priority": "Medium"
   },
   {
     "id": "TC022",
-    "title": "Copy invite link from Invite Friends modal",
-    "description": "Verifies a participant can open the Invite Friends modal and copy the invite link with a visible copied confirmation.",
-    "category": "Participant Live Session View",
+    "title": "Host sees a creating state while session creation is pending",
+    "description": "Verifies the host sees a transient creating/pending state while a new session is being created from the dashboard.",
+    "category": "Create Host Session from Dashboard",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /"
+        "description": "Navigate to /host/auth"
       },
       {
         "type": "action",
-        "description": "Open the Join Room modal"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
-        "description": "Fill a valid 6-character room code into the join input field"
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
       },
       {
         "type": "action",
-        "description": "Submit the join request"
+        "description": "Submit the login form"
       },
       {
         "type": "action",
-        "description": "Fill a non-empty display name into the display name field"
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a creating/pending state is shown for session creation"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC023",
+    "title": "Copy invite link from Invite Friends modal and close the modal",
+    "description": "This test verifies a participant can open the Invite Friends modal, copy the invite link with a temporary Copied state that resets, and close the modal.",
+    "category": "Participant Invite Friends Modal",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
       },
       {
         "type": "action",
-        "description": "Submit the pre-join form to enter the session"
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code from the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /session/{CODE}/join using the copied join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Continue into the live session"
       },
       {
         "type": "action",
@@ -840,53 +1097,188 @@
       },
       {
         "type": "action",
-        "description": "Click to copy the invite link"
+        "description": "Click the control to copy the invite link"
       },
       {
         "type": "action",
-        "description": "Wait for the copy confirmation state to appear"
+        "description": "Wait for the copied confirmation state to appear"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the copy control to reset back to its default state"
+      },
+      {
+        "type": "action",
+        "description": "Close the Invite Friends modal via the close control"
       },
       {
         "type": "assertion",
-        "description": "Verify a copy confirmation is visible in the invite modal"
+        "description": "Verify the Invite Friends modal is no longer visible"
       }
     ],
-    "priority": "Low"
-  },
-  {
-    "id": "TC023",
-    "title": "Reject invalid join input format on landing",
-    "description": "Verifies the join modal blocks non-parsable input and shows an inline invalid-format error.",
-    "category": "Join Room Modal (Landing Page)",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Open the Join Room modal"
-      },
-      {
-        "type": "action",
-        "description": "Fill invalid text that cannot be parsed into a 6-character code into the join input field"
-      },
-      {
-        "type": "action",
-        "description": "Submit the join request"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an inline invalid-format validation error is displayed"
-      }
-    ],
-    "priority": "Low"
+    "priority": "Medium"
   },
   {
     "id": "TC024",
-    "title": "Invalid login shows error toast",
-    "description": "Verifies a host entering an invalid password is shown an authentication error toast and is not logged in.",
-    "category": "Host Login",
+    "title": "Log out from the host dashboard back to the auth gate",
+    "description": "Verifies an authenticated host can log out and returns to the login/sign-up form.",
+    "category": "Host Logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger the logout action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the auth gate login/sign-up form is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC025",
+    "title": "Host can create another new session from the host session settings",
+    "description": "Verifies the host can use settings from an existing host session to create a brand new session and sees a new join code afterward.",
+    "category": "Create Host Session from Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Trigger hosting a new session"
+      },
+      {
+        "type": "action",
+        "description": "Open the session settings"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the host remains in a host session view and a (new) join code is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Participant sees an error toast when submitting an invalid or unresolvable track URL",
+    "description": "Verifies submitting an invalid or unresolvable track URL shows an error toast and does not add a new item to the queue.",
+    "category": "Participant Live Session — Add Track (search and URLs)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to create a new session"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the host session view to display a join code"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code value shown on the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the participant pre-join screen for that join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Submit to enter the live session"
+      },
+      {
+        "type": "action",
+        "description": "Fill an invalid track URL into the add-to-queue input"
+      },
+      {
+        "type": "action",
+        "description": "Submit the add-track action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an error toast is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no new queue item is added"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Participant cannot proceed on pre-join with an invalid room code",
+    "description": "Verifies the pre-join screen displays a not-found message for an invalid code and does not allow entering the live session.",
+    "category": "Participant Pre-Join Screen",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the participant pre-join screen for an invalid join code"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a session-not-found message is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC028",
+    "title": "Reject empty or whitespace-only display name change with a toast",
+    "description": "This test verifies saving an empty or whitespace-only display name is rejected and an error toast is shown while the current name remains unchanged.",
+    "category": "Participant Edit Display Name",
     "steps": [
       {
         "type": "action",
@@ -898,24 +1290,60 @@
       },
       {
         "type": "action",
-        "description": "Fill an invalid password into the password field"
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
       },
       {
         "type": "action",
-        "description": "Submit the login form"
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code from the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /session/{CODE}/join using the copied join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Continue into the live session"
+      },
+      {
+        "type": "action",
+        "description": "Open the edit display name dialog"
+      },
+      {
+        "type": "action",
+        "description": "Replace the name with whitespace-only text"
+      },
+      {
+        "type": "action",
+        "description": "Save the new display name"
       },
       {
         "type": "assertion",
-        "description": "Verify an authentication error toast is visible"
+        "description": "Verify an invalid-name error toast is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the participant header still shows the previous display name"
       }
     ],
     "priority": "Low"
   },
   {
-    "id": "TC025",
-    "title": "Close Join Room modal without navigating away",
-    "description": "Verifies a guest can close the join modal and remain on the landing page.",
-    "category": "Join Room Modal (Landing Page)",
+    "id": "TC029",
+    "title": "Join modal shows session-not-found error for a valid-looking but nonexistent code",
+    "description": "Verifies the landing Join Room modal shows a session-not-found inline error when a valid 6-character code does not correspond to any session.",
+    "category": "Join Room via Landing Modal (6-char code)",
     "steps": [
       {
         "type": "action",
@@ -927,11 +1355,315 @@
       },
       {
         "type": "action",
-        "description": "Close the modal"
+        "description": "Fill the join input with a valid 6-character code that was not created in this test run"
+      },
+      {
+        "type": "action",
+        "description": "Continue to join"
       },
       {
         "type": "assertion",
-        "description": "Verify the landing page remains visible and the modal is closed"
+        "description": "Verify a session-not-found inline error is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC030",
+    "title": "Participant join modal rejects empty or whitespace-only input",
+    "description": "Verifies the Join Room modal prevents proceeding when the join input is empty or only whitespace and shows a validation error.",
+    "category": "Participant History and People Views",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill the join input with whitespace-only text"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a join validation error is visible and the user remains in the join modal"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC031",
+    "title": "Block login with invalid password",
+    "description": "Verifies entering an incorrect password shows an invalid-credentials toast and does not log the host in.",
+    "category": "Host Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Ensure the login view is active"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with WrongPassword123!"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an invalid credentials toast is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the auth gate login/sign-up form is still displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC032",
+    "title": "Join modal rejects invalid or unparseable input",
+    "description": "Verifies the landing Join Room modal prevents continuing with invalid/unparseable join input and shows an inline validation error.",
+    "category": "Join Room via Landing Modal (6-char code)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill the join input with an invalid/unparseable value"
+      },
+      {
+        "type": "action",
+        "description": "Continue to join"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an inline validation error is displayed and the user remains in the join modal"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC033",
+    "title": "Join Room modal rejects an unparseable or code-less input",
+    "description": "Verifies the Join Room modal blocks continuing when the input cannot be parsed into a room code and shows an inline validation error.",
+    "category": "Join Room via Landing Modal (full invite URL)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill a non-parseable string without a code into the join input"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join modal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an inline validation error is displayed in the join modal"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC034",
+    "title": "Prevent sign-up with an email that is already registered",
+    "description": "Verifies signing up with an email already in use shows a duplicate-email error toast and does not log the user in.",
+    "category": "Host Sign-up",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the sign-up view"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the display name field with First Host"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with testhost+dupe@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with ValidPassword123!"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-up form"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the sign-up view"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the display name field with Second Host"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with testhost+dupe@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with ValidPassword123!"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-up form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a duplicate email error toast is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the auth gate login/sign-up form is still displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC035",
+    "title": "Dismiss Invite Friends modal without copying",
+    "description": "This test verifies a participant can open and close the Invite Friends modal without copying and return to the live session view.",
+    "category": "Participant Invite Friends Modal",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /host/auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the host authentication form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new session from the host dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Copy the join code from the host session view"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /session/{CODE}/join using the copied join code"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid display name into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Continue into the live session"
+      },
+      {
+        "type": "action",
+        "description": "Open the Invite Friends modal"
+      },
+      {
+        "type": "action",
+        "description": "Close the Invite Friends modal via the close control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the participant live session view is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC036",
+    "title": "Participant join modal rejects unparseable or overly long input",
+    "description": "Verifies the Join Room modal blocks an unparseable or excessively long join value and shows a validation error without navigating away.",
+    "category": "Participant History and People Views",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill the join input with a string longer than 512 characters"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a join validation error is visible and the user remains in the join modal"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC037",
+    "title": "Join Room modal enforces maximum input length",
+    "description": "Verifies the Join Room modal prevents continuing when the pasted invite URL exceeds the allowed length and shows an inline validation error.",
+    "category": "Join Room via Landing Modal (full invite URL)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to open the Join Room modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill a string longer than 512 characters into the join input"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join modal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an inline validation error is displayed in the join modal"
       }
     ],
     "priority": "Low"

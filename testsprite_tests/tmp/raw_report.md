@@ -12,207 +12,236 @@
 
 ## 2️⃣ Requirement Validation Summary
 
-#### Test TC001 Join a live session from pre-join by providing a display name
-- **Test Code:** [TC001_Join_a_live_session_from_pre_join_by_providing_a_display_name.py](./TC001_Join_a_live_session_from_pre_join_by_providing_a_display_name.py)
+#### Test TC001 Host creates a new session and sees join code with no player mounted
+- **Test Code:** [TC001_Host_creates_a_new_session_and_sees_join_code_with_no_player_mounted.py](./TC001_Host_creates_a_new_session_and_sees_join_code_with_no_player_mounted.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/577e1977-5e93-4771-b197-bd3304b86b48
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC002 Participant completes pre-join and enters live session with guest identity persisted
+- **Test Code:** [TC002_Participant_completes_pre_join_and_enters_live_session_with_guest_identity_persisted.py](./TC002_Participant_completes_pre_join_and_enters_live_session_with_guest_identity_persisted.py)
 - **Test Error:** TEST BLOCKED
 
-The login page could not be reached — the app returned a 404 on /login which prevents signing in as the host and creating a fresh session.
+The test cannot complete because verifying localStorage entries requires reading browser storage, which is not accessible from the UI interactions allowed by this test harness.
 
 Observations:
-- Navigated to /login and saw '404 This page could not be found.'
-- The page displayed 0 interactive elements, so no login or navigation controls are accessible.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/77d77dba-87cc-4bcc-a74e-d6edf07f05ac
+- The participant live session view is visible and shows 'Joined as Guest Tester', indicating the display name submission and join succeeded visually.
+- The test cannot read or assert values in localStorage (upnext.guest) via the visible UI, so persistence of the guest UUID/display name cannot be verified here.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/b74fa510-94f0-413c-a74e-ac53f035eb87
 - **Status:** BLOCKED
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC002 Join a session from landing using a valid 6-character code
-- **Test Code:** [TC002_Join_a_session_from_landing_using_a_valid_6_character_code.py](./TC002_Join_a_session_from_landing_using_a_valid_6_character_code.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/7d9386dc-621c-43b3-adf4-c1e922e2c8e1
+#### Test TC003 Upvote a queued track and see vote state and ordering update
+- **Test Code:** [TC003_Upvote_a_queued_track_and_see_vote_state_and_ordering_update.py](./TC003_Upvote_a_queued_track_and_see_vote_state_and_ordering_update.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/3f473f09-f32a-4fbc-8e00-58a7a30b6d17
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC003 Upvote a queued track and see the vote state change
-- **Test Code:** [TC003_Upvote_a_queued_track_and_see_the_vote_state_change.py](./TC003_Upvote_a_queued_track_and_see_the_vote_state_change.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/7add2994-9781-4497-8082-cb42f40d7865
+#### Test TC004 Participant adds a track using keyboard-navigated search suggestions
+- **Test Code:** [TC004_Participant_adds_a_track_using_keyboard_navigated_search_suggestions.py](./TC004_Participant_adds_a_track_using_keyboard_navigated_search_suggestions.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4c8e9ae2-4b50-48d4-b90b-0a0133a49b14
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC004 Join a session from landing using a full invite URL
-- **Test Code:** [TC004_Join_a_session_from_landing_using_a_full_invite_URL.py](./TC004_Join_a_session_from_landing_using_a_full_invite_URL.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/abafe654-9bc3-47c0-8f9d-6d36e1f3714f
+#### Test TC005 Participant join via full invite URL proceeds to pre-join then live session
+- **Test Code:** [TC005_Participant_join_via_full_invite_URL_proceeds_to_pre_join_then_live_session.py](./TC005_Participant_join_via_full_invite_URL_proceeds_to_pre_join_then_live_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4c515891-bbd1-42f0-93b1-a3166e7a9b8c
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC005 Add a track via keyboard search suggestions and see it in the queue
-- **Test Code:** [TC005_Add_a_track_via_keyboard_search_suggestions_and_see_it_in_the_queue.py](./TC005_Add_a_track_via_keyboard_search_suggestions_and_see_it_in_the_queue.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/99404c14-34dd-4f45-9ab4-f26d93a3af0f
+#### Test TC006 Host stops a live session and sees ended recap
+- **Test Code:** [TC006_Host_stops_a_live_session_and_sees_ended_recap.py](./TC006_Host_stops_a_live_session_and_sees_ended_recap.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/a04f0516-6802-417b-a345-cfac7482dc00
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC006 Create a new host session from the dashboard and reach host room with join code
-- **Test Code:** [TC006_Create_a_new_host_session_from_the_dashboard_and_reach_host_room_with_join_code.py](./TC006_Create_a_new_host_session_from_the_dashboard_and_reach_host_room_with_join_code.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/6e49aed3-edc1-4b71-b0c8-fc7527f62bc7
+#### Test TC007 Participant can join via landing modal using a valid 6-character code
+- **Test Code:** [TC007_Participant_can_join_via_landing_modal_using_a_valid_6_character_code.py](./TC007_Participant_can_join_via_landing_modal_using_a_valid_6_character_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4e067c5c-b6b2-4c23-8bce-57f34dbdd7f2
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC007 Add a track using a valid YouTube URL
-- **Test Code:** [TC007_Add_a_track_using_a_valid_YouTube_URL.py](./TC007_Add_a_track_using_a_valid_YouTube_URL.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/4be45dd5-4ea3-4ebb-bf5b-750c2ea53013
+#### Test TC008 Host creates a new live session from the dashboard
+- **Test Code:** [TC008_Host_creates_a_new_live_session_from_the_dashboard.py](./TC008_Host_creates_a_new_live_session_from_the_dashboard.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/7101016d-bb66-401a-a1fa-7c5b6f9267b6
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC008 Stop a running session and see the ended-session recap inline
-- **Test Code:** [TC008_Stop_a_running_session_and_see_the_ended_session_recap_inline.py](./TC008_Stop_a_running_session_and_see_the_ended_session_recap_inline.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/bcc91647-70e0-4688-927f-a531c84554de
+#### Test TC009 Host can open Settings and create a new session from the host session view
+- **Test Code:** [TC009_Host_can_open_Settings_and_create_a_new_session_from_the_host_session_view.py](./TC009_Host_can_open_Settings_and_create_a_new_session_from_the_host_session_view.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4bced8ea-c3de-40a9-8c42-fbc878f70a8a
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC009 Login shows authenticated dashboard
-- **Test Code:** [TC009_Login_shows_authenticated_dashboard.py](./TC009_Login_shows_authenticated_dashboard.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/d6dcd82d-6fca-4581-babb-516c349f510e
+#### Test TC010 Log in as an existing host and reach the authenticated dashboard
+- **Test Code:** [TC010_Log_in_as_an_existing_host_and_reach_the_authenticated_dashboard.py](./TC010_Log_in_as_an_existing_host_and_reach_the_authenticated_dashboard.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/24a5a12f-29c6-455a-b7b5-2086a929b395
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC010 Create a new session from Settings and get redirected to a new host room
-- **Test Code:** [TC010_Create_a_new_session_from_Settings_and_get_redirected_to_a_new_host_room.py](./TC010_Create_a_new_session_from_Settings_and_get_redirected_to_a_new_host_room.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/bc83f6f9-98af-46c9-9e63-ab8bfe8910b7
+#### Test TC011 Create a host account and reach the authenticated dashboard
+- **Test Code:** [TC011_Create_a_host_account_and_reach_the_authenticated_dashboard.py](./TC011_Create_a_host_account_and_reach_the_authenticated_dashboard.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/3363dd0a-be05-4727-be0d-8ec3657a903e
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC011 Sign up creates a new host account and shows authenticated dashboard
-- **Test Code:** [TC011_Sign_up_creates_a_new_host_account_and_shows_authenticated_dashboard.py](./TC011_Sign_up_creates_a_new_host_account_and_shows_authenticated_dashboard.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/ad701878-2b42-4e21-a784-1f89956e2514
-- **Status:** ✅ Passed
-- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
----
-
-#### Test TC012 See empty-session state where playback is disabled when no current song is active
-- **Test Code:** [TC012_See_empty_session_state_where_playback_is_disabled_when_no_current_song_is_active.py](./TC012_See_empty_session_state_where_playback_is_disabled_when_no_current_song_is_active.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/cbd88696-0498-429a-a1e1-804342b334a5
-- **Status:** ✅ Passed
-- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
----
-
-#### Test TC013 Open an existing session from the dashboard session list
-- **Test Code:** [TC013_Open_an_existing_session_from_the_dashboard_session_list.py](./TC013_Open_an_existing_session_from_the_dashboard_session_list.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/75b41e8a-3b93-437a-9552-9d786b726e0f
-- **Status:** ✅ Passed
-- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
----
-
-#### Test TC014 Copy invite link from the host session view
-- **Test Code:** [TC014_Copy_invite_link_from_the_host_session_view.py](./TC014_Copy_invite_link_from_the_host_session_view.py)
+#### Test TC012 Participant joins a room from landing modal using a full invite URL
+- **Test Code:** [TC012_Participant_joins_a_room_from_landing_modal_using_a_full_invite_URL.py](./TC012_Participant_joins_a_room_from_landing_modal_using_a_full_invite_URL.py)
 - **Test Error:** TEST FAILURE
 
-The UI did not show a confirmation when copying the invite link.
+Pasting a full invite URL did not allow the guest to join the room — the app rejected the code and did not show the participant pre-join for that room.
 
 Observations:
-- The host session view shows the invite path '/session/PLNU8N/join' and a 'Copy Link' button.
-- The 'Copy Link' button was clicked three times but no confirmation text or toast appeared.
-- The page URL includes '?code=PLNU8N', so a session was created but no copy-feedback was visible.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/60b54f6c-dfd3-4214-8485-1182c466596f
+- The join input contains the pasted URL "http://localhost:3000/?code=ABC123" (input shows invalid=true).
+- The modal displays a red error: "Session not found for code ABC123".
+- The pre-join header "Join a room" remained and no valid 6-character room code screen was shown for ABC123.
+
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/20b5a8bc-8c86-4093-b42f-925835b6ca2f
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC015 Logout returns host to unauthenticated auth gate
-- **Test Code:** [TC015_Logout_returns_host_to_unauthenticated_auth_gate.py](./TC015_Logout_returns_host_to_unauthenticated_auth_gate.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/cee3c704-14dd-4c80-b26e-885b84ff64be
+#### Test TC013 Host sees live layout sections on the host session view
+- **Test Code:** [TC013_Host_sees_live_layout_sections_on_the_host_session_view.py](./TC013_Host_sees_live_layout_sections_on_the_host_session_view.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/d49fcf24-81fd-4b80-a887-53aa86921b82
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC016 Display session information on pre-join screen
-- **Test Code:** [TC016_Display_session_information_on_pre_join_screen.py](./TC016_Display_session_information_on_pre_join_screen.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/dcd2d983-f895-48f8-b7bd-de3a5de9d55f
+#### Test TC014 Participant adds a track by submitting a YouTube URL
+- **Test Code:** [TC014_Participant_adds_a_track_by_submitting_a_YouTube_URL.py](./TC014_Participant_adds_a_track_by_submitting_a_YouTube_URL.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/232e2797-d5c6-4205-8dc5-75bcc6819f5c
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC017 Edit display name successfully and see it updated
-- **Test Code:** [TC017_Edit_display_name_successfully_and_see_it_updated.py](./TC017_Edit_display_name_successfully_and_see_it_updated.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/f97f820c-cdcc-4ee2-85a7-9bd0d76e7ba9
+#### Test TC015 Host sees a previous sessions list with badges and participant counts
+- **Test Code:** [TC015_Host_sees_a_previous_sessions_list_with_badges_and_participant_counts.py](./TC015_Host_sees_a_previous_sessions_list_with_badges_and_participant_counts.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/b24265eb-c85c-4b78-9f24-24ec22b6a890
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC018 After stopping, session controls no longer allow stopping again
-- **Test Code:** [TC018_After_stopping_session_controls_no_longer_allow_stopping_again.py](./TC018_After_stopping_session_controls_no_longer_allow_stopping_again.py)
+#### Test TC016 Host opens a live session from the previous sessions list
+- **Test Code:** [TC016_Host_opens_a_live_session_from_the_previous_sessions_list.py](./TC016_Host_opens_a_live_session_from_the_previous_sessions_list.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/b7745e8d-8abd-4168-94bf-0ce45f44d307
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC017 Change display name and see it update in header and People list
+- **Test Code:** [TC017_Change_display_name_and_see_it_update_in_header_and_People_list.py](./TC017_Change_display_name_and_see_it_update_in_header_and_People_list.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/bcecbb3f-ea4f-42db-8aa6-dfb74e0c247e
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC018 Participant switches between History and People and sees Host badge
+- **Test Code:** [TC018_Participant_switches_between_History_and_People_and_sees_Host_badge.py](./TC018_Participant_switches_between_History_and_People_and_sees_Host_badge.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/e4a4710b-ae6c-4e9c-91d9-330cad91c42c
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC019 Fresh host session does not mount playback controls before a video is set
+- **Test Code:** [TC019_Fresh_host_session_does_not_mount_playback_controls_before_a_video_is_set.py](./TC019_Fresh_host_session_does_not_mount_playback_controls_before_a_video_is_set.py)
 - **Test Error:** TEST FAILURE
 
-Stopping the session did not remove the 'Stop Session' control from Host Settings.
+Playback controls are visible and appear active even though the session shows 'No song playing yet'.
 
 Observations:
-- The Host Settings modal shows a 'Stop Session' button (interactive element index 1687).
-- The session header shows join code PLNU8N and the page indicates the session view is active, so the stop control remains available.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/6561e6f8-d0be-4673-a8b3-f2e242c77f8a
+- The host session header displays 'No song playing yet'.
+- Playback controls (play/pause button, progress bar, volume slider) are present at the bottom of the page.
+- Controls are not disabled or hidden before a track is selected.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/7e012522-bab1-4b6b-a4aa-da4ac808f75f
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC019 Show session-not-found error for a non-existent code on landing
-- **Test Code:** [TC019_Show_session_not_found_error_for_a_non_existent_code_on_landing.py](./TC019_Show_session_not_found_error_for_a_non_existent_code_on_landing.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/d9b9cc31-6685-43cf-92d5-f7e3d50b63fd
+#### Test TC020 Host opens an ended room from the previous sessions list after stopping a session
+- **Test Code:** [TC020_Host_opens_an_ended_room_from_the_previous_sessions_list_after_stopping_a_session.py](./TC020_Host_opens_an_ended_room_from_the_previous_sessions_list_after_stopping_a_session.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/758d4cbf-3448-4f45-8889-687b618574e7
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC020 Show session-not-found message on pre-join for an invalid session code
-- **Test Code:** [TC020_Show_session_not_found_message_on_pre_join_for_an_invalid_session_code.py](./TC020_Show_session_not_found_message_on_pre_join_for_an_invalid_session_code.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/ba3c623b-57ad-4c15-bdef-93148108af6c
+#### Test TC021 Participant pre-join shows room summary information
+- **Test Code:** [TC021_Participant_pre_join_shows_room_summary_information.py](./TC021_Participant_pre_join_shows_room_summary_information.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/5bacc7b5-2ca3-4b9d-8b0c-3724f6eed814
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC021 Reject whitespace-only display name changes
-- **Test Code:** [TC021_Reject_whitespace_only_display_name_changes.py](./TC021_Reject_whitespace_only_display_name_changes.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/d51a4b70-fe9b-43f3-8a87-92101f13acf5
+#### Test TC022 Host sees a creating state while session creation is pending
+- **Test Code:** [TC022_Host_sees_a_creating_state_while_session_creation_is_pending.py](./TC022_Host_sees_a_creating_state_while_session_creation_is_pending.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/145d897b-c43d-43be-b41e-6a8f942a16e9
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC022 Copy invite link from Invite Friends modal
-- **Test Code:** [TC022_Copy_invite_link_from_Invite_Friends_modal.py](./TC022_Copy_invite_link_from_Invite_Friends_modal.py)
-- **Test Error:** TEST FAILURE
-
-Clicking the 'Copy Link' button did not show any visible confirmation that the link was copied.
-
-Observations:
-- The Invite Friends modal shows the share URL and a 'Copy Link' button.
-- Clicking the 'Copy Link' button twice produced no toast, no change in button text, and no 'Copied' confirmation text.
-- The page remained on the session view with the modal open and no visible feedback after the clicks.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/4fd1ccfc-0435-420d-99a0-4611fdce61dd
-- **Status:** ❌ Failed
-- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
----
-
-#### Test TC023 Reject invalid join input format on landing
-- **Test Code:** [TC023_Reject_invalid_join_input_format_on_landing.py](./TC023_Reject_invalid_join_input_format_on_landing.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/e400f383-8ca3-428c-a34d-7f316de94e24
+#### Test TC023 Copy invite link from Invite Friends modal and close the modal
+- **Test Code:** [TC023_Copy_invite_link_from_Invite_Friends_modal_and_close_the_modal.py](./TC023_Copy_invite_link_from_Invite_Friends_modal_and_close_the_modal.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/4e792fec-b3fd-4b9d-aa66-bc251386b2de
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC024 Invalid login shows error toast
-- **Test Code:** [TC024_Invalid_login_shows_error_toast.py](./TC024_Invalid_login_shows_error_toast.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/56552eeb-1b76-4650-9741-6efb0e287707
+#### Test TC024 Log out from the host dashboard back to the auth gate
+- **Test Code:** [TC024_Log_out_from_the_host_dashboard_back_to_the_auth_gate.py](./TC024_Log_out_from_the_host_dashboard_back_to_the_auth_gate.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/220239b7-1c19-4335-b1b2-56bf27936f2c
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
-#### Test TC025 Close Join Room modal without navigating away
-- **Test Code:** [TC025_Close_Join_Room_modal_without_navigating_away.py](./TC025_Close_Join_Room_modal_without_navigating_away.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/87ca7f36-2a49-43da-962c-a93a03d0cb97/90ecf2e5-fdcd-4ccf-aa0d-ee5e874a6816
+#### Test TC025 Host can create another new session from the host session settings
+- **Test Code:** [TC025_Host_can_create_another_new_session_from_the_host_session_settings.py](./TC025_Host_can_create_another_new_session_from_the_host_session_settings.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/8ae72cdd-fbd7-401f-93b8-657e6a8c2918
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC026 Participant sees an error toast when submitting an invalid or unresolvable track URL
+- **Test Code:** [TC026_Participant_sees_an_error_toast_when_submitting_an_invalid_or_unresolvable_track_URL.py](./TC026_Participant_sees_an_error_toast_when_submitting_an_invalid_or_unresolvable_track_URL.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/fb23b790-bd32-445a-8490-3a65a803c482
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC027 Participant cannot proceed on pre-join with an invalid room code
+- **Test Code:** [TC027_Participant_cannot_proceed_on_pre_join_with_an_invalid_room_code.py](./TC027_Participant_cannot_proceed_on_pre_join_with_an_invalid_room_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/29f3e2fb-e7e3-4dd1-805b-ec3ffa36cdf6
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC028 Reject empty or whitespace-only display name change with a toast
+- **Test Code:** [TC028_Reject_empty_or_whitespace_only_display_name_change_with_a_toast.py](./TC028_Reject_empty_or_whitespace_only_display_name_change_with_a_toast.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/d53d90ff-1863-46f2-9e41-19f69a0af9dd
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC029 Join modal shows session-not-found error for a valid-looking but nonexistent code
+- **Test Code:** [TC029_Join_modal_shows_session_not_found_error_for_a_valid_looking_but_nonexistent_code.py](./TC029_Join_modal_shows_session_not_found_error_for_a_valid_looking_but_nonexistent_code.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/eb1a6993-4c98-40d5-9ad8-a61b1054e3fe
+- **Status:** ✅ Passed
+- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+---
+
+#### Test TC030 Participant join modal rejects empty or whitespace-only input
+- **Test Code:** [TC030_Participant_join_modal_rejects_empty_or_whitespace_only_input.py](./TC030_Participant_join_modal_rejects_empty_or_whitespace_only_input.py)
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/6de4d1d3-7a27-41a8-a1fa-ec099e879570/e40510a1-571b-4d2e-9c3b-115c149e64dc
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -220,7 +249,7 @@ Observations:
 
 ## 3️⃣ Coverage & Matching Metrics
 
-- **84.00** of tests passed
+- **90.00** of tests passed
 
 | Requirement        | Total Tests | ✅ Passed | ❌ Failed  |
 |--------------------|-------------|-----------|------------|

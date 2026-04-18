@@ -9,12 +9,12 @@
     "projectName": "upnext",
     "projectPath": "/Users/divyanshsingh/Developer/Personal Projs/upnext",
     "testIds": [],
-    "additionalInstruction": "This is a real-time collaborative music queue app. Seed host credentials: email=admin@gmail.com password=admin123. Always create a fresh session per test run — never reuse hardcoded join codes. Extract join code from the URL (?code=XXXXXX) or host session view header. Backend API at http://localhost:4000, WebSocket at ws://localhost:4001. Host auth errors surface as toasts only (no inline field errors). YouTube player only mounts when a song is active — do not assert player presence on freshly created empty session. Clipboard API may be flaky in headless Chromium — include retry windows for Copy Link assertions. Transient WS connection errors are suppressed for ~1.2s — do not assert immediate connection error toast. View Demo and Features/How It Works nav buttons are inert marketing placeholders.",
+    "additionalInstruction": "Frontend is running at http://localhost:3000 in production mode. Backend Express API is at http://localhost:4000 and WebSocket at ws://localhost:4001. Seed host login: email admin@gmail.com, password admin123 (substitute for {{LOGIN_USER}} and {{LOGIN_PASSWORD}}). For sign-up tests, append a unique suffix (timestamp) to the email so reruns do not collide with prior data. ALWAYS create a fresh session per test run; never reuse hardcoded join codes. Take the join code from the new host session view URL (?code=XXXXXX) or its header. Do NOT assert presence of a YouTube player iframe before any track is playing. Host auth errors are toast-only — assert toast text, not inline banners. The host dashboard at /host/auth has no Settings, sidebar, Stop Session, queue, or invite link — those live only in /session/[id]/host. Allow ~1.5s retry windows for clipboard (\"Copied\") and toasts. For Spotify/YouTube URL add-track tests, use real public links. The participant Add to Queue input accepts query, YouTube URL, or Spotify URL via the same field. Do not navigate using inert marketing buttons (Features, How It Works, View Demo). Do not assert immediate connection-error toast on first WS blip (debounced ~1.2s).",
     "serverMode": "production",
     "envs": {
       "API_KEY": "sk-user-Y1-WhOjSzvKEn0vERSnZQz2eoHCTf-bAYh_-MWk35L2Lqzs8SrrmjuUH8nPQrW577I1U0qM1FtRA-1ty3YnLr06HV8ABwPzYP03QvJUD93YaBmJ0_oBYO4_C0TrW8IhgjJQ"
     }
   },
-  "serverPort": 63578,
-  "proxy": "http://42a39965-b1d1-4c57-bf5a-ecec7ee7ad5e:akajrJwLkUZ7DkfBdwrPWD40ml2NDsZY@tun.testsprite.com:8080"
+  "serverPort": 59925,
+  "proxy": "http://69a8fe70-26ef-48f5-b397-bd4a164377b7:stXAO1f1Rb9Hyi57uH2JUl2kKv1GK9na@tun.testsprite.com:8080"
 }
