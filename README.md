@@ -132,53 +132,6 @@ pnpm --dir frontend build && pnpm --dir frontend start
 
 ---
 
-## API Surface
-
-Auth — `POST /auth/signup`, `POST /auth/login`, `GET /auth/me`
-Sessions — `POST /sessions/`, `GET /sessions/:code`, `GET /sessions/host/mine`, `GET /sessions/by-id/:id/summary`, `POST /sessions/by-id/:id/stop`
-Search — `GET /search?q={query}`
-Health — `GET /health`
-
-WebSocket messages — client: `JOIN_SESSION`, `ADD_SONG`, `VOTE`, `SONG_ENDED`, `SYNC_PLAYBACK`, `UPDATE_NAME`. Server: `SESSION_STATE`, `QUEUE_UPDATED`, `VOTE_ACTIVITY`, `PLAY_SONG`, `PLAYBACK_SYNC`, `PARTICIPANTS_UPDATED`, `ERROR`.
-
-
----
-
-## Data Model
-
-PostgreSQL via Prisma (`backend/prisma/schema.prisma`): `User` (hosts only), `Session`, `Participant` (join-code guests, identified by browser-generated UUID in localStorage), `Song`, `Vote`. Sessions expire after ~12 hours or when the host stops them.
-
----
-
-## TestSprite Results
-
-Two rounds of frontend testing in production mode with 29 generated test cases.
-
-| | Round 1 | Round 2 |
-|---|---|---|
-| Pass rate | 75.86% | **82.76%** |
-| Passed | 22 | 24 |
-| Failed | 4 | 5 |
-| Blocked | 3 | 0 |
-
-**Fixes between rounds:**
-- Inline stop-session recap instead of redirect (TC005, TC024)
-- Real host display name threaded through participant view (TC011)
-- Success toast on Invite Friends → Copy Link (TC015)
-- Prod build unblock: wrapped `/host/auth` in `<Suspense>` for Next.js 16 `useSearchParams`
-- All 3 Round 1 blocks (TC007, TC013, TC021) unblocked by hardening the test agent instructions to create a fresh session per run
-
-**Remaining failures** (documented for post-hackathon follow-up):
-- TC002 — host view has no add-track affordance (product decision: host is passive)
-- TC010 — upvote test targets Now Playing card; test-agent locator issue, manual QA confirms vote path works
-- TC011 — data is correct, missing `<Badge>Host</Badge>` element on participant People tab
-- TC015 — headless Chromium clipboard permission; toast visible in real browsers
-- TC025 — duplicate-email signup error swallowed; toast scoped above auth form
-
-Full report: `testsprite_tests/testsprite-mcp-test-report.md`.
-
----
-
 ## Project Structure
 
 ```
@@ -206,14 +159,6 @@ upnext/
 
 ---
 
-## Known Limitations
-
-- Guest identity is a browser-generated UUID in localStorage — not cryptographically authenticated. Acceptable for V0; would need signed short-lived tokens for production.
-- Landing page hero uses mock data (`app/mocks/`) for illustration.
-- No mobile side
-
----
-
 ## License
 
-ISC. See individual `package.json` files.
+MIT. See [LICENSE](LICENSE).
