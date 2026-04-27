@@ -57,7 +57,7 @@ export default function Home() {
     <>
       {/* TopNavBar */}
       <nav className="fixed top-0 w-full z-50 bg-neutral-950/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.06)] font-headline tracking-tight">
-        <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-4 max-w-7xl mx-auto">
           <UpNextWordmark />
           <div className="hidden md:flex items-center gap-10">
             <button
@@ -88,31 +88,32 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center pt-20 overflow-hidden hero-gradient">
-          <div className="max-w-7xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 z-10">
-              <h1 className="font-headline text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
-                Play what the <br/> <span className="text-primary italic">crowd</span> wants.
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 z-10 min-w-0">
+              <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] mb-6 sm:mb-8 break-words">
+                Play what the <span className="hidden sm:inline"><br/></span>
+                <span className="text-primary italic">crowd</span> wants.
               </h1>
-              <p className="text-on-surface-variant text-xl max-w-xl mb-10 leading-relaxed font-body">
-                Democratic audio for modern spaces. A real-time collaborative queue where every listener is a curator. 
+              <p className="text-on-surface-variant text-base sm:text-lg md:text-xl max-w-xl mb-8 sm:mb-10 leading-relaxed font-body">
+                Democratic audio for modern spaces. A real-time collaborative queue where every listener is a curator.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <button 
+              <div className="flex flex-wrap gap-3 sm:gap-4">
+                <button
                   onClick={goGetStarted}
-                  className="cta-gradient text-on-primary-fixed px-10 py-4 rounded-full font-black text-lg hover:brightness-110 transition-all shadow-xl shadow-primary/20 font-headline">
+                  className="cta-gradient text-on-primary-fixed px-6 sm:px-10 py-3 sm:py-4 rounded-full font-black text-base sm:text-lg hover:brightness-110 transition-all shadow-xl shadow-primary/20 font-headline">
                   Get Started
                 </button>
                 <button
                   type="button"
                   onClick={openJoinModal}
-                  className="bg-surface-container-highest border border-outline-variant/15 text-on-surface px-10 py-4 rounded-full font-bold text-lg hover:bg-surface-container-high transition-all font-headline"
+                  className="bg-surface-container-highest border border-outline-variant/15 text-on-surface px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-surface-container-high transition-all font-headline"
                 >
                   Join Link
                 </button>
               </div>
             </div>
 
-            <div className="lg:col-span-5 relative">
+            <div className="lg:col-span-5 relative min-w-0">
               {/* Collaborative Audio Card Mockup */}
               <div className="glass-panel p-6 rounded-3xl shadow-2xl relative z-10 transform lg:rotate-3 border-white/5">
                 <div className="flex items-center justify-between mb-6">

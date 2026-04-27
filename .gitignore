@@ -9,6 +9,7 @@ Thumbs.db
 # --- Root docs  ---
 
 SECURITY_AUDIT_POST_HACKATHON.md
+BACKEND_OVERVIEW.md
 # =============================================================================
 # Shared — every package (backend, frontend, tooling)
 # =============================================================================

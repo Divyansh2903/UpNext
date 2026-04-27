@@ -1,10 +1,14 @@
 @import "tailwindcss";
 @import "./constants/design-tokens.css";
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--upnext-color-background);
   color: var(--upnext-color-on-surface);
-  overflow-x: hidden;
 }
 
 .material-symbols-outlined {
