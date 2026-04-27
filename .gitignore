@@ -7,13 +7,8 @@ Thumbs.db
 .vscode/
 
 # --- Root docs  ---
-upnext_v_0_specification.md
-frontend_cleanup_audit.md
-testsprite_hacathon.md
+
 SECURITY_AUDIT_POST_HACKATHON.md
-Product_PRD.md
-testsprite_tests_round1
-testsprite_tests_round2
 # =============================================================================
 # Shared — every package (backend, frontend, tooling)
 # =============================================================================

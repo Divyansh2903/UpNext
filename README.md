@@ -4,7 +4,6 @@
 
 **A real-time collaborative music queue.** Hosts spin up a session, participants join via a 6-character code, and everyone can search for tracks or add YouTube/Spotify links before voting on what plays next. The queue re-orders by vote count live, and the host's browser plays audio for the room.
 
-Submitted to the **TestSprite Season 2 Hackathon** (April 2026).
 
 ---
 
